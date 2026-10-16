@@ -1,0 +1,22 @@
+# Original project colour palette; no texture dependencies.
+newmtl VTEnv_grass
+Kd 0.1195384 0.3277781 0.0451862
+d 1
+Ks 0.05 0.05 0.05
+Ns 8
+illum 2
+
+newmtl VTEnv_grass_tip
+Kd 0.4620770 0.5775804 0.0761854
+d 1
+Ks 0.05 0.05 0.05
+Ns 8
+illum 2
+
+newmtl VTEnv_leaf
+Kd 0.0802198 0.1980693 0.0368895
+d 1
+Ks 0.05 0.05 0.05
+Ns 8
+illum 2
+

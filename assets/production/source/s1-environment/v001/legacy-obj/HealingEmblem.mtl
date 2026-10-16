@@ -1,0 +1,15 @@
+# Original project colour palette; no texture dependencies.
+newmtl VTEnv_sign_white
+Kd 0.8879231 0.8549926 0.7454042
+d 1
+Ks 0.05 0.05 0.05
+Ns 8
+illum 2
+
+newmtl VTEnv_terracotta
+Kd 0.6239604 0.0998987 0.0512695
+d 1
+Ks 0.05 0.05 0.05
+Ns 8
+illum 2
+

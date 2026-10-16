@@ -1,0 +1,116 @@
+{
+  "Game/Source/VerdantTrails.Target.cs": {
+    "mtime": 1792076851.3794458,
+    "seen": 1792076874.3685284,
+    "ast_hash": "389cc4c3552b4ce00a950e940606b93c",
+    "semantic_hash": "389cc4c3552b4ce00a950e940606b93c"
+  },
+  "Game/Source/VerdantTrailsEditor.Target.cs": {
+    "mtime": 1792076851.3794458,
+    "seen": 1792076874.3685284,
+    "ast_hash": "fd2e1c76051bdd6e5478552d2f2f3384",
+    "semantic_hash": "fd2e1c76051bdd6e5478552d2f2f3384"
+  },
+  "Game/Source/VerdantTrails/VerdantTrails.Build.cs": {
+    "mtime": 1792078121.152238,
+    "seen": 1792078226.2357976,
+    "ast_hash": "1bbf342ed1f026bc3f0a69c7ec202c22",
+    "semantic_hash": ""
+  },
+  "Game/Source/VerdantTrails/VerdantTrails.cpp": {
+    "mtime": 1792076851.3871439,
+    "seen": 1792076874.3685284,
+    "ast_hash": "bb6ef5c608ad4c687d01a16415f9bf93",
+    "semantic_hash": "bb6ef5c608ad4c687d01a16415f9bf93"
+  },
+  "Game/Source/VerdantTrails/TownKit.cpp": {
+    "mtime": 1792079327.352622,
+    "seen": 1792079580.8270743,
+    "ast_hash": "8f5887e18662908d956800eac22d4abb",
+    "semantic_hash": ""
+  },
+  "Game/Source/VerdantTrails/TownKit.h": {
+    "mtime": 1792077842.9240017,
+    "seen": 1792078226.2357976,
+    "ast_hash": "c52b75928697740fd588a71513f39acd",
+    "semantic_hash": ""
+  },
+  "Game/Source/VerdantTrails/TownRules.h": {
+    "mtime": 1792079327.352622,
+    "seen": 1792079580.8270743,
+    "ast_hash": "f5f5bd788fce10afe2c7cf56601c0384",
+    "semantic_hash": ""
+  },
+  "Game/Source/VerdantTrails/TownTests.cpp": {
+    "mtime": 1792078951.752022,
+    "seen": 1792079580.8270743,
+    "ast_hash": "85168fed796f0a7d8e253018fe75cac8",
+    "semantic_hash": ""
+  },
+  "Game/Source/VerdantTrails/VerdantGame.cpp": {
+    "mtime": 1792079327.3536286,
+    "seen": 1792079580.8270743,
+    "ast_hash": "c5d9a0e7782deab27112e659c427676b",
+    "semantic_hash": ""
+  },
+  "Game/Source/VerdantTrails/VerdantGame.h": {
+    "mtime": 1792078517.7607615,
+    "seen": 1792079580.8270743,
+    "ast_hash": "253199384c7ce23bc48edaf9dcdd56b3",
+    "semantic_hash": ""
+  },
+  "tools/Build-Town.ps1": {
+    "mtime": 1792079468.5557823,
+    "seen": 1792079580.8280747,
+    "ast_hash": "4887452e83ade0dfd50a7dbccb5f4103",
+    "semantic_hash": ""
+  },
+  "tools/Play-Town.ps1": {
+    "mtime": 1792079689.6104848,
+    "seen": 1792079924.2220957,
+    "ast_hash": "6a97fc14568cf8df8a01cd222416b818",
+    "semantic_hash": ""
+  },
+  "tools/build_kit.py": {
+    "mtime": 1792078184.0629094,
+    "seen": 1792078226.2357976,
+    "ast_hash": "73ed2bc1cf1c1a738c96fd11ce32217e",
+    "semantic_hash": ""
+  },
+  "tools/import_town.py": {
+    "mtime": 1792079327.3546336,
+    "seen": 1792079580.8280747,
+    "ast_hash": "959eb5f1ed280983bd54a1615e2d5e26",
+    "semantic_hash": ""
+  },
+  "tools/preview_kit.py": {
+    "mtime": 1792078993.0224001,
+    "seen": 1792079580.8280747,
+    "ast_hash": "10fdf05eb8c149518f835627583c8fcc",
+    "semantic_hash": ""
+  },
+  "tools/tests/test_kit.py": {
+    "mtime": 1792078184.0641067,
+    "seen": 1792078226.2357976,
+    "ast_hash": "53c193fa04f65102e9d0d52dbe9ce8a0",
+    "semantic_hash": ""
+  },
+  "Game/Source/VerdantTrails/TownSave.cpp": {
+    "mtime": 1792078951.7508986,
+    "seen": 1792079580.8270743,
+    "ast_hash": "8870bb8cbb3936675d2255bb53014bb7",
+    "semantic_hash": ""
+  },
+  "Game/Source/VerdantTrails/TownSave.h": {
+    "mtime": 1792078951.7493472,
+    "seen": 1792079580.8270743,
+    "ast_hash": "1fcd7561d35796925d455a597aba48c6",
+    "semantic_hash": ""
+  },
+  "tools/author_town.py": {
+    "mtime": 1792078747.3355005,
+    "seen": 1792079580.8280747,
+    "ast_hash": "29c92c9665444009e0d0fb5d626d5dfb",
+    "semantic_hash": ""
+  }
+}

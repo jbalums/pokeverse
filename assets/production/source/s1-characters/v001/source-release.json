@@ -1,0 +1,351 @@
+{
+  "acceptance": {
+    "deformation": "pending",
+    "game_ready": false,
+    "native_import": "pending",
+    "source_preview": "CPU triangle raster only",
+    "static_validation": "run tools/production/tests/test_characters.py",
+    "user_visual_approval": "pending"
+  },
+  "coordinate_system": {
+    "gltf_axes": "+Y up +X forward (project Unreal import calibration)",
+    "gltf_units": "metres",
+    "obj_axes": "Unreal logical cm +X forward +Y right +Z up",
+    "root_anchor": "ground centered",
+    "source_axes": "+X forward +Y right +Z up",
+    "source_to_gltf": "(X,Y,Z) -> (X,Z,-Y)/100; proper rotation, winding preserved",
+    "source_units": "centimetres"
+  },
+  "files": [
+    {
+      "bytes": 46946,
+      "inventory_ids": [
+        "VT-PKM-PIKACHU"
+      ],
+      "kind": "cpu_source_preview",
+      "path": "Pikachu-source-preview.png",
+      "sha256": "1431ecbb36499e075e3fb0ef7ef53f7b24b3bf904672c8b01b7f08cff149a94e"
+    },
+    {
+      "bytes": 624952,
+      "inventory_ids": [
+        "VT-PKM-PIKACHU"
+      ],
+      "kind": "skinned_gltf_source_proof",
+      "path": "Pikachu.glb",
+      "sha256": "63092b9b2f56b79e79acac85bcb18f674ab58b65f8dd8d457be1534f06b1456d"
+    },
+    {
+      "bytes": 1374364,
+      "inventory_ids": [
+        "VT-PKM-PIKACHU"
+      ],
+      "kind": "static_bind_pose_derivative",
+      "path": "Pikachu.obj",
+      "sha256": "559b88ae77f00b756c0d0fe8d7cc39350ee6605182f74a09832febe8469220ca"
+    },
+    {
+      "bytes": 2669,
+      "inventory_ids": [
+        "VT-HUM-001",
+        "VT-PKM-PIKACHU"
+      ],
+      "kind": "source_documentation",
+      "path": "README.md",
+      "sha256": "e5e5355e080519bc7b0282cda45c757c2dea8904a8dc54d1eaede0f94f676391"
+    },
+    {
+      "bytes": 53020,
+      "inventory_ids": [
+        "VT-HUM-001"
+      ],
+      "kind": "cpu_source_preview",
+      "path": "Trainer-source-preview.png",
+      "sha256": "a280748dcccc2a310be420d5c68f0432356d432bf32b7f47fe3903731934ff8d"
+    },
+    {
+      "bytes": 1044520,
+      "inventory_ids": [
+        "VT-HUM-001"
+      ],
+      "kind": "skinned_gltf_source_proof",
+      "path": "Trainer.glb",
+      "sha256": "bf6a0e2733573a8cbf60254e5f8dc64805c9ecd1b7974af656b151edd3c52019"
+    },
+    {
+      "bytes": 2354643,
+      "inventory_ids": [
+        "VT-HUM-001"
+      ],
+      "kind": "static_bind_pose_derivative",
+      "path": "Trainer.obj",
+      "sha256": "0af955632bf8b7ebea8f3015c31c7c68ce39522d5b8c304678b852f3254a578c"
+    },
+    {
+      "bytes": 40819,
+      "inventory_ids": [
+        "VT-HUM-001",
+        "VT-PKM-PIKACHU"
+      ],
+      "kind": "editable_procedural_source",
+      "path": "build_characters.py",
+      "sha256": "3b09cabc85a4effbfb0edcd72c1370a6ead353a6b30cec62737ef0f6d52a6b7a"
+    },
+    {
+      "bytes": 2473,
+      "inventory_ids": [
+        "VT-HUM-001",
+        "VT-PKM-PIKACHU"
+      ],
+      "kind": "material_palette_source",
+      "path": "characters.mtl",
+      "sha256": "391c5286775d1579e716e3ec0c35bdc50492fdf38677c04f47b883f4771246f2"
+    }
+  ],
+  "id": "s1-characters-v001",
+  "inventory_ids": [
+    "VT-HUM-001",
+    "VT-PKM-PIKACHU"
+  ],
+  "limitations": [
+    "B6/B7 representative source proof only; no final art or game-ready claim.",
+    "No .blend/FBX derivative because a supported DCC runtime is unavailable; Python geometry is editable source.",
+    "No Game Development Studio CLI canonical receipt; this is a separate local source release schema."
+  ],
+  "meshes": [
+    {
+      "animations": [
+        {
+          "duration_seconds": 2.0,
+          "events": [],
+          "foot_contact_status": "authored_cycle_timing_unverified_in_engine",
+          "keyframes": 61,
+          "loop": true,
+          "name": "Trainer_Idle",
+          "root_motion": "in_place",
+          "sample_rate_hz": 30
+        },
+        {
+          "duration_seconds": 1.0,
+          "events": [],
+          "foot_contact_status": "authored_cycle_timing_unverified_in_engine",
+          "keyframes": 31,
+          "loop": true,
+          "name": "Trainer_Walk",
+          "root_motion": "in_place",
+          "sample_rate_hz": 30
+        },
+        {
+          "duration_seconds": 0.6,
+          "events": [],
+          "foot_contact_status": "authored_cycle_timing_unverified_in_engine",
+          "keyframes": 19,
+          "loop": true,
+          "name": "Trainer_Run",
+          "root_motion": "in_place",
+          "sample_rate_hz": 30
+        },
+        {
+          "duration_seconds": 1.6,
+          "events": [],
+          "foot_contact_status": "authored_cycle_timing_unverified_in_engine",
+          "keyframes": 49,
+          "loop": false,
+          "name": "Trainer_Interact",
+          "root_motion": "in_place",
+          "sample_rate_hz": 30
+        },
+        {
+          "duration_seconds": 1.4,
+          "events": [],
+          "foot_contact_status": "authored_cycle_timing_unverified_in_engine",
+          "keyframes": 43,
+          "loop": false,
+          "name": "Trainer_Command",
+          "root_motion": "in_place",
+          "sample_rate_hz": 30
+        }
+      ],
+      "bounds_cm": [
+        [
+          -23.8,
+          26.5
+        ],
+        [
+          -27.66233933495945,
+          27.66233933495945
+        ],
+        [
+          0,
+          146
+        ]
+      ],
+      "collisions": "none; engine gameplay capsule and nonblocking follower policy are separate",
+      "dimensions_cm": [
+        50.3,
+        55.32468,
+        146
+      ],
+      "glb": "Trainer.glb",
+      "gltf_dimensions_m": [
+        0.503,
+        1.46,
+        0.5532468
+      ],
+      "id": "Trainer",
+      "inventory_ids": [
+        "VT-HUM-001"
+      ],
+      "limitations": [
+        "Source proof: likeness, deformation and topology await art review.",
+        "Flat-color material sections; painterly texture/UV seam/lookdev pass and LODs pending.",
+        "No facial bones or finger rig; features follow the head, mitten hands follow wrist.",
+        "Skeletal glTF importer and animation round trip are unverified until native engine receipt.",
+        "Static OBJ is bind-pose visual fallback only and cannot validate deformation."
+      ],
+      "material_sections": 19,
+      "mtl": "characters.mtl",
+      "name": "Trainer",
+      "obj": "Trainer.obj",
+      "rig": {
+        "actual_max_influences": 2,
+        "bind_pose": "relaxed_standing",
+        "joint_names": [
+          "root",
+          "pelvis",
+          "spine",
+          "chest",
+          "neck",
+          "head",
+          "upper_arm_l",
+          "forearm_l",
+          "hand_l",
+          "upper_arm_r",
+          "forearm_r",
+          "hand_r",
+          "thigh_l",
+          "calf_l",
+          "foot_l",
+          "thigh_r",
+          "calf_r",
+          "foot_r",
+          "pack_socket",
+          "hand_socket_r"
+        ],
+        "max_influences": 4,
+        "name": "Trainer_Rig_v001",
+        "root": "root",
+        "skin": "linear_blend"
+      },
+      "triangles": 24816,
+      "vertices": 12538
+    },
+    {
+      "animations": [
+        {
+          "duration_seconds": 2.0,
+          "events": [],
+          "foot_contact_status": "authored_cycle_timing_unverified_in_engine",
+          "keyframes": 61,
+          "loop": true,
+          "name": "Pikachu_Idle",
+          "root_motion": "in_place",
+          "sample_rate_hz": 30
+        },
+        {
+          "duration_seconds": 0.8,
+          "events": [],
+          "foot_contact_status": "authored_cycle_timing_unverified_in_engine",
+          "keyframes": 25,
+          "loop": true,
+          "name": "Pikachu_Walk",
+          "root_motion": "in_place",
+          "sample_rate_hz": 30
+        }
+      ],
+      "bounds_cm": [
+        [
+          -13.7,
+          15.015816165562061
+        ],
+        [
+          -23.930373959446378,
+          37
+        ],
+        [
+          0.0,
+          77.25174279569734
+        ]
+      ],
+      "collisions": "none; engine gameplay capsule and nonblocking follower policy are separate",
+      "dimensions_cm": [
+        28.71582,
+        60.93037,
+        77.25174
+      ],
+      "glb": "Pikachu.glb",
+      "gltf_dimensions_m": [
+        0.28715820000000003,
+        0.7725174,
+        0.6093037
+      ],
+      "id": "Pikachu",
+      "inventory_ids": [
+        "VT-PKM-PIKACHU"
+      ],
+      "limitations": [
+        "Source proof: likeness, deformation and topology await art review.",
+        "Flat-color material sections; painterly texture/UV seam/lookdev pass and LODs pending.",
+        "No facial bones or finger rig; features follow the head, mitten hands follow wrist.",
+        "Skeletal glTF importer and animation round trip are unverified until native engine receipt.",
+        "Static OBJ is bind-pose visual fallback only and cannot validate deformation."
+      ],
+      "material_sections": 8,
+      "mtl": "characters.mtl",
+      "name": "Pikachu",
+      "obj": "Pikachu.obj",
+      "rig": {
+        "actual_max_influences": 2,
+        "bind_pose": "relaxed_standing",
+        "joint_names": [
+          "root",
+          "pelvis",
+          "chest",
+          "head",
+          "ear_l",
+          "ear_r",
+          "arm_l",
+          "arm_r",
+          "leg_l",
+          "leg_r",
+          "foot_l",
+          "foot_r",
+          "tail_base",
+          "tail_tip",
+          "cheek_fx_l",
+          "cheek_fx_r"
+        ],
+        "max_influences": 4,
+        "name": "Pikachu_Rig_v001",
+        "root": "root",
+        "skin": "linear_blend"
+      },
+      "triangles": 14856,
+      "vertices": 7556
+    }
+  ],
+  "provenance": {
+    "canonical_game_dev_package": false,
+    "external_sources": [
+      "docs/references/town-visual-target.png visual design reference only"
+    ],
+    "generator": "tools/production/build_characters.py",
+    "method": "original deterministic procedural geometry and animation",
+    "paid_provider": false,
+    "usage_status": "unassessed"
+  },
+  "schema": "verdant.source-release.v1",
+  "stage": "S1-source-proof",
+  "status": "source_checks_only_acceptance_pending",
+  "usage": "unassessed"
+}

@@ -1,0 +1,36 @@
+# Original project colour palette; no texture dependencies.
+newmtl VTEnv_terracotta
+Kd 0.6239604 0.0998987 0.0512695
+d 1
+Ks 0.05 0.05 0.05
+Ns 8
+illum 2
+
+newmtl VTEnv_terracotta_dark
+Kd 0.3613068 0.0451862 0.0295568
+d 1
+Ks 0.05 0.05 0.05
+Ns 8
+illum 2
+
+newmtl VTEnv_terracotta_light
+Kd 0.7835378 0.1946178 0.0930590
+d 1
+Ks 0.05 0.05 0.05
+Ns 8
+illum 2
+
+newmtl VTEnv_wood_dark
+Kd 0.0843762 0.0451862 0.0241576
+d 1
+Ks 0.05 0.05 0.05
+Ns 8
+illum 2
+
+newmtl VTEnv_wood_light
+Kd 0.4019778 0.1946178 0.0666259
+d 1
+Ks 0.05 0.05 0.05
+Ns 8
+illum 2
+

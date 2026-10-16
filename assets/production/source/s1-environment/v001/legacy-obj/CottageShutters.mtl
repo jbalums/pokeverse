@@ -1,0 +1,43 @@
+# Original project colour palette; no texture dependencies.
+newmtl VTEnv_green_shutter
+Kd 0.1195384 0.2345506 0.0742136
+d 1
+Ks 0.05 0.05 0.05
+Ns 8
+illum 2
+
+newmtl VTEnv_green_shutter_light
+Kd 0.2232280 0.3515326 0.1195384
+d 1
+Ks 0.05 0.05 0.05
+Ns 8
+illum 2
+
+newmtl VTEnv_metal
+Kd 0.0703601 0.0998987 0.1022417
+d 1
+Ks 0.05 0.05 0.05
+Ns 8
+illum 2
+
+newmtl VTEnv_window_warm
+Kd 0.9215819 0.6038273 0.1714411
+d 1
+Ks 0.05 0.05 0.05
+Ns 8
+illum 2
+
+newmtl VTEnv_wood
+Kd 0.1912017 0.0886556 0.0382044
+d 1
+Ks 0.05 0.05 0.05
+Ns 8
+illum 2
+
+newmtl VTEnv_wood_light
+Kd 0.4019778 0.1946178 0.0666259
+d 1
+Ks 0.05 0.05 0.05
+Ns 8
+illum 2
+

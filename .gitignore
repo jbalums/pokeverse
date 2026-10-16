@@ -1,0 +1,10 @@
+Game/Binaries/
+Game/Intermediate/
+Game/Saved/
+Game/DerivedDataCache/
+Game/.vs/
+Game/*.sln
+output/
+tools/__pycache__/
+graphify-out/cache/
+*.log

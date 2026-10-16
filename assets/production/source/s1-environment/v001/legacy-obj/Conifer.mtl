@@ -1,0 +1,36 @@
+# Original project colour palette; no texture dependencies.
+newmtl VTEnv_leaf_deep
+Kd 0.0212190 0.1046165 0.0561285
+d 1
+Ks 0.05 0.05 0.05
+Ns 8
+illum 2
+
+newmtl VTEnv_pine
+Kd 0.0409152 0.1682694 0.1022417
+d 1
+Ks 0.05 0.05 0.05
+Ns 8
+illum 2
+
+newmtl VTEnv_pine_light
+Kd 0.1195384 0.2831487 0.1221388
+d 1
+Ks 0.05 0.05 0.05
+Ns 8
+illum 2
+
+newmtl VTEnv_wood
+Kd 0.1912017 0.0886556 0.0382044
+d 1
+Ks 0.05 0.05 0.05
+Ns 8
+illum 2
+
+newmtl VTEnv_wood_dark
+Kd 0.0843762 0.0451862 0.0241576
+d 1
+Ks 0.05 0.05 0.05
+Ns 8
+illum 2
+

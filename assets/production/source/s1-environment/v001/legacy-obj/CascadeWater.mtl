@@ -1,0 +1,15 @@
+# Original project colour palette; no texture dependencies.
+newmtl VTEnv_water
+Kd 0.0193824 0.2501583 0.4620770
+d 0.86
+Ks 0.05 0.05 0.05
+Ns 8
+illum 2
+
+newmtl VTEnv_water_light
+Kd 0.0666259 0.4452012 0.6172066
+d 0.9
+Ks 0.05 0.05 0.05
+Ns 8
+illum 2
+

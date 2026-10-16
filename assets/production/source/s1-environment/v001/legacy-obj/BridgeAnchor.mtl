@@ -1,0 +1,29 @@
+# Original project colour palette; no texture dependencies.
+newmtl VTEnv_rope
+Kd 0.4851499 0.4125426 0.2581829
+d 1
+Ks 0.05 0.05 0.05
+Ns 8
+illum 2
+
+newmtl VTEnv_stone
+Kd 0.3049873 0.3094689 0.2269659
+d 1
+Ks 0.05 0.05 0.05
+Ns 8
+illum 2
+
+newmtl VTEnv_wood
+Kd 0.1912017 0.0886556 0.0382044
+d 1
+Ks 0.05 0.05 0.05
+Ns 8
+illum 2
+
+newmtl VTEnv_wood_dark
+Kd 0.0843762 0.0451862 0.0241576
+d 1
+Ks 0.05 0.05 0.05
+Ns 8
+illum 2
+

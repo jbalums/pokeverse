@@ -1,0 +1,192 @@
+# Original flat-color material source. Texture/lookdev pass remains pending.
+newmtl cap_red
+Kd 0.760000 0.055000 0.045000
+Ka 0.08 0.08 0.08
+Ks 0.02 0.02 0.02
+Ns 8
+d 1
+illum 2
+
+newmtl cap_white
+Kd 0.960000 0.940000 0.830000
+Ka 0.08 0.08 0.08
+Ks 0.02 0.02 0.02
+Ns 8
+d 1
+illum 2
+
+newmtl cheek_red
+Kd 0.900000 0.055000 0.025000
+Ka 0.08 0.08 0.08
+Ks 0.02 0.02 0.02
+Ns 8
+d 1
+illum 2
+
+newmtl ear_black
+Kd 0.035000 0.025000 0.018000
+Ka 0.08 0.08 0.08
+Ks 0.02 0.02 0.02
+Ns 8
+d 1
+illum 2
+
+newmtl eye_black
+Kd 0.012000 0.018000 0.022000
+Ka 0.08 0.08 0.08
+Ks 0.02 0.02 0.02
+Ns 8
+d 1
+illum 2
+
+newmtl eye_white
+Kd 0.990000 0.980000 0.910000
+Ka 0.08 0.08 0.08
+Ks 0.02 0.02 0.02
+Ns 8
+d 1
+illum 2
+
+newmtl gold
+Kd 0.960000 0.670000 0.120000
+Ka 0.08 0.08 0.08
+Ks 0.02 0.02 0.02
+Ns 8
+d 1
+illum 2
+
+newmtl hair
+Kd 0.065000 0.035000 0.025000
+Ka 0.08 0.08 0.08
+Ks 0.02 0.02 0.02
+Ns 8
+d 1
+illum 2
+
+newmtl iris_brown
+Kd 0.220000 0.085000 0.025000
+Ka 0.08 0.08 0.08
+Ks 0.02 0.02 0.02
+Ns 8
+d 1
+illum 2
+
+newmtl mouth
+Kd 0.240000 0.045000 0.035000
+Ka 0.08 0.08 0.08
+Ks 0.02 0.02 0.02
+Ns 8
+d 1
+illum 2
+
+newmtl pack_blue
+Kd 0.040000 0.240000 0.360000
+Ka 0.08 0.08 0.08
+Ks 0.02 0.02 0.02
+Ns 8
+d 1
+illum 2
+
+newmtl pack_brown
+Kd 0.360000 0.190000 0.075000
+Ka 0.08 0.08 0.08
+Ks 0.02 0.02 0.02
+Ns 8
+d 1
+illum 2
+
+newmtl shirt
+Kd 0.940000 0.890000 0.760000
+Ka 0.08 0.08 0.08
+Ks 0.02 0.02 0.02
+Ns 8
+d 1
+illum 2
+
+newmtl shoe_dark
+Kd 0.025000 0.045000 0.065000
+Ka 0.08 0.08 0.08
+Ks 0.02 0.02 0.02
+Ns 8
+d 1
+illum 2
+
+newmtl shoe_red
+Kd 0.560000 0.075000 0.055000
+Ka 0.08 0.08 0.08
+Ks 0.02 0.02 0.02
+Ns 8
+d 1
+illum 2
+
+newmtl shorts
+Kd 0.035000 0.095000 0.170000
+Ka 0.08 0.08 0.08
+Ks 0.02 0.02 0.02
+Ns 8
+d 1
+illum 2
+
+newmtl skin
+Kd 0.950000 0.660000 0.440000
+Ka 0.08 0.08 0.08
+Ks 0.02 0.02 0.02
+Ns 8
+d 1
+illum 2
+
+newmtl skin_shadow
+Kd 0.750000 0.370000 0.220000
+Ka 0.08 0.08 0.08
+Ks 0.02 0.02 0.02
+Ns 8
+d 1
+illum 2
+
+newmtl sole
+Kd 0.780000 0.780000 0.680000
+Ka 0.08 0.08 0.08
+Ks 0.02 0.02 0.02
+Ns 8
+d 1
+illum 2
+
+newmtl stripe_brown
+Kd 0.340000 0.150000 0.035000
+Ka 0.08 0.08 0.08
+Ks 0.02 0.02 0.02
+Ns 8
+d 1
+illum 2
+
+newmtl vest_blue
+Kd 0.045000 0.320000 0.590000
+Ka 0.08 0.08 0.08
+Ks 0.02 0.02 0.02
+Ns 8
+d 1
+illum 2
+
+newmtl vest_edge
+Kd 0.025000 0.150000 0.270000
+Ka 0.08 0.08 0.08
+Ks 0.02 0.02 0.02
+Ns 8
+d 1
+illum 2
+
+newmtl yellow
+Kd 1.000000 0.680000 0.035000
+Ka 0.08 0.08 0.08
+Ks 0.02 0.02 0.02
+Ns 8
+d 1
+illum 2
+
+newmtl yellow_light
+Kd 1.000000 0.780000 0.055000
+Ka 0.08 0.08 0.08
+Ks 0.02 0.02 0.02
+Ns 8
+d 1
+illum 2

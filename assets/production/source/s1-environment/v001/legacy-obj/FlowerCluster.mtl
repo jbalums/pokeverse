@@ -1,0 +1,36 @@
+# Original project colour palette; no texture dependencies.
+newmtl VTEnv_flower_gold
+Kd 0.7835378 0.4178851 0.0318960
+d 1
+Ks 0.05 0.05 0.05
+Ns 8
+illum 2
+
+newmtl VTEnv_flower_lilac
+Kd 0.4793202 0.2158605 0.5394795
+d 1
+Ks 0.05 0.05 0.05
+Ns 8
+illum 2
+
+newmtl VTEnv_flower_white
+Kd 1.0000000 0.8713671 0.6239604
+d 1
+Ks 0.05 0.05 0.05
+Ns 8
+illum 2
+
+newmtl VTEnv_leaf
+Kd 0.0802198 0.1980693 0.0368895
+d 1
+Ks 0.05 0.05 0.05
+Ns 8
+illum 2
+
+newmtl VTEnv_leaf_light
+Kd 0.2746773 0.4232677 0.0578054
+d 1
+Ks 0.05 0.05 0.05
+Ns 8
+illum 2
+

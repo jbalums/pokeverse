@@ -1,0 +1,3075 @@
+{
+  "acceptance": {
+    "engine": "pending",
+    "game_ready": false,
+    "static": "run project source verifier",
+    "visual": "pending"
+  },
+  "assemblies": [
+    {
+      "components": [
+        {
+          "mesh": "HealingFacade",
+          "rotation_deg": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "translation_cm": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "mesh": "HealingRoof",
+          "rotation_deg": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "translation_cm": [
+            0,
+            0,
+            320
+          ]
+        },
+        {
+          "mesh": "HealingGlass",
+          "rotation_deg": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "translation_cm": [
+            0,
+            -203,
+            28
+          ]
+        },
+        {
+          "mesh": "HealingArch",
+          "rotation_deg": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "translation_cm": [
+            0,
+            -217,
+            264
+          ]
+        },
+        {
+          "mesh": "HealingEmblem",
+          "rotation_deg": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "translation_cm": [
+            0,
+            -240,
+            300
+          ]
+        },
+        {
+          "mesh": "HealingPlanter",
+          "rotation_deg": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "translation_cm": [
+            -178,
+            -254,
+            0
+          ]
+        },
+        {
+          "mesh": "HealingPlanter",
+          "rotation_deg": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "translation_cm": [
+            178,
+            -254,
+            0
+          ]
+        },
+        {
+          "mesh": "HealingLight",
+          "rotation_deg": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "translation_cm": [
+            -323,
+            -210,
+            0
+          ]
+        }
+      ],
+      "id": "B1Healing",
+      "status": "unreviewed source assembly starting points",
+      "units": "centimetres"
+    },
+    {
+      "components": [
+        {
+          "mesh": "CottageFoundation",
+          "rotation_deg": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "translation_cm": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "mesh": "CottageWall",
+          "rotation_deg": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "translation_cm": [
+            0,
+            0,
+            45
+          ]
+        },
+        {
+          "mesh": "CottageRoof",
+          "rotation_deg": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "translation_cm": [
+            0,
+            0,
+            290
+          ]
+        },
+        {
+          "mesh": "CottageShutters",
+          "rotation_deg": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "translation_cm": [
+            132,
+            -184,
+            115
+          ]
+        },
+        {
+          "mesh": "CottageStep",
+          "rotation_deg": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "translation_cm": [
+            -75,
+            -225,
+            0
+          ]
+        }
+      ],
+      "id": "B2Cottage",
+      "status": "unreviewed source assembly starting points",
+      "units": "centimetres"
+    },
+    {
+      "components": [
+        {
+          "mesh": "Broadleaf",
+          "rotation_deg": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "translation_cm": [
+            -180,
+            140,
+            0
+          ]
+        },
+        {
+          "mesh": "Conifer",
+          "rotation_deg": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "translation_cm": [
+            290,
+            200,
+            0
+          ]
+        },
+        {
+          "mesh": "EncounterGrass",
+          "rotation_deg": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "translation_cm": [
+            70,
+            -115,
+            0
+          ]
+        },
+        {
+          "mesh": "FlowerCluster",
+          "rotation_deg": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "translation_cm": [
+            -80,
+            -170,
+            0
+          ]
+        }
+      ],
+      "id": "B3Vegetation",
+      "status": "unreviewed source assembly starting points",
+      "units": "centimetres"
+    },
+    {
+      "components": [
+        {
+          "mesh": "CascadeBank",
+          "rotation_deg": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "translation_cm": [
+            -295,
+            0,
+            0
+          ]
+        },
+        {
+          "mesh": "CascadeBank",
+          "rotation_deg": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "translation_cm": [
+            295,
+            0,
+            0
+          ]
+        },
+        {
+          "mesh": "CascadeWater",
+          "rotation_deg": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "translation_cm": [
+            0,
+            0,
+            15
+          ]
+        },
+        {
+          "mesh": "CascadeFoam",
+          "rotation_deg": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "translation_cm": [
+            0,
+            0,
+            17
+          ]
+        }
+      ],
+      "id": "B4Cascade",
+      "status": "unreviewed source assembly starting points",
+      "units": "centimetres"
+    },
+    {
+      "components": [
+        {
+          "mesh": "BridgeDeck",
+          "rotation_deg": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "translation_cm": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "mesh": "BridgePost",
+          "rotation_deg": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "translation_cm": [
+            -208,
+            -92,
+            0
+          ]
+        },
+        {
+          "mesh": "BridgePost",
+          "rotation_deg": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "translation_cm": [
+            -208,
+            92,
+            0
+          ]
+        },
+        {
+          "mesh": "BridgePost",
+          "rotation_deg": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "translation_cm": [
+            208,
+            -92,
+            0
+          ]
+        },
+        {
+          "mesh": "BridgePost",
+          "rotation_deg": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "translation_cm": [
+            208,
+            92,
+            0
+          ]
+        },
+        {
+          "mesh": "BridgeRope",
+          "rotation_deg": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "translation_cm": [
+            0,
+            -93,
+            65
+          ]
+        },
+        {
+          "mesh": "BridgeRope",
+          "rotation_deg": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "translation_cm": [
+            0,
+            93,
+            65
+          ]
+        },
+        {
+          "mesh": "BridgeAnchor",
+          "rotation_deg": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "translation_cm": [
+            -249,
+            0,
+            0
+          ]
+        },
+        {
+          "mesh": "BridgeAnchor",
+          "rotation_deg": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "translation_cm": [
+            249,
+            0,
+            0
+          ]
+        }
+      ],
+      "id": "B5Bridge",
+      "status": "unreviewed source assembly starting points",
+      "units": "centimetres"
+    }
+  ],
+  "authorship": "Original deterministic mesh recipes authored for this project; no acquired meshes or provider jobs",
+  "canonical": false,
+  "files": [
+    {
+      "bytes": 120753,
+      "inventory_ids": [
+        "VT-ARC-007"
+      ],
+      "kind": "editable-source",
+      "path": "editable/BridgeAnchor.mesh.json",
+      "sha256": "e0f238f57dbc8b1892b1f604a134f52ef2d09b1e531f28f7fb91246edbc01e00",
+      "usage_status": "unknown"
+    },
+    {
+      "bytes": 900668,
+      "inventory_ids": [
+        "VT-ARC-007"
+      ],
+      "kind": "editable-source",
+      "path": "editable/BridgeDeck.mesh.json",
+      "sha256": "d04162f1d42d11b2ca705b54199b4057cc79dbe7dc9da248ae9e8e1d4b4a8b3b",
+      "usage_status": "unknown"
+    },
+    {
+      "bytes": 67115,
+      "inventory_ids": [
+        "VT-ARC-007"
+      ],
+      "kind": "editable-source",
+      "path": "editable/BridgePost.mesh.json",
+      "sha256": "a8ae5d59cf8d405c4e1cffaaa9163c05aa5f0d35db9441f1367256ee4bafc2ac",
+      "usage_status": "unknown"
+    },
+    {
+      "bytes": 899672,
+      "inventory_ids": [
+        "VT-ARC-007"
+      ],
+      "kind": "editable-source",
+      "path": "editable/BridgeRope.mesh.json",
+      "sha256": "b1e3ea562cf5c86297ac251371accd4a88ed3540f4b297456236664c3e1c6b9d",
+      "usage_status": "unknown"
+    },
+    {
+      "bytes": 782802,
+      "inventory_ids": [
+        "VT-ENV-004"
+      ],
+      "kind": "editable-source",
+      "path": "editable/Broadleaf.mesh.json",
+      "sha256": "c41dda7c92b27f13453e4bd31ab02a056b8dbcab43967d1782fbe8bbf01a6903",
+      "usage_status": "unknown"
+    },
+    {
+      "bytes": 403715,
+      "inventory_ids": [
+        "VT-ENV-002",
+        "VT-ENV-003"
+      ],
+      "kind": "editable-source",
+      "path": "editable/CascadeBank.mesh.json",
+      "sha256": "9fe4b9b0774494e6287a4e29a3c748515d9cc433b9261e7a746622bb85799046",
+      "usage_status": "unknown"
+    },
+    {
+      "bytes": 164068,
+      "inventory_ids": [
+        "VT-FX-001"
+      ],
+      "kind": "editable-source",
+      "path": "editable/CascadeFoam.mesh.json",
+      "sha256": "dd5657201a50d4218033d38a77ddb41c0c007a9bb4f12b110b98d7c5e59fd111",
+      "usage_status": "unknown"
+    },
+    {
+      "bytes": 263586,
+      "inventory_ids": [
+        "VT-ENV-011"
+      ],
+      "kind": "editable-source",
+      "path": "editable/CascadeWater.mesh.json",
+      "sha256": "c47656cf6595ba148a98e8bab6721f0a6f68352c3cf8b598c7ce00b9aa2f96e1",
+      "usage_status": "unknown"
+    },
+    {
+      "bytes": 1715355,
+      "inventory_ids": [
+        "VT-ENV-005"
+      ],
+      "kind": "editable-source",
+      "path": "editable/Conifer.mesh.json",
+      "sha256": "61207ec147b89a0ed9847e7f2ed98d64bc93fea4b981e3f6ed6ddf85ddb5daf0",
+      "usage_status": "unknown"
+    },
+    {
+      "bytes": 612609,
+      "inventory_ids": [
+        "VT-ARC-004"
+      ],
+      "kind": "editable-source",
+      "path": "editable/CottageFoundation.mesh.json",
+      "sha256": "9fdf9743d0a07e4edbe51eaff337af93b4f0aab7d1ec7080046f6eb3e31d8db8",
+      "usage_status": "unknown"
+    },
+    {
+      "bytes": 1624541,
+      "inventory_ids": [
+        "VT-ARC-002",
+        "VT-ARC-004"
+      ],
+      "kind": "editable-source",
+      "path": "editable/CottageRoof.mesh.json",
+      "sha256": "2ccad0bba88f5d4e3e8d1949e991b2d7b03a5c0c1ffa9f77f9c058cab65be883",
+      "usage_status": "unknown"
+    },
+    {
+      "bytes": 456973,
+      "inventory_ids": [
+        "VT-ARC-005"
+      ],
+      "kind": "editable-source",
+      "path": "editable/CottageShutters.mesh.json",
+      "sha256": "a7c133ee1de4075f978e502f6b43a4070f65851fb3b4eabe2442f067e86edc09",
+      "usage_status": "unknown"
+    },
+    {
+      "bytes": 30608,
+      "inventory_ids": [
+        "VT-ARC-004"
+      ],
+      "kind": "editable-source",
+      "path": "editable/CottageStep.mesh.json",
+      "sha256": "861daf20d30a56094e463488602a39fabcc266e54d96481a58b66d40e4ea19d5",
+      "usage_status": "unknown"
+    },
+    {
+      "bytes": 417494,
+      "inventory_ids": [
+        "VT-ARC-002",
+        "VT-ARC-005"
+      ],
+      "kind": "editable-source",
+      "path": "editable/CottageWall.mesh.json",
+      "sha256": "597375d4aa41b1868822b3e4a23dcb145c3451ef681cfb0974c14f93aca337a3",
+      "usage_status": "unknown"
+    },
+    {
+      "bytes": 68246,
+      "inventory_ids": [
+        "VT-ENV-008"
+      ],
+      "kind": "editable-source",
+      "path": "editable/EncounterGrass.mesh.json",
+      "sha256": "9ea0484da1f35d3d1b2425b9dd8b242558e2198be1bb45c6344928f29a9cabd2",
+      "usage_status": "unknown"
+    },
+    {
+      "bytes": 130660,
+      "inventory_ids": [
+        "VT-ENV-009"
+      ],
+      "kind": "editable-source",
+      "path": "editable/FlowerCluster.mesh.json",
+      "sha256": "37ac2ee6aec76c2a5367e9c7b95fba1c67d1450559d6597a0b8be4ce1c489267",
+      "usage_status": "unknown"
+    },
+    {
+      "bytes": 179624,
+      "inventory_ids": [
+        "VT-ARC-001"
+      ],
+      "kind": "editable-source",
+      "path": "editable/HealingArch.mesh.json",
+      "sha256": "959d1f85ba349498e061ae49717da97fcf4b828e4675814b172d3a10e16529a5",
+      "usage_status": "unknown"
+    },
+    {
+      "bytes": 179319,
+      "inventory_ids": [
+        "VT-ARC-001"
+      ],
+      "kind": "editable-source",
+      "path": "editable/HealingEmblem.mesh.json",
+      "sha256": "283cf767a9ca096c9cce8f4a51e4970ad8b12dd8c6a10b26ce0fb0616e955b89",
+      "usage_status": "unknown"
+    },
+    {
+      "bytes": 286151,
+      "inventory_ids": [
+        "VT-ARC-001"
+      ],
+      "kind": "editable-source",
+      "path": "editable/HealingFacade.mesh.json",
+      "sha256": "32e007a4d6cbb204fdc69d6a6ffbba5f01bb3f05e96acecaf3dc75aef6fabace",
+      "usage_status": "unknown"
+    },
+    {
+      "bytes": 243947,
+      "inventory_ids": [
+        "VT-ARC-001"
+      ],
+      "kind": "editable-source",
+      "path": "editable/HealingGlass.mesh.json",
+      "sha256": "29875fa2f93bf2d9c1d8a05c43a16ce6396652d122ee698286aa5e736536260d",
+      "usage_status": "unknown"
+    },
+    {
+      "bytes": 94546,
+      "inventory_ids": [
+        "VT-ARC-001"
+      ],
+      "kind": "editable-source",
+      "path": "editable/HealingLight.mesh.json",
+      "sha256": "2df050ba70b3e200d6bcca1111dfd40d0b7af83c040890e1d574b3aefb303bf1",
+      "usage_status": "unknown"
+    },
+    {
+      "bytes": 408850,
+      "inventory_ids": [
+        "VT-ARC-001"
+      ],
+      "kind": "editable-source",
+      "path": "editable/HealingPlanter.mesh.json",
+      "sha256": "4cf0df2a02daad7f65d7f4208649bf0244bf49cf840dcabaf7fb638144a972af",
+      "usage_status": "unknown"
+    },
+    {
+      "bytes": 2182747,
+      "inventory_ids": [
+        "VT-ARC-001"
+      ],
+      "kind": "editable-source",
+      "path": "editable/HealingRoof.mesh.json",
+      "sha256": "fc831d315cd7868b4774e3247b0832bc39fe573d6b160df9926dd9cf44b3925a",
+      "usage_status": "unknown"
+    },
+    {
+      "bytes": 443,
+      "inventory_ids": [
+        "VT-ARC-007"
+      ],
+      "kind": "supplement",
+      "path": "legacy-obj/BridgeAnchor.mtl",
+      "sha256": "6850946733e63270e121f166666636580a442b2e9a5aecf549917437738274ab",
+      "usage_status": "unknown"
+    },
+    {
+      "bytes": 145487,
+      "inventory_ids": [
+        "VT-ARC-007"
+      ],
+      "kind": "editable-source",
+      "path": "legacy-obj/BridgeAnchor.obj",
+      "sha256": "aa84e8d6218456e582b0d60fcb79d5a973db2395edeae4efc0f8e2ccb90cdf52",
+      "usage_status": "unknown"
+    },
+    {
+      "bytes": 449,
+      "inventory_ids": [
+        "VT-ARC-007"
+      ],
+      "kind": "supplement",
+      "path": "legacy-obj/BridgeDeck.mtl",
+      "sha256": "6dcd5ebdfb5e78a22e33873b9a3a8ad0a1c6f6c23ddc2b44928e3afa71d73187",
+      "usage_status": "unknown"
+    },
+    {
+      "bytes": 1134201,
+      "inventory_ids": [
+        "VT-ARC-007"
+      ],
+      "kind": "editable-source",
+      "path": "legacy-obj/BridgeDeck.obj",
+      "sha256": "2286267d552ea662c398903160b418b79516fd5e09215934b3bc9712476aa884",
+      "usage_status": "unknown"
+    },
+    {
+      "bytes": 449,
+      "inventory_ids": [
+        "VT-ARC-007"
+      ],
+      "kind": "supplement",
+      "path": "legacy-obj/BridgePost.mtl",
+      "sha256": "6dcd5ebdfb5e78a22e33873b9a3a8ad0a1c6f6c23ddc2b44928e3afa71d73187",
+      "usage_status": "unknown"
+    },
+    {
+      "bytes": 128796,
+      "inventory_ids": [
+        "VT-ARC-007"
+      ],
+      "kind": "editable-source",
+      "path": "legacy-obj/BridgePost.obj",
+      "sha256": "04cb7d64f9d3b250376654ebbc757bbfc2a77a1db9b1f2ec2ef7196832242021",
+      "usage_status": "unknown"
+    },
+    {
+      "bytes": 255,
+      "inventory_ids": [
+        "VT-ARC-007"
+      ],
+      "kind": "supplement",
+      "path": "legacy-obj/BridgeRope.mtl",
+      "sha256": "860b6505dd0e2982c30c515967db7cec1f5bd4ef04171eedbb32d6ca5ddd07e5",
+      "usage_status": "unknown"
+    },
+    {
+      "bytes": 1071791,
+      "inventory_ids": [
+        "VT-ARC-007"
+      ],
+      "kind": "editable-source",
+      "path": "legacy-obj/BridgeRope.obj",
+      "sha256": "886e3bda8d830a294e4cb6461045373accfeac4b15163e508e05adbedab46aec",
+      "usage_status": "unknown"
+    },
+    {
+      "bytes": 645,
+      "inventory_ids": [
+        "VT-ENV-004"
+      ],
+      "kind": "supplement",
+      "path": "legacy-obj/Broadleaf.mtl",
+      "sha256": "926d9ec597572d1303206f59276c50e80b8b7eb5e200aac09ba1a19b88c1069b",
+      "usage_status": "unknown"
+    },
+    {
+      "bytes": 966056,
+      "inventory_ids": [
+        "VT-ENV-004"
+      ],
+      "kind": "editable-source",
+      "path": "legacy-obj/Broadleaf.obj",
+      "sha256": "443090481b61fc2699e237555956409275d1845a62f085f4d16a7d5513c4a2d0",
+      "usage_status": "unknown"
+    },
+    {
+      "bytes": 551,
+      "inventory_ids": [
+        "VT-ENV-002",
+        "VT-ENV-003"
+      ],
+      "kind": "supplement",
+      "path": "legacy-obj/CascadeBank.mtl",
+      "sha256": "77432b0a7dcb76509e62c7050c12a8bb85d2d3f2fe7cb9cbc5e826fb8efe17f5",
+      "usage_status": "unknown"
+    },
+    {
+      "bytes": 489706,
+      "inventory_ids": [
+        "VT-ENV-002",
+        "VT-ENV-003"
+      ],
+      "kind": "editable-source",
+      "path": "legacy-obj/CascadeBank.obj",
+      "sha256": "ee7a2cb6da45beb026db923d045882592929b261ca374b49f52602cf8eed768e",
+      "usage_status": "unknown"
+    },
+    {
+      "bytes": 158,
+      "inventory_ids": [
+        "VT-FX-001"
+      ],
+      "kind": "supplement",
+      "path": "legacy-obj/CascadeFoam.mtl",
+      "sha256": "08e035c544fffe48eab9fcd6c9656f0dcb305e86814a3cb4b3bdf8c004f663a8",
+      "usage_status": "unknown"
+    },
+    {
+      "bytes": 210837,
+      "inventory_ids": [
+        "VT-FX-001"
+      ],
+      "kind": "editable-source",
+      "path": "legacy-obj/CascadeFoam.obj",
+      "sha256": "d5864506572aca2af70d0851b5322349429da17e396db2b1a3091e3bfa915c54",
+      "usage_status": "unknown"
+    },
+    {
+      "bytes": 262,
+      "inventory_ids": [
+        "VT-ENV-011"
+      ],
+      "kind": "supplement",
+      "path": "legacy-obj/CascadeWater.mtl",
+      "sha256": "bb982abc316f4f74e5272357ab7d94a8570ab6867846f3a7ad92d9fed471c45c",
+      "usage_status": "unknown"
+    },
+    {
+      "bytes": 323202,
+      "inventory_ids": [
+        "VT-ENV-011"
+      ],
+      "kind": "editable-source",
+      "path": "legacy-obj/CascadeWater.obj",
+      "sha256": "5534a6beb3990c8d84595d59f0c8ff9b14c713cce290fe29ca9c7b3d6db98c93",
+      "usage_status": "unknown"
+    },
+    {
+      "bytes": 547,
+      "inventory_ids": [
+        "VT-ENV-005"
+      ],
+      "kind": "supplement",
+      "path": "legacy-obj/Conifer.mtl",
+      "sha256": "1e1cda7cb73bdbd79831b3b7efcd6c32d5be09438d28d1e31ecc60c3b36e2c71",
+      "usage_status": "unknown"
+    },
+    {
+      "bytes": 2118256,
+      "inventory_ids": [
+        "VT-ENV-005"
+      ],
+      "kind": "editable-source",
+      "path": "legacy-obj/Conifer.obj",
+      "sha256": "9b5c8d85ff04be6183d4c9018af8c53cfbf7ba5af7f9196836555ab812d8c484",
+      "usage_status": "unknown"
+    },
+    {
+      "bytes": 357,
+      "inventory_ids": [
+        "VT-ARC-004"
+      ],
+      "kind": "supplement",
+      "path": "legacy-obj/CottageFoundation.mtl",
+      "sha256": "d498ec39ca7c694602e430655843a9d4560a41f0e351b8f0330a4ce8398738cf",
+      "usage_status": "unknown"
+    },
+    {
+      "bytes": 802544,
+      "inventory_ids": [
+        "VT-ARC-004"
+      ],
+      "kind": "editable-source",
+      "path": "legacy-obj/CottageFoundation.obj",
+      "sha256": "ea010fa252387a63e3ed9a4819b930d84ef1f1c9c230cad61ffc08837b085ac2",
+      "usage_status": "unknown"
+    },
+    {
+      "bytes": 571,
+      "inventory_ids": [
+        "VT-ARC-002",
+        "VT-ARC-004"
+      ],
+      "kind": "supplement",
+      "path": "legacy-obj/CottageRoof.mtl",
+      "sha256": "b35f72f6e5312da10e94ed1198d7e86f81bdeaa79b16c74f47b907d2af61bbce",
+      "usage_status": "unknown"
+    },
+    {
+      "bytes": 2267527,
+      "inventory_ids": [
+        "VT-ARC-002",
+        "VT-ARC-004"
+      ],
+      "kind": "editable-source",
+      "path": "legacy-obj/CottageRoof.obj",
+      "sha256": "bd838142c97bcb95f33d99c80818a42dcbf086966ac595c048557addb444f390",
+      "usage_status": "unknown"
+    },
+    {
+      "bytes": 663,
+      "inventory_ids": [
+        "VT-ARC-005"
+      ],
+      "kind": "supplement",
+      "path": "legacy-obj/CottageShutters.mtl",
+      "sha256": "d78f42c2f7e80c3381b853d58648d99ed944cbe5434bd54b132615d94568bce5",
+      "usage_status": "unknown"
+    },
+    {
+      "bytes": 579000,
+      "inventory_ids": [
+        "VT-ARC-005"
+      ],
+      "kind": "editable-source",
+      "path": "legacy-obj/CottageShutters.obj",
+      "sha256": "82e37ff70297c7217bcb46e96184cb7839db95ba3ebfbb52eb07868ca0476480",
+      "usage_status": "unknown"
+    },
+    {
+      "bytes": 162,
+      "inventory_ids": [
+        "VT-ARC-004"
+      ],
+      "kind": "supplement",
+      "path": "legacy-obj/CottageStep.mtl",
+      "sha256": "285319c5095a587050d565e07ed40f3b0c322073375ad05f67092457cbe4de4b",
+      "usage_status": "unknown"
+    },
+    {
+      "bytes": 62831,
+      "inventory_ids": [
+        "VT-ARC-004"
+      ],
+      "kind": "editable-source",
+      "path": "legacy-obj/CottageStep.obj",
+      "sha256": "7e475606a2399dcf993dabb77c66b9ea7c43e6d5eb462ff3396c0189c3e6cd40",
+      "usage_status": "unknown"
+    },
+    {
+      "bytes": 546,
+      "inventory_ids": [
+        "VT-ARC-002",
+        "VT-ARC-005"
+      ],
+      "kind": "supplement",
+      "path": "legacy-obj/CottageWall.mtl",
+      "sha256": "0f918a34b38d700ead7c1fd3a289be9e92731f452e2c9f9b0234b4805dd62b77",
+      "usage_status": "unknown"
+    },
+    {
+      "bytes": 541023,
+      "inventory_ids": [
+        "VT-ARC-002",
+        "VT-ARC-005"
+      ],
+      "kind": "editable-source",
+      "path": "legacy-obj/CottageWall.obj",
+      "sha256": "e6bfd0add9a64130ac05086bc00761dcbef723d97dfbd7c4b386770e869ee6f9",
+      "usage_status": "unknown"
+    },
+    {
+      "bytes": 349,
+      "inventory_ids": [
+        "VT-ENV-008"
+      ],
+      "kind": "supplement",
+      "path": "legacy-obj/EncounterGrass.mtl",
+      "sha256": "f78723c52f8a4ab63595296a7496613a205f7b40228632bad89555d5eeb1c459",
+      "usage_status": "unknown"
+    },
+    {
+      "bytes": 84889,
+      "inventory_ids": [
+        "VT-ENV-008"
+      ],
+      "kind": "editable-source",
+      "path": "legacy-obj/EncounterGrass.obj",
+      "sha256": "d3fda01a46ce0af9a456bd437dccead125c81f54cc5c81b82ab13e5766573bae",
+      "usage_status": "unknown"
+    },
+    {
+      "bytes": 560,
+      "inventory_ids": [
+        "VT-ENV-009"
+      ],
+      "kind": "supplement",
+      "path": "legacy-obj/FlowerCluster.mtl",
+      "sha256": "b48c27ed743351e4df41836277c45bbe455624bf2028e988b128265328120567",
+      "usage_status": "unknown"
+    },
+    {
+      "bytes": 158757,
+      "inventory_ids": [
+        "VT-ENV-009"
+      ],
+      "kind": "editable-source",
+      "path": "legacy-obj/FlowerCluster.obj",
+      "sha256": "110dd90bf7f8bc7a9fb88960ea8508598ecd8a9fe59ea1a0934f8be54a6b9ce8",
+      "usage_status": "unknown"
+    },
+    {
+      "bytes": 368,
+      "inventory_ids": [
+        "VT-ARC-001"
+      ],
+      "kind": "supplement",
+      "path": "legacy-obj/HealingArch.mtl",
+      "sha256": "6c1f19e2074dd86b43b424f19618b79704418cedaca15e33790bf8b731192b55",
+      "usage_status": "unknown"
+    },
+    {
+      "bytes": 237453,
+      "inventory_ids": [
+        "VT-ARC-001"
+      ],
+      "kind": "editable-source",
+      "path": "legacy-obj/HealingArch.obj",
+      "sha256": "73328084dbab593135996e175fc3fdf6313961c42053c5061f574eedbf825396",
+      "usage_status": "unknown"
+    },
+    {
+      "bytes": 261,
+      "inventory_ids": [
+        "VT-ARC-001"
+      ],
+      "kind": "supplement",
+      "path": "legacy-obj/HealingEmblem.mtl",
+      "sha256": "75a10db7f55f551e487966e8eb730c01ee1445c0114ceceff9c09480d9653487",
+      "usage_status": "unknown"
+    },
+    {
+      "bytes": 274214,
+      "inventory_ids": [
+        "VT-ARC-001"
+      ],
+      "kind": "editable-source",
+      "path": "legacy-obj/HealingEmblem.obj",
+      "sha256": "c6031a0ab6c26134a130161fbadd9183cf18a6ceded98ff4b789db98895ed8e7",
+      "usage_status": "unknown"
+    },
+    {
+      "bytes": 453,
+      "inventory_ids": [
+        "VT-ARC-001"
+      ],
+      "kind": "supplement",
+      "path": "legacy-obj/HealingFacade.mtl",
+      "sha256": "881fc7c065ddfe175707d67d1b7b6a01b17746db3b5e0f6b94b7bb17b9092d31",
+      "usage_status": "unknown"
+    },
+    {
+      "bytes": 506190,
+      "inventory_ids": [
+        "VT-ARC-001"
+      ],
+      "kind": "editable-source",
+      "path": "legacy-obj/HealingFacade.obj",
+      "sha256": "56404a109bda10effe38391b491322440d4faaf1871844b5577a5589a6c4f5bf",
+      "usage_status": "unknown"
+    },
+    {
+      "bytes": 355,
+      "inventory_ids": [
+        "VT-ARC-001"
+      ],
+      "kind": "supplement",
+      "path": "legacy-obj/HealingGlass.mtl",
+      "sha256": "2bbdb48ea855188f9ac0d7206fb1bec7a09001e45777908d47d296edd55f9939",
+      "usage_status": "unknown"
+    },
+    {
+      "bytes": 426697,
+      "inventory_ids": [
+        "VT-ARC-001"
+      ],
+      "kind": "editable-source",
+      "path": "legacy-obj/HealingGlass.obj",
+      "sha256": "c8e17aa9608c5d19d3090fee82be58c00f4bf7f255799f1fd82676ae8a89d119",
+      "usage_status": "unknown"
+    },
+    {
+      "bytes": 255,
+      "inventory_ids": [
+        "VT-ARC-001"
+      ],
+      "kind": "supplement",
+      "path": "legacy-obj/HealingLight.mtl",
+      "sha256": "7d99eaaab84ff88629f404e8910f9e0a489e6f2aae661337bc9bdd787615f0aa",
+      "usage_status": "unknown"
+    },
+    {
+      "bytes": 158418,
+      "inventory_ids": [
+        "VT-ARC-001"
+      ],
+      "kind": "editable-source",
+      "path": "legacy-obj/HealingLight.obj",
+      "sha256": "fac8a7d2ef1c82aecc00278afbab3289d7ac3023158368aea61f02ae38d73538",
+      "usage_status": "unknown"
+    },
+    {
+      "bytes": 841,
+      "inventory_ids": [
+        "VT-ARC-001"
+      ],
+      "kind": "supplement",
+      "path": "legacy-obj/HealingPlanter.mtl",
+      "sha256": "122b3cf89a966b351b91192f928d4246f8f1c489e9f4de62b009e1bc44687e77",
+      "usage_status": "unknown"
+    },
+    {
+      "bytes": 512128,
+      "inventory_ids": [
+        "VT-ARC-001"
+      ],
+      "kind": "editable-source",
+      "path": "legacy-obj/HealingPlanter.obj",
+      "sha256": "312d09e33947dec730ae723057742b13f7ad29dc3ebc029d147232bca39e9870",
+      "usage_status": "unknown"
+    },
+    {
+      "bytes": 473,
+      "inventory_ids": [
+        "VT-ARC-001"
+      ],
+      "kind": "supplement",
+      "path": "legacy-obj/HealingRoof.mtl",
+      "sha256": "f88df770ea0c23c8a8e8460af46a05e1abea3d184ddbf5dc8a368ed1fd49e2fe",
+      "usage_status": "unknown"
+    },
+    {
+      "bytes": 2727125,
+      "inventory_ids": [
+        "VT-ARC-001"
+      ],
+      "kind": "editable-source",
+      "path": "legacy-obj/HealingRoof.obj",
+      "sha256": "1bd927d45971dba0fa98779f32b847752674c937902916c576f21b4493237c3b",
+      "usage_status": "unknown"
+    },
+    {
+      "bytes": 73980,
+      "inventory_ids": [
+        "VT-ARC-007"
+      ],
+      "kind": "model",
+      "path": "models/BridgeAnchor.glb",
+      "sha256": "cd6a7bce46ae808b91b48c265c6e9933dc3068b25c38b81731ea5f195c2a589b",
+      "usage_status": "unknown"
+    },
+    {
+      "bytes": 527680,
+      "inventory_ids": [
+        "VT-ARC-007"
+      ],
+      "kind": "model",
+      "path": "models/BridgeDeck.glb",
+      "sha256": "dab1c126b470b4b97d1696f8434d42372662149897677630300167bf140c3870",
+      "usage_status": "unknown"
+    },
+    {
+      "bytes": 65696,
+      "inventory_ids": [
+        "VT-ARC-007"
+      ],
+      "kind": "model",
+      "path": "models/BridgePost.glb",
+      "sha256": "d3577417e8ce28d14b76a26ac2d31aac2a686abcf91bc15a1417680aa8de9ca3",
+      "usage_status": "unknown"
+    },
+    {
+      "bytes": 502404,
+      "inventory_ids": [
+        "VT-ARC-007"
+      ],
+      "kind": "model",
+      "path": "models/BridgeRope.glb",
+      "sha256": "ed4b7501efaca73a512280ac3d72fcb2d7525e2f2c4d84353c5b5fa15547102e",
+      "usage_status": "unknown"
+    },
+    {
+      "bytes": 447788,
+      "inventory_ids": [
+        "VT-ENV-004"
+      ],
+      "kind": "model",
+      "path": "models/Broadleaf.glb",
+      "sha256": "974ac6184d2152a8a3004631e7040e1cc8a7328bf263a8f294375c14b29437a6",
+      "usage_status": "unknown"
+    },
+    {
+      "bytes": 230768,
+      "inventory_ids": [
+        "VT-ENV-002",
+        "VT-ENV-003"
+      ],
+      "kind": "model",
+      "path": "models/CascadeBank.glb",
+      "sha256": "e9cdeaa8bb31fa728fcd10353f1b71cd27a58dd0b01d0c0b4d27d6bea99b6442",
+      "usage_status": "unknown"
+    },
+    {
+      "bytes": 100404,
+      "inventory_ids": [
+        "VT-FX-001"
+      ],
+      "kind": "model",
+      "path": "models/CascadeFoam.glb",
+      "sha256": "7bf739b861a83ad98974a7492aa48b42e7e6e50d446f5eea83ee571c9ad51da3",
+      "usage_status": "unknown"
+    },
+    {
+      "bytes": 152404,
+      "inventory_ids": [
+        "VT-ENV-011"
+      ],
+      "kind": "model",
+      "path": "models/CascadeWater.glb",
+      "sha256": "b1aac2f22a04ca5ecac3b3203ab193cf20814b2a6bd428926c006a570e4aaf06",
+      "usage_status": "unknown"
+    },
+    {
+      "bytes": 961824,
+      "inventory_ids": [
+        "VT-ENV-005"
+      ],
+      "kind": "model",
+      "path": "models/Conifer.glb",
+      "sha256": "304353246af44b84d819d7bcba9c180bd111d37c86007e083b18764261c48a3e",
+      "usage_status": "unknown"
+    },
+    {
+      "bytes": 373056,
+      "inventory_ids": [
+        "VT-ARC-004"
+      ],
+      "kind": "model",
+      "path": "models/CottageFoundation.glb",
+      "sha256": "cb89d8d386691fe60073720a235392601f81e2d47fc0e8292c5d47ccf7eff9ae",
+      "usage_status": "unknown"
+    },
+    {
+      "bytes": 1025380,
+      "inventory_ids": [
+        "VT-ARC-002",
+        "VT-ARC-004"
+      ],
+      "kind": "model",
+      "path": "models/CottageRoof.glb",
+      "sha256": "764f1975614389b05e993ef6f5ff79f96f0a06806be12a1edf10d2ac90c74bc0",
+      "usage_status": "unknown"
+    },
+    {
+      "bytes": 276528,
+      "inventory_ids": [
+        "VT-ARC-005"
+      ],
+      "kind": "model",
+      "path": "models/CottageShutters.glb",
+      "sha256": "d9b062a6f2e48896f4bb08be0a0ff3f710b7b5ec98b9c549b6095d62d7d89094",
+      "usage_status": "unknown"
+    },
+    {
+      "bytes": 31432,
+      "inventory_ids": [
+        "VT-ARC-004"
+      ],
+      "kind": "model",
+      "path": "models/CottageStep.glb",
+      "sha256": "6309be23971f65257681924b2c6f5acf8e721b4be8f581fd088cdc771f942be0",
+      "usage_status": "unknown"
+    },
+    {
+      "bytes": 253820,
+      "inventory_ids": [
+        "VT-ARC-002",
+        "VT-ARC-005"
+      ],
+      "kind": "model",
+      "path": "models/CottageWall.glb",
+      "sha256": "dc6a60a8b738a4b683176f9df1365d06dd2aa6fe6e7e00e2c503f5ac066fd70a",
+      "usage_status": "unknown"
+    },
+    {
+      "bytes": 43844,
+      "inventory_ids": [
+        "VT-ENV-008"
+      ],
+      "kind": "model",
+      "path": "models/EncounterGrass.glb",
+      "sha256": "5f769f99efbac1516a2169fd68c4e006b4b9cae7f18813325924e46024b8dddd",
+      "usage_status": "unknown"
+    },
+    {
+      "bytes": 80676,
+      "inventory_ids": [
+        "VT-ENV-009"
+      ],
+      "kind": "model",
+      "path": "models/FlowerCluster.glb",
+      "sha256": "e7683e5399362c23ce56fa5da74c082f4794e61780454eb3a999a797178db415",
+      "usage_status": "unknown"
+    },
+    {
+      "bytes": 114676,
+      "inventory_ids": [
+        "VT-ARC-001"
+      ],
+      "kind": "model",
+      "path": "models/HealingArch.glb",
+      "sha256": "188a6054a04956f66a5545dd8f72d698a6db23aa53378d5aedc389b90282053c",
+      "usage_status": "unknown"
+    },
+    {
+      "bytes": 132280,
+      "inventory_ids": [
+        "VT-ARC-001"
+      ],
+      "kind": "model",
+      "path": "models/HealingEmblem.glb",
+      "sha256": "ff911839086d355dd92d9b1488851dd3270fd314a87edf4838d81b2d3eeef45a",
+      "usage_status": "unknown"
+    },
+    {
+      "bytes": 236012,
+      "inventory_ids": [
+        "VT-ARC-001"
+      ],
+      "kind": "model",
+      "path": "models/HealingFacade.glb",
+      "sha256": "b97215f8256deea6dce88bc57984157d6380823c16a7e9782e958439f9daf5d4",
+      "usage_status": "unknown"
+    },
+    {
+      "bytes": 203240,
+      "inventory_ids": [
+        "VT-ARC-001"
+      ],
+      "kind": "model",
+      "path": "models/HealingGlass.glb",
+      "sha256": "d040cfce47465fcb9c31b8e862fe59842731678d36ab2c2ae6d7b870baa4d509",
+      "usage_status": "unknown"
+    },
+    {
+      "bytes": 77372,
+      "inventory_ids": [
+        "VT-ARC-001"
+      ],
+      "kind": "model",
+      "path": "models/HealingLight.glb",
+      "sha256": "58bf953ab431155a8b6dff7a822e4d4054f89c1ce7287f1f34232f0d440ee72f",
+      "usage_status": "unknown"
+    },
+    {
+      "bytes": 248696,
+      "inventory_ids": [
+        "VT-ARC-001"
+      ],
+      "kind": "model",
+      "path": "models/HealingPlanter.glb",
+      "sha256": "32c982b103b5329a2472e4664460ea82b212795ce63093ce54464336acb84dc3",
+      "usage_status": "unknown"
+    },
+    {
+      "bytes": 1225168,
+      "inventory_ids": [
+        "VT-ARC-001"
+      ],
+      "kind": "model",
+      "path": "models/HealingRoof.glb",
+      "sha256": "d21db604fe505ddb6b37e133d93cb49b682a39c6fdbd19168aa579efe279d851",
+      "usage_status": "unknown"
+    },
+    {
+      "bytes": 2997,
+      "inventory_ids": [
+        "VT-ARC-001",
+        "VT-ARC-002",
+        "VT-ARC-004",
+        "VT-ARC-005",
+        "VT-ARC-007",
+        "VT-ENV-002",
+        "VT-ENV-003",
+        "VT-ENV-004",
+        "VT-ENV-005",
+        "VT-ENV-008",
+        "VT-ENV-009",
+        "VT-ENV-011",
+        "VT-FX-001"
+      ],
+      "kind": "supplement",
+      "path": "README.md",
+      "sha256": "3d1ece759ce38126e802b36f169fff0569d00163c1029389271d90611993f369",
+      "usage_status": "unknown"
+    },
+    {
+      "bytes": 45814,
+      "inventory_ids": [
+        "VT-ARC-001",
+        "VT-ARC-002",
+        "VT-ARC-004",
+        "VT-ARC-005",
+        "VT-ARC-007",
+        "VT-ENV-002",
+        "VT-ENV-003",
+        "VT-ENV-004",
+        "VT-ENV-005",
+        "VT-ENV-008",
+        "VT-ENV-009",
+        "VT-ENV-011",
+        "VT-FX-001"
+      ],
+      "kind": "editable-source",
+      "path": "recipes/build_environment.py",
+      "sha256": "b1cc69c42de4becc2389cf0405a4f2a4308d0cf82e5e00517085dcccf205090a",
+      "usage_status": "unknown"
+    }
+  ],
+  "glb_conversion": "(x,z,-y)/100; metre/Y-up; no reflection",
+  "inventory_ids": [
+    "VT-ARC-001",
+    "VT-ARC-002",
+    "VT-ARC-004",
+    "VT-ARC-005",
+    "VT-ARC-007",
+    "VT-ENV-002",
+    "VT-ENV-003",
+    "VT-ENV-004",
+    "VT-ENV-005",
+    "VT-ENV-008",
+    "VT-ENV-009",
+    "VT-ENV-011",
+    "VT-FX-001"
+  ],
+  "kind": "project-local editable environment source studies",
+  "limitations": [
+    "Source/usage unknown; no rights permission inferred from original mesh authorship",
+    "Single LOD, no native collision, no texture maps, no native wind/flow shader",
+    "Not a Game Development Studio canonical package, verification receipt or vendored admission"
+  ],
+  "materials": {
+    "cream": {
+      "linear_rgba": [
+        0.8227857543962835,
+        0.6938717612919899,
+        0.4286904966139066,
+        1
+      ],
+      "roughness": 0.9,
+      "srgb_hex": "EAD9AF"
+    },
+    "cream_light": {
+      "linear_rgba": [
+        0.938685728457888,
+        0.8069522576692516,
+        0.5457244613701866,
+        1
+      ],
+      "roughness": 0.9,
+      "srgb_hex": "F8E8C3"
+    },
+    "flower_gold": {
+      "linear_rgba": [
+        0.7835377915261935,
+        0.4178850708481375,
+        0.03189603307301153,
+        1
+      ],
+      "roughness": 0.85,
+      "srgb_hex": "E5AD32"
+    },
+    "flower_lilac": {
+      "linear_rgba": [
+        0.4793201831008268,
+        0.21586050011389926,
+        0.5394794890121072,
+        1
+      ],
+      "roughness": 0.85,
+      "srgb_hex": "B880C2"
+    },
+    "flower_white": {
+      "linear_rgba": [
+        1.0,
+        0.8713671191987972,
+        0.6239603916750761,
+        1
+      ],
+      "roughness": 0.8,
+      "srgb_hex": "FFF0CF"
+    },
+    "foam": {
+      "linear_rgba": [
+        0.6866853124353135,
+        0.8962693533742664,
+        0.8069522576692516,
+        0.94
+      ],
+      "roughness": 0.35,
+      "srgb_hex": "D8F3E8"
+    },
+    "glass": {
+      "linear_rgba": [
+        0.08650046203654976,
+        0.467783796112159,
+        0.6583748172794485,
+        0.66
+      ],
+      "roughness": 0.15,
+      "srgb_hex": "53B6D4"
+    },
+    "grass": {
+      "linear_rgba": [
+        0.11953842798834562,
+        0.3277780980565422,
+        0.04518620438567554,
+        1
+      ],
+      "roughness": 0.92,
+      "srgb_hex": "619B3C"
+    },
+    "grass_tip": {
+      "linear_rgba": [
+        0.4620769996544071,
+        0.5775804404296506,
+        0.07618538148130785,
+        1
+      ],
+      "roughness": 0.91,
+      "srgb_hex": "B5C84E"
+    },
+    "green_shutter": {
+      "linear_rgba": [
+        0.11953842798834562,
+        0.23455058216100522,
+        0.07421356838014963,
+        1
+      ],
+      "roughness": 0.85,
+      "srgb_hex": "61854D"
+    },
+    "green_shutter_light": {
+      "linear_rgba": [
+        0.2232279573168085,
+        0.35153259950043936,
+        0.11953842798834562,
+        1
+      ],
+      "roughness": 0.85,
+      "srgb_hex": "82A061"
+    },
+    "lamp_glow": {
+      "linear_rgba": [
+        1.0,
+        0.768151147247507,
+        0.35153259950043936,
+        1
+      ],
+      "roughness": 0.3,
+      "srgb_hex": "FFE3A0"
+    },
+    "leaf": {
+      "linear_rgba": [
+        0.08021982031446832,
+        0.19806931955994886,
+        0.03688945040110004,
+        1
+      ],
+      "roughness": 0.9,
+      "srgb_hex": "507B36"
+    },
+    "leaf_deep": {
+      "linear_rgba": [
+        0.021219010376003555,
+        0.10461648409110419,
+        0.05612849004960009,
+        1
+      ],
+      "roughness": 0.93,
+      "srgb_hex": "285B43"
+    },
+    "leaf_light": {
+      "linear_rgba": [
+        0.27467731206038465,
+        0.4232676699860717,
+        0.05780543019106723,
+        1
+      ],
+      "roughness": 0.9,
+      "srgb_hex": "8FAE44"
+    },
+    "leaf_tip": {
+      "linear_rgba": [
+        0.44520119451622786,
+        0.5711248294648731,
+        0.09758734714186246,
+        1
+      ],
+      "roughness": 0.9,
+      "srgb_hex": "B2C758"
+    },
+    "metal": {
+      "linear_rgba": [
+        0.07036009569659588,
+        0.09989872824711389,
+        0.10224173308810132,
+        1
+      ],
+      "roughness": 0.6,
+      "srgb_hex": "4B595A"
+    },
+    "pine": {
+      "linear_rgba": [
+        0.04091519690685319,
+        0.16826940018969075,
+        0.10224173308810132,
+        1
+      ],
+      "roughness": 0.92,
+      "srgb_hex": "39725A"
+    },
+    "pine_light": {
+      "linear_rgba": [
+        0.11953842798834562,
+        0.2831487404299921,
+        0.12213877222960187,
+        1
+      ],
+      "roughness": 0.91,
+      "srgb_hex": "619162"
+    },
+    "rope": {
+      "linear_rgba": [
+        0.4851499400560704,
+        0.41254261348390375,
+        0.2581828529215958,
+        1
+      ],
+      "roughness": 0.95,
+      "srgb_hex": "B9AC8B"
+    },
+    "rope_light": {
+      "linear_rgba": [
+        0.6444796819705821,
+        0.5457244613701866,
+        0.3564001441459435,
+        1
+      ],
+      "roughness": 0.94,
+      "srgb_hex": "D2C3A1"
+    },
+    "sign_white": {
+      "linear_rgba": [
+        0.8879231178819663,
+        0.8549926081242338,
+        0.7454042095403874,
+        1
+      ],
+      "roughness": 0.7,
+      "srgb_hex": "F2EEE0"
+    },
+    "soil": {
+      "linear_rgba": [
+        0.11443537382697373,
+        0.09758734714186246,
+        0.05126945837404324,
+        1
+      ],
+      "roughness": 0.98,
+      "srgb_hex": "5F5840"
+    },
+    "stone": {
+      "linear_rgba": [
+        0.3049873140698863,
+        0.30946892281750854,
+        0.22696587351009836,
+        1
+      ],
+      "roughness": 0.95,
+      "srgb_hex": "969783"
+    },
+    "stone_dark": {
+      "linear_rgba": [
+        0.15292615199615017,
+        0.18782077230067787,
+        0.162029375639111,
+        1
+      ],
+      "roughness": 0.95,
+      "srgb_hex": "6D7870"
+    },
+    "stone_light": {
+      "linear_rgba": [
+        0.4793201831008268,
+        0.467783796112159,
+        0.3277780980565422,
+        1
+      ],
+      "roughness": 0.95,
+      "srgb_hex": "B8B69B"
+    },
+    "terracotta": {
+      "linear_rgba": [
+        0.6239603916750761,
+        0.09989872824711389,
+        0.05126945837404324,
+        1
+      ],
+      "roughness": 0.78,
+      "srgb_hex": "CF5940"
+    },
+    "terracotta_dark": {
+      "linear_rgba": [
+        0.3613067797835095,
+        0.04518620438567554,
+        0.0295568344378088,
+        1
+      ],
+      "roughness": 0.82,
+      "srgb_hex": "A23C30"
+    },
+    "terracotta_light": {
+      "linear_rgba": [
+        0.7835377915261935,
+        0.1946178304415758,
+        0.09305896284668745,
+        1
+      ],
+      "roughness": 0.77,
+      "srgb_hex": "E57A56"
+    },
+    "water": {
+      "linear_rgba": [
+        0.019382360956935723,
+        0.25015828472995344,
+        0.4620769996544071,
+        0.86
+      ],
+      "roughness": 0.18,
+      "srgb_hex": "2689B5"
+    },
+    "water_light": {
+      "linear_rgba": [
+        0.06662593864377289,
+        0.44520119451622786,
+        0.6172065624196511,
+        0.9
+      ],
+      "roughness": 0.2,
+      "srgb_hex": "49B2CE"
+    },
+    "window_warm": {
+      "linear_rgba": [
+        0.9215818562772946,
+        0.6038273388553378,
+        0.1714411007328226,
+        1
+      ],
+      "roughness": 0.35,
+      "srgb_hex": "F6CC73"
+    },
+    "wood": {
+      "linear_rgba": [
+        0.19120168274079138,
+        0.08865558628577294,
+        0.0382043715953465,
+        1
+      ],
+      "roughness": 0.88,
+      "srgb_hex": "795437"
+    },
+    "wood_dark": {
+      "linear_rgba": [
+        0.08437621154414882,
+        0.04518620438567554,
+        0.024157632448504756,
+        1
+      ],
+      "roughness": 0.92,
+      "srgb_hex": "523C2B"
+    },
+    "wood_light": {
+      "linear_rgba": [
+        0.4019777798321958,
+        0.1946178304415758,
+        0.06662593864377289,
+        1
+      ],
+      "roughness": 0.87,
+      "srgb_hex": "AA7A49"
+    }
+  },
+  "meshes": [
+    {
+      "bounds_cm": {
+        "max": [
+          310.0,
+          230.0,
+          210.0
+        ],
+        "min": [
+          -310.0,
+          -230.0,
+          0.0
+        ]
+      },
+      "collision": "none authored; separate simple native collision required",
+      "dimensions_cm": [
+        620,
+        460,
+        210
+      ],
+      "editable": "editable/HealingRoof.mesh.json",
+      "glb": "models/HealingRoof.glb",
+      "id": "HealingRoof",
+      "inventory_ids": [
+        "VT-ARC-001"
+      ],
+      "lods": [
+        0
+      ],
+      "materials": [
+        "cream_light",
+        "terracotta",
+        "terracotta_dark",
+        "terracotta_light"
+      ],
+      "mtl": "legacy-obj/HealingRoof.mtl",
+      "native_acceptance": "pending",
+      "obj": "legacy-obj/HealingRoof.obj",
+      "pivot_cm": [
+        0,
+        0,
+        0
+      ],
+      "pivot_description": "AABB floor centre; place each module using its own dimensions and intended assembly anchors",
+      "proof_bundle": "B1",
+      "recipe": "Rounded rectangular eave stack and 234 individually crowned, chamfered curved-surface terracotta tiles.",
+      "triangles": 7824,
+      "usage_status": "unknown",
+      "vertices": 23472
+    },
+    {
+      "bounds_cm": {
+        "max": [
+          285.0,
+          200.0,
+          320.0
+        ],
+        "min": [
+          -285.0,
+          -200.0,
+          0.0
+        ]
+      },
+      "collision": "none authored; separate simple native collision required",
+      "dimensions_cm": [
+        570,
+        400,
+        320
+      ],
+      "editable": "editable/HealingFacade.mesh.json",
+      "glb": "models/HealingFacade.glb",
+      "id": "HealingFacade",
+      "inventory_ids": [
+        "VT-ARC-001"
+      ],
+      "lods": [
+        0
+      ],
+      "materials": [
+        "cream",
+        "cream_light",
+        "stone",
+        "stone_light"
+      ],
+      "mtl": "legacy-obj/HealingFacade.mtl",
+      "native_acceptance": "pending",
+      "obj": "legacy-obj/HealingFacade.obj",
+      "pivot_cm": [
+        0,
+        0,
+        0
+      ],
+      "pivot_description": "AABB floor centre; place each module using its own dimensions and intended assembly anchors",
+      "proof_bundle": "B1",
+      "recipe": "Open-front cream facade with curved returns, real inner walls, stone bands and scored piers.",
+      "triangles": 1484,
+      "usage_status": "unknown",
+      "vertices": 4452
+    },
+    {
+      "bounds_cm": {
+        "max": [
+          135.0,
+          18.0,
+          170.0
+        ],
+        "min": [
+          -135.0,
+          -18.0,
+          0.0
+        ]
+      },
+      "collision": "none authored; separate simple native collision required",
+      "dimensions_cm": [
+        270,
+        36,
+        170
+      ],
+      "editable": "editable/HealingArch.mesh.json",
+      "glb": "models/HealingArch.glb",
+      "id": "HealingArch",
+      "inventory_ids": [
+        "VT-ARC-001"
+      ],
+      "lods": [
+        0
+      ],
+      "materials": [
+        "cream_light",
+        "terracotta",
+        "terracotta_light"
+      ],
+      "mtl": "legacy-obj/HealingArch.mtl",
+      "native_acceptance": "pending",
+      "obj": "legacy-obj/HealingArch.obj",
+      "pivot_cm": [
+        0,
+        0,
+        0
+      ],
+      "pivot_description": "AABB floor centre; place each module using its own dimensions and intended assembly anchors",
+      "proof_bundle": "B1",
+      "recipe": "Extruded red half-disc entrance sign, concentric curved trim and cream footing.",
+      "triangles": 712,
+      "usage_status": "unknown",
+      "vertices": 2136
+    },
+    {
+      "bounds_cm": {
+        "max": [
+          50.0,
+          6.0,
+          100.0
+        ],
+        "min": [
+          -50.0,
+          -6.0,
+          0.0
+        ]
+      },
+      "collision": "none authored; separate simple native collision required",
+      "dimensions_cm": [
+        100,
+        12,
+        100
+      ],
+      "editable": "editable/HealingEmblem.mesh.json",
+      "glb": "models/HealingEmblem.glb",
+      "id": "HealingEmblem",
+      "inventory_ids": [
+        "VT-ARC-001"
+      ],
+      "lods": [
+        0
+      ],
+      "materials": [
+        "sign_white",
+        "terracotta"
+      ],
+      "mtl": "legacy-obj/HealingEmblem.mtl",
+      "native_acceptance": "pending",
+      "obj": "legacy-obj/HealingEmblem.obj",
+      "pivot_cm": [
+        0,
+        0,
+        0
+      ],
+      "pivot_description": "AABB floor centre; place each module using its own dimensions and intended assembly anchors",
+      "proof_bundle": "B1",
+      "recipe": "Circular cream/red geometric healing landmark emblem; separate editable rings and crossbar.",
+      "triangles": 832,
+      "usage_status": "unknown",
+      "vertices": 2496
+    },
+    {
+      "bounds_cm": {
+        "max": [
+          222.5,
+          6.0,
+          240.0
+        ],
+        "min": [
+          -222.5,
+          -6.0,
+          0.0
+        ]
+      },
+      "collision": "none authored; separate simple native collision required",
+      "dimensions_cm": [
+        445,
+        12,
+        240
+      ],
+      "editable": "editable/HealingGlass.mesh.json",
+      "glb": "models/HealingGlass.glb",
+      "id": "HealingGlass",
+      "inventory_ids": [
+        "VT-ARC-001"
+      ],
+      "lods": [
+        0
+      ],
+      "materials": [
+        "cream_light",
+        "glass",
+        "metal"
+      ],
+      "mtl": "legacy-obj/HealingGlass.mtl",
+      "native_acceptance": "pending",
+      "obj": "legacy-obj/HealingGlass.obj",
+      "pivot_cm": [
+        0,
+        0,
+        0
+      ],
+      "pivot_description": "AABB floor centre; place each module using its own dimensions and intended assembly anchors",
+      "proof_bundle": "B1",
+      "recipe": "Three blue glass fields, metal mullions/transoms and small central door pulls.",
+      "triangles": 1280,
+      "usage_status": "unknown",
+      "vertices": 3840
+    },
+    {
+      "bounds_cm": {
+        "max": [
+          255.0,
+          220.0,
+          235.0
+        ],
+        "min": [
+          -255.0,
+          -220.0,
+          0.0
+        ]
+      },
+      "collision": "none authored; separate simple native collision required",
+      "dimensions_cm": [
+        510,
+        440,
+        235
+      ],
+      "editable": "editable/CottageRoof.mesh.json",
+      "glb": "models/CottageRoof.glb",
+      "id": "CottageRoof",
+      "inventory_ids": [
+        "VT-ARC-002",
+        "VT-ARC-004"
+      ],
+      "lods": [
+        0
+      ],
+      "materials": [
+        "terracotta",
+        "terracotta_dark",
+        "terracotta_light",
+        "wood_dark",
+        "wood_light"
+      ],
+      "mtl": "legacy-obj/CottageRoof.mtl",
+      "native_acceptance": "pending",
+      "obj": "legacy-obj/CottageRoof.obj",
+      "pivot_cm": [
+        0,
+        0,
+        0
+      ],
+      "pivot_description": "AABB floor centre; place each module using its own dimensions and intended assembly anchors",
+      "proof_bundle": "B2",
+      "recipe": "192 individually crowned roof tiles on two slopes, modeled ridge cap and sloping timber fascia.",
+      "triangles": 6536,
+      "usage_status": "unknown",
+      "vertices": 19608
+    },
+    {
+      "bounds_cm": {
+        "max": [
+          225.0,
+          175.0,
+          475.0
+        ],
+        "min": [
+          -225.0,
+          -175.0,
+          0.0
+        ]
+      },
+      "collision": "none authored; separate simple native collision required",
+      "dimensions_cm": [
+        450,
+        350,
+        475
+      ],
+      "editable": "editable/CottageWall.mesh.json",
+      "glb": "models/CottageWall.glb",
+      "id": "CottageWall",
+      "inventory_ids": [
+        "VT-ARC-002",
+        "VT-ARC-005"
+      ],
+      "lods": [
+        0
+      ],
+      "materials": [
+        "cream",
+        "cream_light",
+        "metal",
+        "wood",
+        "wood_light"
+      ],
+      "mtl": "legacy-obj/CottageWall.mtl",
+      "native_acceptance": "pending",
+      "obj": "legacy-obj/CottageWall.obj",
+      "pivot_cm": [
+        0,
+        0,
+        0
+      ],
+      "pivot_description": "AABB floor centre; place each module using its own dimensions and intended assembly anchors",
+      "proof_bundle": "B2",
+      "recipe": "Hollow plaster/timber cottage shell, real window/door openings, gables, plank door and lintel.",
+      "triangles": 1590,
+      "usage_status": "unknown",
+      "vertices": 4770
+    },
+    {
+      "bounds_cm": {
+        "max": [
+          115.0,
+          16.0,
+          160.0
+        ],
+        "min": [
+          -115.0,
+          -16.0,
+          0.0
+        ]
+      },
+      "collision": "none authored; separate simple native collision required",
+      "dimensions_cm": [
+        230,
+        32,
+        160
+      ],
+      "editable": "editable/CottageShutters.mesh.json",
+      "glb": "models/CottageShutters.glb",
+      "id": "CottageShutters",
+      "inventory_ids": [
+        "VT-ARC-005"
+      ],
+      "lods": [
+        0
+      ],
+      "materials": [
+        "green_shutter",
+        "green_shutter_light",
+        "metal",
+        "window_warm",
+        "wood",
+        "wood_light"
+      ],
+      "mtl": "legacy-obj/CottageShutters.mtl",
+      "native_acceptance": "pending",
+      "obj": "legacy-obj/CottageShutters.obj",
+      "pivot_cm": [
+        0,
+        0,
+        0
+      ],
+      "pivot_description": "AABB floor centre; place each module using its own dimensions and intended assembly anchors",
+      "proof_bundle": "B2",
+      "recipe": "Warm four-pane window, recessed frame, green stave shutters, cross braces, hinges and sill.",
+      "triangles": 1728,
+      "usage_status": "unknown",
+      "vertices": 5184
+    },
+    {
+      "bounds_cm": {
+        "max": [
+          235.00000000000003,
+          215.0,
+          640.0
+        ],
+        "min": [
+          -235.00000000000003,
+          -215.0,
+          0.0
+        ]
+      },
+      "collision": "none authored; separate simple native collision required",
+      "dimensions_cm": [
+        470,
+        430,
+        640
+      ],
+      "editable": "editable/Broadleaf.mesh.json",
+      "glb": "models/Broadleaf.glb",
+      "id": "Broadleaf",
+      "inventory_ids": [
+        "VT-ENV-004"
+      ],
+      "lods": [
+        0
+      ],
+      "materials": [
+        "leaf",
+        "leaf_deep",
+        "leaf_light",
+        "leaf_tip",
+        "wood",
+        "wood_dark"
+      ],
+      "mtl": "legacy-obj/Broadleaf.mtl",
+      "native_acceptance": "pending",
+      "obj": "legacy-obj/Broadleaf.obj",
+      "pivot_cm": [
+        0,
+        0,
+        0
+      ],
+      "pivot_description": "AABB floor centre; place each module using its own dimensions and intended assembly anchors",
+      "proof_bundle": "B3",
+      "recipe": "Root-flared branching trunk, nine irregular canopy lobes and 180 pointed ridged leaves.",
+      "triangles": 2826,
+      "usage_status": "unknown",
+      "vertices": 8478
+    },
+    {
+      "bounds_cm": {
+        "max": [
+          155.0,
+          155.0,
+          680.0
+        ],
+        "min": [
+          -155.0,
+          -155.0,
+          0.0
+        ]
+      },
+      "collision": "none authored; separate simple native collision required",
+      "dimensions_cm": [
+        310,
+        310,
+        680
+      ],
+      "editable": "editable/Conifer.mesh.json",
+      "glb": "models/Conifer.glb",
+      "id": "Conifer",
+      "inventory_ids": [
+        "VT-ENV-005"
+      ],
+      "lods": [
+        0
+      ],
+      "materials": [
+        "leaf_deep",
+        "pine",
+        "pine_light",
+        "wood",
+        "wood_dark"
+      ],
+      "mtl": "legacy-obj/Conifer.mtl",
+      "native_acceptance": "pending",
+      "obj": "legacy-obj/Conifer.obj",
+      "pivot_cm": [
+        0,
+        0,
+        0
+      ],
+      "pivot_description": "AABB floor centre; place each module using its own dimensions and intended assembly anchors",
+      "proof_bundle": "B3",
+      "recipe": "Tapered branching trunk and seven rotated whorls with layered drooping pointed needle boughs.",
+      "triangles": 6128,
+      "usage_status": "unknown",
+      "vertices": 18384
+    },
+    {
+      "bounds_cm": {
+        "max": [
+          60.0,
+          60.0,
+          115.0
+        ],
+        "min": [
+          -60.0,
+          -60.0,
+          0.0
+        ]
+      },
+      "collision": "none authored; separate simple native collision required",
+      "dimensions_cm": [
+        120,
+        120,
+        115
+      ],
+      "editable": "editable/EncounterGrass.mesh.json",
+      "glb": "models/EncounterGrass.glb",
+      "id": "EncounterGrass",
+      "inventory_ids": [
+        "VT-ENV-008"
+      ],
+      "lods": [
+        0
+      ],
+      "materials": [
+        "grass",
+        "grass_tip",
+        "leaf"
+      ],
+      "mtl": "legacy-obj/EncounterGrass.mtl",
+      "native_acceptance": "pending",
+      "obj": "legacy-obj/EncounterGrass.obj",
+      "pivot_cm": [
+        0,
+        0,
+        0
+      ],
+      "pivot_description": "AABB floor centre; place each module using its own dimensions and intended assembly anchors",
+      "proof_bundle": "B3",
+      "recipe": "43 curved, pointed, raised-ridge grass blades with three green material values.",
+      "triangles": 258,
+      "usage_status": "unknown",
+      "vertices": 774
+    },
+    {
+      "bounds_cm": {
+        "max": [
+          55.0,
+          50.0,
+          60.0
+        ],
+        "min": [
+          -55.0,
+          -50.0,
+          0.0
+        ]
+      },
+      "collision": "none authored; separate simple native collision required",
+      "dimensions_cm": [
+        110,
+        100,
+        60
+      ],
+      "editable": "editable/FlowerCluster.mesh.json",
+      "glb": "models/FlowerCluster.glb",
+      "id": "FlowerCluster",
+      "inventory_ids": [
+        "VT-ENV-009"
+      ],
+      "lods": [
+        0
+      ],
+      "materials": [
+        "flower_gold",
+        "flower_lilac",
+        "flower_white",
+        "leaf",
+        "leaf_light"
+      ],
+      "mtl": "legacy-obj/FlowerCluster.mtl",
+      "native_acceptance": "pending",
+      "obj": "legacy-obj/FlowerCluster.obj",
+      "pivot_cm": [
+        0,
+        0,
+        0
+      ],
+      "pivot_description": "AABB floor centre; place each module using its own dimensions and intended assembly anchors",
+      "proof_bundle": "B3",
+      "recipe": "Five varied-height white/lilac seven-petal daisies, golden centres, thin stems and leaves.",
+      "triangles": 480,
+      "usage_status": "unknown",
+      "vertices": 1440
+    },
+    {
+      "bounds_cm": {
+        "max": [
+          210.0,
+          150.0,
+          310.0
+        ],
+        "min": [
+          -210.0,
+          -150.0,
+          0.0
+        ]
+      },
+      "collision": "none authored; separate simple native collision required",
+      "dimensions_cm": [
+        420,
+        300,
+        310
+      ],
+      "editable": "editable/CascadeBank.mesh.json",
+      "glb": "models/CascadeBank.glb",
+      "id": "CascadeBank",
+      "inventory_ids": [
+        "VT-ENV-002",
+        "VT-ENV-003"
+      ],
+      "lods": [
+        0
+      ],
+      "materials": [
+        "grass",
+        "grass_tip",
+        "stone",
+        "stone_dark",
+        "stone_light"
+      ],
+      "mtl": "legacy-obj/CascadeBank.mtl",
+      "native_acceptance": "pending",
+      "obj": "legacy-obj/CascadeBank.obj",
+      "pivot_cm": [
+        0,
+        0,
+        0
+      ],
+      "pivot_description": "AABB floor centre; place each module using its own dimensions and intended assembly anchors",
+      "proof_bundle": "B4",
+      "recipe": "Irregular elevated bank substrate, fifteen staggered fractured rock masses, grassy lip and blades.",
+      "triangles": 1442,
+      "usage_status": "unknown",
+      "vertices": 4326
+    },
+    {
+      "bounds_cm": {
+        "max": [
+          85.00000000000001,
+          150.0,
+          285.0
+        ],
+        "min": [
+          -85.00000000000001,
+          -150.0,
+          0.0
+        ]
+      },
+      "collision": "none authored; separate simple native collision required",
+      "dimensions_cm": [
+        170,
+        300,
+        285
+      ],
+      "editable": "editable/CascadeWater.mesh.json",
+      "glb": "models/CascadeWater.glb",
+      "id": "CascadeWater",
+      "inventory_ids": [
+        "VT-ENV-011"
+      ],
+      "lods": [
+        0
+      ],
+      "materials": [
+        "water",
+        "water_light"
+      ],
+      "mtl": "legacy-obj/CascadeWater.mtl",
+      "native_acceptance": "pending",
+      "obj": "legacy-obj/CascadeWater.obj",
+      "pivot_cm": [
+        0,
+        0,
+        0
+      ],
+      "pivot_description": "AABB floor centre; place each module using its own dimensions and intended assembly anchors",
+      "proof_bundle": "B4",
+      "recipe": "Subdivided blue water ribbon with an actual 253 cm vertical cascade and two horizontal reaches.",
+      "triangles": 960,
+      "usage_status": "unknown",
+      "vertices": 2880
+    },
+    {
+      "bounds_cm": {
+        "max": [
+          90.0,
+          150.0,
+          289.0
+        ],
+        "min": [
+          -90.0,
+          -150.0,
+          0.0
+        ]
+      },
+      "collision": "none authored; separate simple native collision required",
+      "dimensions_cm": [
+        180,
+        300,
+        289
+      ],
+      "editable": "editable/CascadeFoam.mesh.json",
+      "glb": "models/CascadeFoam.glb",
+      "id": "CascadeFoam",
+      "inventory_ids": [
+        "VT-FX-001"
+      ],
+      "lods": [
+        0
+      ],
+      "materials": [
+        "foam"
+      ],
+      "mtl": "legacy-obj/CascadeFoam.mtl",
+      "native_acceptance": "pending",
+      "obj": "legacy-obj/CascadeFoam.obj",
+      "pivot_cm": [
+        0,
+        0,
+        0
+      ],
+      "pivot_description": "AABB floor centre; place each module using its own dimensions and intended assembly anchors",
+      "proof_bundle": "B4",
+      "recipe": "Broken downhill foam streaks and three interrupted lower splash/ripple rings; static study.",
+      "triangles": 634,
+      "usage_status": "unknown",
+      "vertices": 1902
+    },
+    {
+      "bounds_cm": {
+        "max": [
+          220.00000000000003,
+          97.5,
+          52.0
+        ],
+        "min": [
+          -220.00000000000003,
+          -97.5,
+          0.0
+        ]
+      },
+      "collision": "none authored; separate simple native collision required",
+      "dimensions_cm": [
+        440,
+        195,
+        52
+      ],
+      "editable": "editable/BridgeDeck.mesh.json",
+      "glb": "models/BridgeDeck.glb",
+      "id": "BridgeDeck",
+      "inventory_ids": [
+        "VT-ARC-007"
+      ],
+      "lods": [
+        0
+      ],
+      "materials": [
+        "metal",
+        "wood",
+        "wood_dark",
+        "wood_light"
+      ],
+      "mtl": "legacy-obj/BridgeDeck.mtl",
+      "native_acceptance": "pending",
+      "obj": "legacy-obj/BridgeDeck.obj",
+      "pivot_cm": [
+        0,
+        0,
+        0
+      ],
+      "pivot_description": "AABB floor centre; place each module using its own dimensions and intended assembly anchors",
+      "proof_bundle": "B5",
+      "recipe": "18 independently chamfered varied planks, curved log supports, modeled grain seams and nail heads.",
+      "triangles": 3352,
+      "usage_status": "unknown",
+      "vertices": 10056
+    },
+    {
+      "bounds_cm": {
+        "max": [
+          14.5,
+          14.5,
+          146.0
+        ],
+        "min": [
+          -14.5,
+          -14.5,
+          0.0
+        ]
+      },
+      "collision": "none authored; separate simple native collision required",
+      "dimensions_cm": [
+        29,
+        29,
+        146
+      ],
+      "editable": "editable/BridgePost.mesh.json",
+      "glb": "models/BridgePost.glb",
+      "id": "BridgePost",
+      "inventory_ids": [
+        "VT-ARC-007"
+      ],
+      "lods": [
+        0
+      ],
+      "materials": [
+        "metal",
+        "wood",
+        "wood_dark",
+        "wood_light"
+      ],
+      "mtl": "legacy-obj/BridgePost.mtl",
+      "native_acceptance": "pending",
+      "obj": "legacy-obj/BridgePost.obj",
+      "pivot_cm": [
+        0,
+        0,
+        0
+      ],
+      "pivot_description": "AABB floor centre; place each module using its own dimensions and intended assembly anchors",
+      "proof_bundle": "B5",
+      "recipe": "Chamfered timber upright, layered cap, two metal bands and modeled grain grooves.",
+      "triangles": 392,
+      "usage_status": "unknown",
+      "vertices": 1176
+    },
+    {
+      "bounds_cm": {
+        "max": [
+          220.0,
+          3.0,
+          78.0
+        ],
+        "min": [
+          -220.0,
+          -3.0,
+          0.0
+        ]
+      },
+      "collision": "none authored; separate simple native collision required",
+      "dimensions_cm": [
+        440,
+        6,
+        78
+      ],
+      "editable": "editable/BridgeRope.mesh.json",
+      "glb": "models/BridgeRope.glb",
+      "id": "BridgeRope",
+      "inventory_ids": [
+        "VT-ARC-007"
+      ],
+      "lods": [
+        0
+      ],
+      "materials": [
+        "rope",
+        "rope_light"
+      ],
+      "mtl": "legacy-obj/BridgeRope.mtl",
+      "native_acceptance": "pending",
+      "obj": "legacy-obj/BridgeRope.obj",
+      "pivot_cm": [
+        0,
+        0,
+        0
+      ],
+      "pivot_description": "AABB floor centre; place each module using its own dimensions and intended assembly anchors",
+      "proof_bundle": "B5",
+      "recipe": "Three modeled helical rope strands following a sagging parabolic span.",
+      "triangles": 3204,
+      "usage_status": "unknown",
+      "vertices": 9612
+    },
+    {
+      "bounds_cm": {
+        "max": [
+          235.0,
+          185.0,
+          52.0
+        ],
+        "min": [
+          -235.0,
+          -185.0,
+          0.0
+        ]
+      },
+      "collision": "none authored; separate simple native collision required",
+      "dimensions_cm": [
+        470,
+        370,
+        52
+      ],
+      "editable": "editable/CottageFoundation.mesh.json",
+      "glb": "models/CottageFoundation.glb",
+      "id": "CottageFoundation",
+      "inventory_ids": [
+        "VT-ARC-004"
+      ],
+      "lods": [
+        0
+      ],
+      "materials": [
+        "stone",
+        "stone_dark",
+        "stone_light"
+      ],
+      "mtl": "legacy-obj/CottageFoundation.mtl",
+      "native_acceptance": "pending",
+      "obj": "legacy-obj/CottageFoundation.obj",
+      "pivot_cm": [
+        0,
+        0,
+        0
+      ],
+      "pivot_description": "AABB floor centre; place each module using its own dimensions and intended assembly anchors",
+      "proof_bundle": "B2",
+      "recipe": "Solid beveled stone base with two staggered visible stone courses and corner returns.",
+      "triangles": 2368,
+      "usage_status": "unknown",
+      "vertices": 7104
+    },
+    {
+      "bounds_cm": {
+        "max": [
+          85.0,
+          57.5,
+          42.0
+        ],
+        "min": [
+          -85.0,
+          -57.5,
+          0.0
+        ]
+      },
+      "collision": "none authored; separate simple native collision required",
+      "dimensions_cm": [
+        170,
+        115,
+        42
+      ],
+      "editable": "editable/CottageStep.mesh.json",
+      "glb": "models/CottageStep.glb",
+      "id": "CottageStep",
+      "inventory_ids": [
+        "VT-ARC-004"
+      ],
+      "lods": [
+        0
+      ],
+      "materials": [
+        "stone_light"
+      ],
+      "mtl": "legacy-obj/CottageStep.mtl",
+      "native_acceptance": "pending",
+      "obj": "legacy-obj/CottageStep.obj",
+      "pivot_cm": [
+        0,
+        0,
+        0
+      ],
+      "pivot_description": "AABB floor centre; place each module using its own dimensions and intended assembly anchors",
+      "proof_bundle": "B2",
+      "recipe": "Three independently beveled, ascending stone entrance treads.",
+      "triangles": 192,
+      "usage_status": "unknown",
+      "vertices": 576
+    },
+    {
+      "bounds_cm": {
+        "max": [
+          38.5,
+          37.5,
+          91.0
+        ],
+        "min": [
+          -38.5,
+          -37.5,
+          0.0
+        ]
+      },
+      "collision": "none authored; separate simple native collision required",
+      "dimensions_cm": [
+        77,
+        75,
+        91
+      ],
+      "editable": "editable/HealingPlanter.mesh.json",
+      "glb": "models/HealingPlanter.glb",
+      "id": "HealingPlanter",
+      "inventory_ids": [
+        "VT-ARC-001"
+      ],
+      "lods": [
+        0
+      ],
+      "materials": [
+        "flower_gold",
+        "flower_white",
+        "leaf",
+        "leaf_light",
+        "metal",
+        "soil",
+        "wood",
+        "wood_light"
+      ],
+      "mtl": "legacy-obj/HealingPlanter.mtl",
+      "native_acceptance": "pending",
+      "obj": "legacy-obj/HealingPlanter.obj",
+      "pivot_cm": [
+        0,
+        0,
+        0
+      ],
+      "pivot_description": "AABB floor centre; place each module using its own dimensions and intended assembly anchors",
+      "proof_bundle": "B1",
+      "recipe": "Fourteen tapered tub staves, metal hoops, soil, leaves and five small flower heads.",
+      "triangles": 1536,
+      "usage_status": "unknown",
+      "vertices": 4608
+    },
+    {
+      "bounds_cm": {
+        "max": [
+          22.0,
+          22.0,
+          252.0
+        ],
+        "min": [
+          -22.0,
+          -22.0,
+          0.0
+        ]
+      },
+      "collision": "none authored; separate simple native collision required",
+      "dimensions_cm": [
+        44,
+        44,
+        252
+      ],
+      "editable": "editable/HealingLight.mesh.json",
+      "glb": "models/HealingLight.glb",
+      "id": "HealingLight",
+      "inventory_ids": [
+        "VT-ARC-001"
+      ],
+      "lods": [
+        0
+      ],
+      "materials": [
+        "lamp_glow",
+        "metal"
+      ],
+      "mtl": "legacy-obj/HealingLight.mtl",
+      "native_acceptance": "pending",
+      "obj": "legacy-obj/HealingLight.obj",
+      "pivot_cm": [
+        0,
+        0,
+        0
+      ],
+      "pivot_description": "AABB floor centre; place each module using its own dimensions and intended assembly anchors",
+      "proof_bundle": "B1",
+      "recipe": "Stepped metal pedestal, narrow pole, tapered lantern frame, warm inset glass and hipped cap.",
+      "triangles": 480,
+      "usage_status": "unknown",
+      "vertices": 1440
+    },
+    {
+      "bounds_cm": {
+        "max": [
+          47.5,
+          32.0,
+          85.0
+        ],
+        "min": [
+          -47.5,
+          -32.0,
+          0.0
+        ]
+      },
+      "collision": "none authored; separate simple native collision required",
+      "dimensions_cm": [
+        95,
+        64,
+        85
+      ],
+      "editable": "editable/BridgeAnchor.mesh.json",
+      "glb": "models/BridgeAnchor.glb",
+      "id": "BridgeAnchor",
+      "inventory_ids": [
+        "VT-ARC-007"
+      ],
+      "lods": [
+        0
+      ],
+      "materials": [
+        "rope",
+        "stone",
+        "wood",
+        "wood_dark"
+      ],
+      "mtl": "legacy-obj/BridgeAnchor.mtl",
+      "native_acceptance": "pending",
+      "obj": "legacy-obj/BridgeAnchor.obj",
+      "pivot_cm": [
+        0,
+        0,
+        0
+      ],
+      "pivot_description": "AABB floor centre; place each module using its own dimensions and intended assembly anchors",
+      "proof_bundle": "B5",
+      "recipe": "Angular bank rock anchor, chamfered wooden peg, diagonal brace and wrapped rope.",
+      "triangles": 444,
+      "usage_status": "unknown",
+      "vertices": 1332
+    }
+  ],
+  "obj_conversion": "(x,-y,z); centimetres; reverse winding once",
+  "reference": {
+    "path": "docs/references/town-visual-target.png",
+    "sha256": "5d7cb278849764b3784f9df05197eea89b5666f1fa9b47ff1ed7cbdf49b4929a"
+  },
+  "release_id": "s1-environment-v001",
+  "schema": "verdant.source-release.v1",
+  "source_coordinates": "centimetres, right-handed Z-up; front -Y; bridge span X",
+  "usage_status": "unknown"
+}

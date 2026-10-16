@@ -1,0 +1,27 @@
+# Keep the default graph local and code-only.
+.git/
+.codex/
+graphify-out/
+**/graphify-out/
+docs/
+output/
+assets/
+**/*.md
+**/*.mdx
+
+# Unreal generated output and binary content.
+**/Binaries/
+**/DerivedDataCache/
+**/Intermediate/
+**/Saved/
+**/Content/
+**/.vs/
+
+# Other generated, dependency, and cache directories.
+**/node_modules/
+**/.venv/
+**/__pycache__/
+**/dist/
+**/build/
+**/coverage/
+**/vendor/

@@ -1,0 +1,8 @@
+# Original project colour palette; no texture dependencies.
+newmtl VTEnv_foam
+Kd 0.6866853 0.8962694 0.8069523
+d 0.94
+Ks 0.05 0.05 0.05
+Ns 8
+illum 2
+

@@ -1,0 +1,72 @@
+[
+  {
+    "resource": "pokemon/bulbasaur",
+    "status": "fetched",
+    "id": 1,
+    "name": "bulbasaur",
+    "bytes": 282679,
+    "sha256": "365bbd36d6570728dc41c94809fc69f0fc79e33f032feef7c178dc6ae20da905",
+    "fetchedAtUtc": "2026-10-15T14:53:38.9820335Z",
+    "url": "https://pokeapi.co/api/v2/pokemon/bulbasaur/"
+  },
+  {
+    "resource": "pokemon-species/bulbasaur",
+    "status": "fetched",
+    "id": 1,
+    "name": "bulbasaur",
+    "bytes": 33039,
+    "sha256": "0841398912abb467d9292255f0ab1dc69ad13a59f30c0a1589525ec43a33909f",
+    "fetchedAtUtc": "2026-10-15T14:53:39.4323523Z",
+    "url": "https://pokeapi.co/api/v2/pokemon-species/bulbasaur/"
+  },
+  {
+    "resource": "move/tackle",
+    "status": "fetched",
+    "id": 33,
+    "name": "tackle",
+    "bytes": 54671,
+    "sha256": "e8af2fa50f91af7eece8cf6e7e19e93b8036e6b8a30f3a9bce41bb9dd526b123",
+    "fetchedAtUtc": "2026-10-15T14:53:39.6721858Z",
+    "url": "https://pokeapi.co/api/v2/move/tackle/"
+  },
+  {
+    "resource": "type/grass",
+    "status": "fetched",
+    "id": 12,
+    "name": "grass",
+    "bytes": 25188,
+    "sha256": "bb614cf03bb57ae1853af054d8295dea8f3e535beafe5d22968b5696b7b2eb54",
+    "fetchedAtUtc": "2026-10-15T14:53:39.9366355Z",
+    "url": "https://pokeapi.co/api/v2/type/grass/"
+  },
+  {
+    "resource": "growth-rate/medium-slow",
+    "status": "fetched",
+    "id": 4,
+    "name": "medium-slow",
+    "bytes": 23088,
+    "sha256": "4825479a01b830974c0c127955ba9d7417e9827d4ac51b628fc6b78037c0dd40",
+    "fetchedAtUtc": "2026-10-15T14:53:40.4053717Z",
+    "url": "https://pokeapi.co/api/v2/growth-rate/medium-slow/"
+  },
+  {
+    "resource": "version-group/ultra-sun-ultra-moon",
+    "status": "fetched",
+    "id": 18,
+    "name": "ultra-sun-ultra-moon",
+    "bytes": 1284,
+    "sha256": "97a732d22a5cb4a34d55422c4a0240ccba3e9be028dd7edd6d4fbba70485e9b4",
+    "fetchedAtUtc": "2026-10-15T14:53:40.8565667Z",
+    "url": "https://pokeapi.co/api/v2/version-group/ultra-sun-ultra-moon/"
+  },
+  {
+    "resource": "evolution-chain/1",
+    "status": "fetched",
+    "id": 1,
+    "name": null,
+    "bytes": 2023,
+    "sha256": "05f17c5109d34949b2356c08aa61cd1a5267a539f57d738bb62774806631ad99",
+    "fetchedAtUtc": "2026-10-15T14:53:41.4239073Z",
+    "url": "https://pokeapi.co/api/v2/evolution-chain/1/"
+  }
+]

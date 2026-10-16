@@ -1,0 +1,52 @@
+{
+  "communities": {
+    "0": [
+      "game_source_verdanttrails_target",
+      "game_source_verdanttrailseditor_target",
+      "system_collections_generic",
+      "unrealbuildtool"
+    ],
+    "1": [
+      "game_source_verdanttrails_target_verdanttrailstarget",
+      "game_source_verdanttrailseditor_target_verdanttrailseditortarget",
+      "targetrules"
+    ],
+    "2": [
+      "game_source_verdanttrails_verdanttrails_build",
+      "game_source_verdanttrails_verdanttrails_build_verdanttrails",
+      "modulerules"
+    ],
+    "3": [
+      "game_source_verdanttrails_verdanttrails",
+      "modulemanager"
+    ]
+  },
+  "cohesion": {
+    "0": 0.6666666666666666,
+    "1": 0.6666666666666666,
+    "2": 0.6666666666666666,
+    "3": 1.0
+  },
+  "gods": [
+    {
+      "id": "game_source_verdanttrails_target_verdanttrailstarget",
+      "label": "VerdantTrailsTarget",
+      "degree": 2
+    },
+    {
+      "id": "game_source_verdanttrailseditor_target_verdanttrailseditortarget",
+      "label": "VerdantTrailsEditorTarget",
+      "degree": 2
+    },
+    {
+      "id": "game_source_verdanttrails_verdanttrails_build_verdanttrails",
+      "label": "VerdantTrails",
+      "degree": 2
+    }
+  ],
+  "surprises": [],
+  "tokens": {
+    "input": 0,
+    "output": 0
+  }
+}

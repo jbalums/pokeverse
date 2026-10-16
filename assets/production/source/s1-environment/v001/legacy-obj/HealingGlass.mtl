@@ -1,0 +1,22 @@
+# Original project colour palette; no texture dependencies.
+newmtl VTEnv_cream_light
+Kd 0.9386857 0.8069523 0.5457245
+d 1
+Ks 0.05 0.05 0.05
+Ns 8
+illum 2
+
+newmtl VTEnv_glass
+Kd 0.0865005 0.4677838 0.6583748
+d 0.66
+Ks 0.05 0.05 0.05
+Ns 8
+illum 2
+
+newmtl VTEnv_metal
+Kd 0.0703601 0.0998987 0.1022417
+d 1
+Ks 0.05 0.05 0.05
+Ns 8
+illum 2
+

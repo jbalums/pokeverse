@@ -1,0 +1,8 @@
+# Original project colour palette; no texture dependencies.
+newmtl VTEnv_stone_light
+Kd 0.4793202 0.4677838 0.3277781
+d 1
+Ks 0.05 0.05 0.05
+Ns 8
+illum 2
+

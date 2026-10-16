@@ -1,0 +1,15 @@
+# Original project colour palette; no texture dependencies.
+newmtl VTEnv_lamp_glow
+Kd 1.0000000 0.7681511 0.3515326
+d 1
+Ks 0.05 0.05 0.05
+Ns 8
+illum 2
+
+newmtl VTEnv_metal
+Kd 0.0703601 0.0998987 0.1022417
+d 1
+Ks 0.05 0.05 0.05
+Ns 8
+illum 2
+

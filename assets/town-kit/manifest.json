@@ -1,0 +1,93 @@
+{
+  "schema": 1,
+  "kit": "verdant-corner-v1",
+  "units": "centimetres",
+  "source_coordinates": "OBJ right-handed Z-up; Y mirrored by installed Unreal importer",
+  "seed": 41723,
+  "meshes": [
+    {
+      "id": "Roof",
+      "file": "meshes/Roof.obj",
+      "vertices": 18,
+      "triangles": 8,
+      "sha256": "e4b5bd7be1f3074e27a59850171d6c3f46697e975d0049719ac5cce5fc0f8d78",
+      "collision": "assembly-owned simple collision; decorative meshes have none"
+    },
+    {
+      "id": "Trunk",
+      "file": "meshes/Trunk.obj",
+      "vertices": 39,
+      "triangles": 48,
+      "sha256": "d78507341e23697102f8e28ee6f348f26a8492efa24bcb8f6093f1fc36c4da50",
+      "collision": "assembly-owned simple collision; decorative meshes have none"
+    },
+    {
+      "id": "Canopy",
+      "file": "meshes/Canopy.obj",
+      "vertices": 375,
+      "triangles": 672,
+      "sha256": "2926243e3ad225635236f92f0e30df6bacc9438863f29b20c3760c18a80c32c4",
+      "collision": "assembly-owned simple collision; decorative meshes have none"
+    },
+    {
+      "id": "Rock",
+      "file": "meshes/Rock.obj",
+      "vertices": 60,
+      "triangles": 90,
+      "sha256": "0f70dc1695960ad74edafa0b75737cfc2bb6bf9ae6eee49a87eb9b5f002a6644",
+      "collision": "assembly-owned simple collision; decorative meshes have none"
+    },
+    {
+      "id": "GrassTuft",
+      "file": "meshes/GrassTuft.obj",
+      "vertices": 55,
+      "triangles": 33,
+      "sha256": "35594548a36d9746a31b0fe68f909535d513e858ac49236b93995fd6c456dc9f",
+      "collision": "assembly-owned simple collision; decorative meshes have none"
+    },
+    {
+      "id": "Flower",
+      "file": "meshes/Flower.obj",
+      "vertices": 60,
+      "triangles": 48,
+      "sha256": "13ee7da0b3040391c8fc4a5c108b235a52260be5087769b1b7e6d5a301d820f5",
+      "collision": "assembly-owned simple collision; decorative meshes have none"
+    },
+    {
+      "id": "Leaf",
+      "file": "meshes/Leaf.obj",
+      "vertices": 5,
+      "triangles": 4,
+      "sha256": "acae823273b37760e1867ad4654a7d9668b7d0c0d3e2c89113969cd5a5f82cc9",
+      "collision": "assembly-owned simple collision; decorative meshes have none"
+    },
+    {
+      "id": "WaterPlane",
+      "file": "meshes/WaterPlane.obj",
+      "vertices": 441,
+      "triangles": 768,
+      "sha256": "1a3c797b01f8dfbbd7e4af9552f5c1d6e95aa873701da6c129bca0dd81b755d3",
+      "collision": "assembly-owned simple collision; decorative meshes have none"
+    }
+  ],
+  "textures": [
+    {
+      "id": "TownAtlas",
+      "file": "textures/town-material-atlas.png",
+      "sha256": "b2a5616923fbbc37c49e8544b02428cc0374373cc4238804a2cb6f9bca911cc3",
+      "origin": "OpenAI image generation, authored for this project",
+      "quadrants": {
+        "top_left": "Grass",
+        "top_right": "Paving",
+        "bottom_left": "Wood",
+        "bottom_right": "Roof"
+      },
+      "uv_inset": 0.012,
+      "limitations": "Generated seams need in-engine visual approval; no PBR map fidelity claim."
+    }
+  ],
+  "authored_by": "procedural project scripts and generated material artwork",
+  "reference": "../../docs/references/isometric-town-concept.png",
+  "characters": "Constructed trainer, gardener and Bulbasaur study; not final skinned character assets.",
+  "acceptance": "Source and import validation separate from in-engine visual/gameplay acceptance."
+}
