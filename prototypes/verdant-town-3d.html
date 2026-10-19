@@ -331,6 +331,10 @@ function rnd() { seed = (seed + 0x6D2B79F5) | 0; let t = Math.imul(seed ^ (seed 
 const rr = (a, b) => a + (b - a) * rnd();
 const pick = a => a[Math.floor(rnd() * a.length)];
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+// Shared squash and stretch: sy > 1 stretches, sy < 1 squashes, the other two axes keep the volume.
+function squash(o, sy, base = 1) { const k = base / Math.sqrt(sy); o.scale.set(k, base * sy, k); }
+function approach(v, target, step) { return v < target ? Math.min(target, v + step) : Math.max(target, v - step); }
+const wrapAngle = a => Math.atan2(Math.sin(a), Math.cos(a));
 const smooth = (a, b, x) => { const t = clamp((x - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };
 const hash2 = (x, z) => { const s = Math.sin(x * 127.1 + z * 311.7) * 43758.5453; return s - Math.floor(s); };
 const hash3 = (x, y, z) => { const s = Math.sin(x * 127.1 + y * 269.5 + z * 311.7) * 43758.5453; return s - Math.floor(s); };
@@ -1827,11 +1831,13 @@ function makeHuman(name) {
     c.groundPoint = new V3();
     c.ground = ['LFoot', 'LToe', 'RFoot', 'RToe'].map(n => g.getObjectByName(n)).filter(b => b?.isBone)
       .map(bone => ({ bone, y: g.worldToLocal(bone.getWorldPosition(new V3())).y }));
+    c.legLen = g.worldToLocal(g.getObjectByName('LThigh').getWorldPosition(new V3())).y - Math.min(...c.ground.map(x => x.y));
     animWalk(c, 0, 0); return c;
   }
   const { root, parts: p } = rig(name), body = humanBody(root);
   p.armL.rotation.z = -0.12; p.armR.rotation.z = 0.12;
   const c = { root, body, legs: [p.legL, p.legR], arms: [p.armL, p.armR], head: p.head, phase: 0, idle: 0 };
+  root.updateMatrixWorld(true); c.legLen = p.legL.getWorldPosition(new V3()).y;
   animWalk(c, 0, 0); return c;
 }
 function animWalk(c, dt, speed) {
@@ -1840,32 +1846,40 @@ function animWalk(c, dt, speed) {
   const blend = 1 - Math.exp(-dt * 10);
   c.amt = THREE.MathUtils.lerp(c.amt || 0, speed > 0.05 ? Math.min(1, speed / 1.1) : 0, blend);
   c.run = THREE.MathUtils.lerp(c.run || 0, THREE.MathUtils.smoothstep(speed, 2.6, 4.6), blend);
-  // Distance sets the stride; running lengthens the step instead of spinning the limbs faster.
-  c.phase = (c.phase + dt * speed * THREE.MathUtils.lerp(3.5, 2.4, c.run)) % (Math.PI * 2);
+  // Smoothed acceleration pitches the body: forward when setting off, back when pulling up.
+  if (dt > 0) c.acc = THREE.MathUtils.lerp(c.acc || 0, (speed - (c.lastSpeed ?? speed)) / dt, 1 - Math.exp(-dt * 6));
+  c.lastSpeed = speed;
   c.idle += dt;
   const amount = c.amt, stride = THREE.MathUtils.lerp(0.46, 0.72, c.run), armSwing = THREE.MathUtils.lerp(0.24, 0.48, c.run);
+  // Planted foot: in stance the foot's offset ahead of the hip (legLen * reach * step) sweeps linearly from +1 to -1 over half a
+  // cycle, so it moves back at exactly the ground speed and stays put; the swing brings it forward again on an eased curve.
+  // Running lengthens the step instead of spinning the limbs faster. The cap keeps tiny shuffles from blurring.
+  const leg = (c.legLen || 0.55) * c.root.scale.y, reach = Math.sin(stride) * Math.max(amount, 0.05);
+  c.phase = (c.phase + dt * Math.min(14, Math.PI / 2 * speed / (leg * reach))) % (Math.PI * 2);
   for (let i = 0; i < 2; i++) {
-    const phase = c.phase + i * Math.PI, step = Math.sin(phase), lift = Math.max(0, Math.cos(phase)) ** 2;
-    const knee = lift * THREE.MathUtils.lerp(0.8, 1.15, c.run) * amount;
-    c.legs[i].rotation.x = -step * stride * amount;
+    const phase = c.phase + i * Math.PI, q = ((phase - Math.PI / 2) / (Math.PI * 2) % 1 + 1) % 1, stance = q < 0.5;
+    const step = stance ? 1 - 4 * q : -Math.cos((q - 0.5) * Math.PI * 2), lift = stance ? 0 : Math.sin((q - 0.5) * Math.PI * 2) ** 2;
+    const knee = lift * THREE.MathUtils.lerp(0.8, 1.15, c.run) * amount, angle = Math.asin(step * Math.sin(stride) * amount);
+    c.legs[i].rotation.x = -angle;
     if (c.knees?.[i]) c.knees[i].rotation.x = knee;
-    if (c.feet?.[i]) c.feet[i].rotation.x = -knee * 0.45 + step * 0.1 * amount;
+    if (c.feet?.[i]) c.feet[i].rotation.x = stance ? angle : angle * 0.5 - knee * 0.45; // sole flat on the ground while planted
     // Opposite arm follows the step with a slight delay; elbows and wrists soften the reversal.
     c.arms[i].rotation.x = Math.sin(phase - 0.22) * armSwing * amount;
     if (c.elbows?.[i]) c.elbows[i].rotation.x = -(0.16 + c.run * 0.75 + Math.max(0, -step) * 0.25 * amount);
     if (c.wrists?.[i]) c.wrists[i].rotation.x = Math.sin(phase - 0.65) * 0.065 * amount;
   }
-  const sway = Math.sin(c.phase) * amount, lean = c.run * 0.09 * amount;
+  const sway = Math.sin(c.phase) * amount, lean = c.run * 0.09 * amount + clamp(c.acc * 0.02, -0.07, 0.09);
+  const breath = Math.sin(c.idle * 2.2) * (1 - amount);
   c.body.position.x = sway * 0.018;
-  c.body.position.y = (1 - Math.cos(c.phase * 2)) * THREE.MathUtils.lerp(0.014, 0.026, c.run) * amount
-    + Math.sin(c.idle * 2.2) * 0.003 * (1 - amount);
+  // Lowest when a foot lands (legs spread, phase pi/2), highest mid-stride. Rigs with foot bones get this from the grounding below.
+  c.body.position.y = (c.ground?.length ? 0 : (1 + Math.cos(c.phase * 2)) * THREE.MathUtils.lerp(0.014, 0.026, c.run) * amount) + breath * 0.003;
   c.body.rotation.x = lean; c.body.rotation.z = sway * 0.025;
   if (c.hips) { c.hips.rotation.y = sway * 0.035; c.hips.rotation.z = -sway * 0.02; }
   if (c.spine) {
     c.spine.rotation.y = -sway * 0.065;
-    c.spine.rotation.x = -lean * 0.3 + Math.sin(c.idle * 2.2) * 0.004 * (1 - amount);
+    c.spine.rotation.x = -lean * 0.3 + breath * 0.015;
   }
-  c.head.rotation.x = -lean * 0.5;
+  c.head.rotation.x = -lean * 0.5 - breath * 0.008;
   c.head.rotation.y = sway * 0.025;
   if (c.ground?.length) {
     // Ground the lowest heel/toe after bending, so shorter posed legs do not make the character float.
@@ -2010,6 +2024,7 @@ function prepXY(name, scene, animated) { // runs after textures load, so effect 
     tail: chain(p => -p.z, p => p.z < -0.12 * H, new V3(0, 0, 1)), // side-to-side tilt, like the sculpt's tail.rotation.z
     wingL: chain(p => p.x, p => p.x > 0.1 * H, new V3(0, 0, 1)),
     wingR: chain(p => -p.x, p => p.x < -0.1 * H, new V3(0, 0, 1)), // same axis: the caller already mirrors the angle per side
+    ears: chain(p => p.y, p => p.y > 0.8 * H, new V3(1, 0, 0)), // the highest tip (an ear on Pikachu), twitched forward and back
   };
   return g;
 }
@@ -2043,8 +2058,8 @@ function xy(name) {
   const t = XY[name]; if (!t) return null;
   const g = SkeletonUtils.clone(t), bones = []; g.traverse(o => o.isBone && bones.push(o));
   const live = c => c && { userData: { chain: c.idx.map((i, k) => ({ b: bones[i], rest: bones[i].quaternion.clone(), axis: new V3().fromArray(c.axis[k]) })) } };
-  const { tail, wingL, wingR } = t.userData.chains;
-  g.userData = { fire: t.userData.fire, chains: { tail: live(tail), wingL: live(wingL), wingR: live(wingR) } };
+  const { tail, wingL, wingR, ears } = t.userData.chains;
+  g.userData = { fire: t.userData.fire, chains: { tail: live(tail), wingL: live(wingL), wingR: live(wingR), ears: live(ears) } };
   if (t.userData.clips?.length) { // Pokédex 3D Pro idle, started at a random point so a group doesn't move in sync
     const m = new THREE.AnimationMixer(g); m.clipAction(t.userData.clips[0]).play(); m.setTime(Math.random() * t.userData.clips[0].duration); XY_MIXERS.add(m);
   }
@@ -2069,12 +2084,13 @@ function makeCharmander() {
 
 // player + followers
 const player = makeHuman('player');
-const P = { pos: new V3(START[0], 0, START[1]), face: Math.PI / 2 + 0.25, speed: 0 };
+const P = { pos: new V3(START[0], 0, START[1]), face: Math.PI / 2 + 0.25, speed: 0, v: 0 };
 player.root.position.copy(P.pos); player.root.rotation.y = P.face; scene.add(player.root);
 const pika = makePikachu(); pika.scale.setScalar(0.85); scene.add(pika);
 const PIKA0 = I(795, 486, 0);
-const PK = { pos: new V3(PIKA0[0], 0, PIKA0[1]), face: P.face, hop: 0 };
-pika.rotation.y = P.face;
+const follower = (x, z, face) => ({ pos: new V3(x, 0, z), face, v: 0, ph: 0, amt: 0, roll: 0, look: 0, idleT: 2, act: null, actT: 0, dir: 1 });
+const PK = follower(PIKA0[0], PIKA0[1], P.face);
+Object.assign(pika.userData, { gait: 'bound', base: 0.85 }); pika.rotation.order = 'YXZ'; pika.rotation.y = P.face;
 
 const npcs = [];
 function npc(h, x, z, face, name, lines, extra = {}) {
@@ -2095,7 +2111,8 @@ const girl = npc(makeHuman('girl'), G0[0], G0[1], 2.2, 'Hiker Mia',
   ["My Charmander's tail flame shows how it feels.", "It's blazing today, so we're heading up Route 1!"], { patrol: [GA, GB], leg: 1, wait: 0 });
 const charm = makeCharmander(); charm.scale.setScalar(0.72); scene.add(charm);
 const CH0 = I(1606, 397, 0);
-const CH = { pos: new V3(CH0[0], 0, CH0[1]), face: 2.2 };
+const CH = follower(CH0[0], CH0[1], 2.2);
+Object.assign(charm.userData, { gait: 'waddle', base: 0.72 }); charm.rotation.order = 'YXZ';
 const bulba = makeBulbasaur(); bulba.scale.setScalar(1.05); scene.add(bulba);
 bulba.position.set(BU[0], terrainH(...BU), BU[1]); bulba.rotation.y = 0.5;
 circles.push({ x: BU[0], z: BU[1], r: 0.4 });
@@ -3468,6 +3485,26 @@ const tween = (dur, fn) => new Promise(res => tweens.push({ t: 0, dur, fn, res }
 const wait = s => tween(s, () => {});
 const easeIO = t => t < 0.5 ? 2 * t * t : 1 - (-2 * t + 2) ** 2 / 2;
 const easeBack = t => 1 + 2.70158 * (t - 1) ** 3 + 1.70158 * (t - 1) ** 2;
+// Full-body battle pose on the group between a battler's pivot and its model: z forward (toward the foe), y up, lean (+ pitches
+// forward about the feet), roll, sy squash/stretch, sc uniform swell. Keys are {t: 0..1, ...}; missing fields mean rest.
+// A pose starts from wherever the body is now and the newest call wins, but every call still resolves on time.
+const POSE_REST = { z: 0, y: 0, lean: 0, roll: 0, sy: 1, sc: 1 };
+function setPose(p, z, y, lean, roll, sy, sc) {
+  p.position.set(0, y, z); p.rotation.x = lean; p.rotation.z = roll;
+  p.userData.sy = sy; p.userData.sc = sc; squash(p, sy, sc);
+}
+function pose(m, dur, keys) {
+  const p = m.userData.pose, id = m.userData.poseId = (m.userData.poseId || 0) + 1;
+  const ks = [{ t: 0, z: p.position.z, y: p.position.y, lean: p.rotation.x, roll: p.rotation.z, sy: p.userData.sy ?? 1, sc: p.userData.sc ?? 1 }, ...keys.map(k => ({ ...POSE_REST, ...k }))];
+  let i = 1;
+  return tween(dur, t => {
+    if (m.userData.poseId !== id) return;
+    while (i < ks.length - 1 && t > ks[i].t) i++;
+    const a = ks[i - 1], b = ks[i], u = b.t > a.t ? easeIO(clamp((t - a.t) / (b.t - a.t), 0, 1)) : 1;
+    setPose(p, keyAt(a, b, 'z', u), keyAt(a, b, 'y', u), keyAt(a, b, 'lean', u), keyAt(a, b, 'roll', u), keyAt(a, b, 'sy', u), keyAt(a, b, 'sc', u));
+  });
+}
+const keyAt = (a, b, k, u) => a[k] + (b[k] - a[k]) * u;
 function tickTweens(dt) {
   for (let i = tweens.length - 1; i >= 0; i--) {
     const tw = tweens[i]; tw.t = Math.min(tw.dur, tw.t + dt); tw.fn(tw.dur ? tw.t / tw.dur : 1);
@@ -3498,7 +3535,9 @@ const GLOW_SPRITE_GEO = new THREE.Sprite().geometry; // sprites share this; disp
 const easeOut = t => 1 - (1 - t) ** 3;
 const addFx = (obj, life, upd) => { BT.scene.add(obj); fx.push({ obj, t: 0, life, upd }); return obj; };
 const glowMat = (color, opacity = 1, additive = true) => new THREE.SpriteMaterial({ map: dotTex, color, transparent: true, opacity, blending: additive ? THREE.AdditiveBlending : THREE.NormalBlending, depthWrite: false, toneMapped: !additive });
-const at = (m, h = 0.55) => m.position.clone().add(new V3(0, h * m.userData.s, 0)); // a point on a battler: 0 feet .. ~1 head
+const at = (m, h = 0.55, f = 0.2) => { // a point on the front of a battler, 0 feet .. ~1 head, following its pose (thrusts, knockbacks)
+  const p = m.userData.pose; p.updateWorldMatrix(true, false); return p.localToWorld(new V3(0, h, f));
+};
 function glow(p, color, size, life, grow = 0.5) { // soft light ball that swells and fades
   const s = new THREE.Sprite(glowMat(color)); s.position.copy(p); s.scale.setScalar(size);
   return addFx(s, life, k => { s.scale.setScalar(size * (1 + grow * k)); s.material.opacity = 1 - k * k; });
@@ -3540,28 +3579,52 @@ function impact(dm, color, strength = 1) { // the shared "hit" beat: sparks, a g
   ring(new V3(dm.position.x, 0.08, dm.position.z), color, 1.7 * strength, 0.45);
   lightFlash(p, color, 5 * strength, 0.3);
   shake(0.1 * strength, 0.28);
+  knock(dm, strength);
+}
+// The defender takes the hit: snapped back along the line it came from (a battler faces its foe, so that is local -z), tilted
+// and squashed, with a hit-stop freeze. hitAnim() then recovers it. Random tilt side uses Math.random, never rnd().
+function knock(dm, strength = 1) {
+  const k = Math.min(strength, 2), side = Math.random() < 0.5 ? -1 : 1;
+  BT.stop = Math.max(BT.stop || 0, 0.05 + 0.04 * k);
+  dm.userData.hit = { z: -0.18 * k, lean: -0.22 * k, roll: side * 0.12 * k, sy: 1 - 0.12 * k };
+  pose(dm, 0.06, [{ t: 0.4, ...dm.userData.hit }, { t: 1, ...dm.userData.hit }]);
 }
 const faceDir = (am, dm) => new V3().subVectors(dm.position, am.position).setY(0).normalize();
-async function windUp(am, dm, back = 0.25, dur = 0.14) { // lean back before a strike
+// Attack phases, shared by every move: anticipation (crouch / rear back, squash), action (lunge / thrust, stretch), recovery
+// (settle home with an overshoot). The lean pivots at the feet, so the head and front limbs lead the motion.
+const CROUCH = [{ t: 1, lean: -0.25, sy: 0.82, y: -0.02 }];
+const LUNGE = [{ t: 1, lean: 0.35, sy: 1.15, z: 0.05 }];
+const SNAP_LUNGE = [{ t: 0.3, lean: -0.15, sy: 0.85 }, { t: 1, lean: 0.35, sy: 1.15, z: 0.05 }];
+const SETTLE = [{ t: 0.55, lean: -0.08, sy: 0.93 }, { t: 0.8, lean: 0.03, sy: 1.03 }, { t: 1 }];
+const wag = (am, dur, gain = 3) => { const u = am.userData.inner.userData; tween(dur, t => (u.wag = gain * Math.sin(t * Math.PI))).then(() => (u.wag = 0)); }; // tail and wings trail the body
+async function windUp(am, dm, back = 0.25, dur = 0.14) { // crouch and lean back before a strike
   const a = am.position.clone(), d = faceDir(am, dm);
+  pose(am, dur, CROUCH);
   await tween(dur, t => am.position.copy(a).addScaledVector(d, -back * easeOut(t)));
   return a;
 }
 async function dash(am, dm, home, frac = 0.62, dur = 0.14, ghosts = false) { // rush in, (caller hits), comes back with dashBack
-  const d = new V3().subVectors(dm.position, home).multiplyScalar(frac), from = am.position.clone();
+  const d = new V3().subVectors(dm.position, home).multiplyScalar(frac), from = am.position.clone(), to = home.clone().add(d);
+  const p = am.userData.pose; pose(am, dur, p.rotation.x < -0.1 ? LUNGE : SNAP_LUNGE); wag(am, dur + 0.2);
   let n = 0;
   await tween(dur, t => {
-    am.position.copy(from).lerp(home.clone().add(d), easeIO(t));
+    am.position.copy(from).lerp(to, easeIO(t));
     if (ghosts && n++ % 2 === 0) glow(at(am, 0.45), '#ffffff', 0.9, 0.25, -0.3);
   });
 }
-const dashBack = (am, home, dur = 0.22) => { const from = am.position.clone(); return tween(dur, t => am.position.copy(from).lerp(home, easeIO(t))); };
-async function charge(am, color, dur = 0.45) { // gather energy: sparks pulled in, the body swells a little
-  const s = am.userData.s, p = at(am); SND.charge(dur);
+const dashBack = (am, home, dur = 0.22) => { const from = am.position.clone(); pose(am, dur, SETTLE); return tween(dur, t => am.position.copy(from).lerp(home, easeIO(t))); };
+// Cast pose for special moves: rear up and stretch while the energy gathers, then thrust at the foe on the last beat, so a
+// caller that reads at(am, ...) after `await charge` fires from the thrust mouth or cheeks. Recovery runs on its own.
+const CAST = [{ t: 0.7, lean: -0.28, sy: 1.12, y: 0.04 }, { t: 1, lean: 0.3, sy: 0.9, z: 0.08 }];
+async function charge(am, color, dur = 0.45) { // gather energy: sparks pulled in while the body rears back, then the thrust
+  const p = at(am); SND.charge(dur);
   glow(p, color, 1.4, dur, -0.6);
   for (let i = 0; i < 3; i++) setTimeout(() => burst(p.clone().add(new V3(rr(-0.8, 0.8), rr(-0.3, 0.8), rr(-0.8, 0.8))), color, { n: 8, to: p, speed: 1, life: dur * 0.8, size: 0.16 }), i * dur * 250);
-  await tween(dur, t => am.scale.setScalar(s * (1 + Math.sin(t * Math.PI) * 0.08)));
+  await pose(am, dur, CAST);
+  pose(am, 0.45, SETTLE);
 }
+// Specials without a charge get the same three phases, squeezed into a short pose that runs alongside the move's first beat.
+const cast = am => pose(am, 0.4, [{ t: 0.3, lean: -0.22, sy: 1.1, y: 0.03 }, { t: 0.5, lean: 0.25, sy: 0.92, z: 0.06 }, ...SETTLE.map(k => ({ ...k, t: 0.5 + k.t * 0.5 }))]);
 function slash(p, color, angle, delay = 0, len = 1.3) { // a bright claw streak that draws itself across the target
   setTimeout(() => {
     const m = new THREE.Mesh(new THREE.PlaneGeometry(len, 0.07), new THREE.MeshBasicMaterial({ color, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide, toneMapped: false }));
@@ -3677,26 +3740,26 @@ const MOVE_FX = {
     impact(dm, '#ff8a2a', 1.1);
   },
   async VINE_WHIP(am, dm) {
-    const from = at(am, 0.45), to = at(dm, 0.5);
+    cast(am); const from = at(am, 0.45), to = at(dm, 0.5);
     SND.whip(0.22); vine(from, to, '#3fa83a', 0.7); vine(from, to.clone().add(new V3(0, 0.2, 0)), '#58c24a', -0.7);
     await wait(0.24);
     slash(to, '#9dff7a', 0.9); slash(to, '#9dff7a', -0.9, 0.12);
     burst(to, '#7ddc4c', { n: 26, speed: 2.4, size: 0.22, life: 0.7 }); impact(dm, '#7ddc4c', 1); await wait(0.15); impact(dm, '#7ddc4c', 0.7);
   },
   async ABSORB(am, dm) {
-    SND.drain(1.0); const src = at(dm), dst = at(am); glow(src, '#8dff6a', 1.5, 0.9, -0.5); impact(dm, '#8dff6a', 0.6);
+    cast(am); SND.drain(1.0); const src = at(dm), dst = at(am); glow(src, '#8dff6a', 1.5, 0.9, -0.5); impact(dm, '#8dff6a', 0.6);
     await Promise.all([...Array(7)].map((_, i) => wait(i * 0.07).then(() => projectile(src.clone().add(new V3(rr(-0.3, 0.3), rr(-0.2, 0.3), rr(-0.3, 0.3))), dst, { color: '#8dff6a', size: 0.22, dur: 0.5, arc: rr(0.2, 0.7), trail: '#c8ffb0', trailN: 1 }))));
     glow(dst, '#b6ff9a', 1.6, 0.5); burst(dst, '#d6ffc0', { n: 20, up: 2, grav: 1, speed: 1, life: 0.8 });
   },
   async GUST(am, dm) {
-    SND.wind(1.1); const home = am.position.clone(); await tween(0.25, t => (am.position.y = home.y + Math.sin(t * Math.PI) * 0.35));
+    SND.wind(1.1); await pose(am, 0.25, [{ t: 0.15, sy: 0.85, lean: -0.1 }, { t: 0.5, y: 0.35, sy: 1.12, lean: -0.2 }, { t: 0.85, y: 0.05, sy: 0.92, lean: 0.25 }, { t: 1, lean: 0.15 }]); pose(am, 0.4, SETTLE);
     const from = at(am, 0.5), to = at(dm, 0.4);
     for (let i = 0; i < 4; i++) projectile(from, to.clone().add(new V3(rr(-0.3, 0.3), rr(-0.2, 0.3), 0)), { color: '#e8f4ff', core: '#ffffff', size: 0.5, dur: 0.38, arc: 0.1, trail: '#ffffff', spin: 14 + i * 3 });
     await wait(0.36); wrap(dm, '#dff1ff', 0.9);
     burst(to, '#cfe9c0', { n: 30, speed: 3, grav: -0.5, life: 0.8, size: 0.18 }); impact(dm, '#e8f4ff', 1);
   },
   async POISON_STING(am, dm) {
-    const from = at(am, 0.5), to = at(dm);
+    cast(am); const from = at(am, 0.5), to = at(dm);
     [0, 1, 2].forEach(i => SND.sting(i * 0.08));
     await Promise.all([0, 1, 2].map(i => wait(i * 0.08).then(() => projectile(from, to.clone().add(new V3(rr(-0.15, 0.15), rr(-0.1, 0.15), 0)), { color: '#c25ae6', core: '#f2d0ff', size: 0.24, dur: 0.22, arc: 0.05, trail: '#e09cff', trailN: 1 }).then(p => burst(p, '#c25ae6', { n: 10, speed: 2, life: 0.4 })))));
     impact(dm, '#c25ae6', 0.8);
@@ -3711,8 +3774,9 @@ const MOVE_FX = {
   },
   async GROWL(am, dm) {
     SND.growl(0.65);
-    const p = at(am, 0.6), dir = faceDir(am, dm), home = am.position.clone();
-    tween(0.5, t => (am.position.y = home.y + Math.abs(Math.sin(t * Math.PI * 3)) * 0.08));
+    const p = at(am, 0.6), dir = faceDir(am, dm);
+    pose(am, 0.5, [{ t: 0.15, lean: -0.15, sc: 1.08, sy: 1.06 }, { t: 0.3, lean: 0.12, sc: 1.08, roll: 0.12 }, { t: 0.45, lean: 0.12, sc: 1.08, roll: -0.12 }, // chest puffs, head shakes
+      { t: 0.6, lean: 0.12, sc: 1.06, roll: 0.1 }, { t: 0.75, lean: 0.1, sc: 1.04, roll: -0.08 }, { t: 1 }]);
     for (let i = 0; i < 4; i++) {
       const r = ring(p.clone().addScaledVector(dir, 0.4), i % 2 ? '#bfe3ff' : '#ffffff', 2.6, 0.6, Math.PI / 2);
       r.lookAt(r.position.clone().add(dir)); await wait(0.12);
@@ -3721,12 +3785,13 @@ const MOVE_FX = {
   },
   async TAIL_WHIP(am, dm) {
     [0, 0.15, 0.3, 0.45].forEach(d => SND.whoosh(0.13, 1.6, 0.22, d));
-    const inner = am.userData.inner, r0 = inner.rotation.y;
+    const inner = am.userData.inner, r0 = inner.rotation.y; wag(am, 0.6, 4); // hips swing the tail at the foe
+    pose(am, 0.6, [{ t: 0.12, roll: 0.15, sy: 0.95 }, { t: 0.37, roll: -0.15, sy: 0.95 }, { t: 0.62, roll: 0.15, sy: 0.95 }, { t: 0.87, roll: -0.1 }, { t: 1 }]);
     await tween(0.6, t => (inner.rotation.y = r0 + Math.sin(t * Math.PI * 4) * 0.55 * Math.sin(t * Math.PI)));
     inner.rotation.y = r0; burst(at(am, 0.4), '#ffd0e6', { n: 14, up: 1.5, grav: 1, speed: 1, life: 0.7 });
   },
   async STRING_SHOT(am, dm) {
-    const from = at(am, 0.5), to = at(dm, 0.5);
+    cast(am); const from = at(am, 0.5), to = at(dm, 0.5);
     for (let i = 0; i < 5; i++) {
       const pts = [from, from.clone().lerp(to, 0.5).add(new V3(rr(-0.3, 0.3), rr(0.1, 0.5), rr(-0.3, 0.3))), to.clone().add(new V3(rr(-0.25, 0.25), rr(-0.2, 0.3), 0))];
       const geo = new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 24, 0.012, 4), total = geo.index.count;
@@ -3738,21 +3803,21 @@ const MOVE_FX = {
   },
   async SAND_ATTACK(am, dm) {
     SND.sand(0.8);
-    const from = am.position.clone().add(new V3(0, 0.15, 0)), to = at(dm, 0.6), home = am.position.clone(), d = faceDir(am, dm);
-    tween(0.3, t => am.position.copy(home).addScaledVector(d, -Math.sin(t * Math.PI) * 0.15));
+    const from = am.position.clone().add(new V3(0, 0.15, 0)), to = at(dm, 0.6), d = faceDir(am, dm);
+    pose(am, 0.5, [{ t: 0.3, z: -0.15, lean: 0.3, sy: 0.88 }, { t: 0.55, z: -0.12, lean: 0.2 }, ...SETTLE.map(k => ({ ...k, t: 0.55 + k.t * 0.45 }))]); // kicks sand back over its shoulder
     await stream(from.clone().addScaledVector(d, 0.3), to, ['#d8b77a', '#c49a5a', '#e6cf9a'], { dur: 0.45, size: 0.22, spread: 0.35, additive: false });
     await wait(0.2); for (let i = 0; i < 5; i++) smoke(to.clone().add(new V3(rr(-0.4, 0.4), rr(-0.3, 0.3), rr(-0.2, 0.2))), '#d8c08a', 0.9, 0.9);
   },
   async SMOKESCREEN(am, dm) {
-    SND.whoosh(0.4, 0.6, 0.3); const to = await projectile(at(am, 0.5), at(dm, 0.3), { color: '#5a5a5a', core: '#9a9a9a', size: 0.4, dur: 0.4, arc: 0.6, trail: null });
+    cast(am); SND.whoosh(0.4, 0.6, 0.3); const to = await projectile(at(am, 0.5), at(dm, 0.3), { color: '#5a5a5a', core: '#9a9a9a', size: 0.4, dur: 0.4, arc: 0.6, trail: null });
     SND.puff(1.4); for (let i = 0; i < 12; i++) smoke(to.clone().add(new V3(rr(-0.7, 0.7), rr(-0.1, 0.9), rr(-0.5, 0.5))), pick(['#3c3c44', '#55555e', '#6c6c74']), rr(1.1, 1.8), rr(1.2, 1.7));
     await wait(0.5);
   },
   async GROWTH(am) {
-    const p = at(am, 0.5), s = am.userData.s; SND.sparkle(1.0); SND.rustle(0.8);
+    const p = at(am, 0.5); SND.sparkle(1.0); SND.rustle(0.8);
     glow(p, '#9cff6a', 2.2, 0.9, 0.3); ring(new V3(am.position.x, 0.1, am.position.z), '#9cff6a', 2.2, 0.8);
     for (let i = 0; i < 4; i++) setTimeout(() => burst(at(am, 0.1), '#c8ff8a', { n: 12, up: 3, grav: -1.5, speed: 1, life: 1 }), i * 120);
-    await tween(0.7, t => am.scale.setScalar(s * (1 + Math.sin(t * Math.PI) * 0.16)));
+    await pose(am, 0.7, [{ t: 0.15, sy: 0.88, lean: 0.1 }, { t: 0.5, sc: 1.16, sy: 1.08, lean: -0.15 }, { t: 0.8, sc: 0.98, sy: 0.97 }, { t: 1 }]); // gathers itself, then swells upward
   },
   // ---- showcase moves
   async FLAMETHROWER(am, dm) {
@@ -3770,7 +3835,7 @@ const MOVE_FX = {
     impact(dm, '#fff16a', 1.6);
   },
   async WATER_GUN(am, dm) {
-    SND.water(0.75); await stream(at(am, 0.55), at(dm, 0.5), ['#3a8cff', '#7ec4ff', '#d8f0ff'], { dur: 0.7, size: 0.3, spread: 0.12 });
+    cast(am); SND.water(0.75); await stream(at(am, 0.55), at(dm, 0.5), ['#3a8cff', '#7ec4ff', '#d8f0ff'], { dur: 0.7, size: 0.3, spread: 0.12 });
     SND.splash(0.8); ring(new V3(dm.position.x, 0.1, dm.position.z), '#7ec4ff', 2, 0.6);
     burst(at(dm, 0.4), '#bfe6ff', { n: 30, up: 2.5, grav: 6, speed: 2, life: 0.8, size: 0.2 }); impact(dm, '#5aa8ff', 1);
   },
@@ -3794,17 +3859,17 @@ const MOVE_FX = {
     SND.boom(0.9); impact(dm, '#e6ff7a', 1.8); shake(0.25, 0.4);
   },
   async RAZOR_LEAF(am, dm) {
-    const from = at(am, 0.6), to = at(dm);
+    cast(am); const from = at(am, 0.6), to = at(dm);
     for (let i = 0; i < 6; i++) SND.leaf(i * 0.07);
     await Promise.all([...Array(6)].map((_, i) => wait(i * 0.07).then(() => projectile(from, to.clone().add(new V3(rr(-0.3, 0.3), rr(-0.2, 0.3), 0)), { color: '#5fd04a', core: '#c8ff9a', size: 0.3, dur: 0.35, arc: rr(-0.3, 0.6), trail: '#7ddc4c', trailN: 1, spin: 20 }).then(p => slash(p, '#b8ff8a', rr(-1.2, 1.2), 0, 0.6)))));
     impact(dm, '#7ddc4c', 1.1);
   },
   async ROCK_SLIDE(am, dm) {
-    const home = am.position.clone(); await tween(0.3, t => (am.position.y = home.y + Math.sin(t * Math.PI) * 0.3));
+    await pose(am, 0.3, [{ t: 0.2, sy: 0.85, lean: -0.1 }, { t: 0.5, y: 0.3, sy: 1.12, lean: -0.15 }, { t: 1, sy: 0.85, lean: 0.15 }]); pose(am, 0.4, SETTLE); // rears up and stamps
     SND.rumble(1.1, 0.5); rocks(dm, '#8a7a5a', 6); await wait(0.75); impact(dm, '#c9a46a', 1.3);
   },
   async EARTHQUAKE(am, dm) {
-    const home = am.position.clone(); await tween(0.35, t => (am.position.y = home.y + Math.sin(t * Math.PI) * 0.6));
+    await pose(am, 0.35, [{ t: 0.15, sy: 0.82, lean: 0.05 }, { t: 0.5, y: 0.6, sy: 1.18 }, { t: 1, sy: 0.75, lean: 0.1 }]); pose(am, 0.45, SETTLE); // leaps and slams down
     SND.rumble(1.6); shake(0.35, 1.0);
     for (let i = 0; i < 4; i++) { ring(new V3(am.position.x, 0.08, am.position.z), '#c9a46a', 5 + i * 2, 0.8); await wait(0.1); }
     const y = dm.position.y;
@@ -3813,7 +3878,7 @@ const MOVE_FX = {
     await wait(0.4); impact(dm, '#c9a46a', 1.4);
   },
   async PSYCHIC(am, dm) {
-    SND.psychic(1.3); glow(at(am, 0.7), '#ff7ab8', 1.6, 0.8, 0.2); screenFlash('rgba(255,120,190,.55)', 0.5);
+    cast(am); SND.psychic(1.3); glow(at(am, 0.7), '#ff7ab8', 1.6, 0.8, 0.2); screenFlash('rgba(255,120,190,.55)', 0.5);
     for (let i = 0; i < 3; i++) ring(at(dm), '#ff7ab8', 2.2, 0.8, Math.PI / 2 * (i % 2));
     await lift(dm, 0.6, 0.9); impact(dm, '#ff7ab8', 1.3);
   },
@@ -3831,7 +3896,7 @@ const MOVE_FX = {
     impact(dm, '#7a5aff', 1.3);
   },
   async DARK_PULSE(am, dm) {
-    SND.dark(1.2); glow(at(am, 0.6), '#3a1a4a', 2, 0.6, 0.6);
+    cast(am); SND.dark(1.2); glow(at(am, 0.6), '#3a1a4a', 2, 0.6, 0.6);
     await soundWaves(am, dm, '#7a2aa8', 6); await wait(0.25);
     for (let i = 0; i < 6; i++) smoke(at(dm, rr(0.2, 0.8)).add(new V3(rr(-0.4, 0.4), 0, rr(-0.3, 0.3))), '#201028', 1.1, 0.8);
     impact(dm, '#8a3ac8', 1.3);
@@ -3843,7 +3908,7 @@ const MOVE_FX = {
     SND.clang(); impact(dm, '#e6eaff', 1.5);
   },
   async MOONBLAST(am, dm) {
-    SND.sparkle(1.0); const sky = at(am, 1).add(new V3(0, 2.2, 0)); glow(sky, '#ffc8f0', 2.5, 0.8, 0.3); lightFlash(sky, '#ffb0e8', 6, 0.8);
+    cast(am); SND.sparkle(1.0); const sky = at(am, 1).add(new V3(0, 2.2, 0)); glow(sky, '#ffc8f0', 2.5, 0.8, 0.3); lightFlash(sky, '#ffb0e8', 6, 0.8);
     await wait(0.45);
     SND.whoosh(0.55, 1.4, 0.4); const p = await projectile(sky, at(dm), { color: '#ff8ae0', core: '#fff0fb', size: 0.9, dur: 0.55, arc: 0.6, trail: '#ffd0f4', trailN: 4 });
     for (let i = 0; i < 5; i++) burst(p, pick(['#ffb0e8', '#ffffff', '#ffe0f8']), { n: 12, speed: 2.5, grav: 0, life: 0.8, size: 0.2 });
@@ -3855,7 +3920,7 @@ const MOVE_FX = {
     await dashBack(am, home);
   },
   async AIR_SLASH(am, dm) {
-    const from = at(am, 0.6), to = at(dm);
+    cast(am); const from = at(am, 0.6), to = at(dm);
     [0, 1, 2].forEach(i => SND.whoosh(0.3, 2.6, 0.5, i * 0.1));
     await Promise.all([0, 1, 2].map(i => wait(i * 0.1).then(() => projectile(from, to.clone().add(new V3(0, (i - 1) * 0.15, 0)), { color: '#bfe2ff', core: '#ffffff', size: 0.35, dur: 0.3, arc: 0.1, trail: '#e8f4ff', trailN: 1 }).then(p => slash(p, '#e8f4ff', -0.5 + i * 0.5, 0, 1.4)))));
     impact(dm, '#bfe2ff', 1.2);
@@ -3868,7 +3933,7 @@ const MOVE_FX = {
     impact(dm, '#b04ae0', 1.4);
   },
   async BUG_BUZZ(am, dm) {
-    SND.buzz(1.3); await soundWaves(am, dm, '#b8e04a', 6);
+    cast(am); SND.buzz(1.3); await soundWaves(am, dm, '#b8e04a', 6);
     const x = dm.position.x; await tween(0.45, t => (dm.position.x = x + Math.sin(t * 80) * 0.06 * (1 - t))); dm.position.x = x;
     impact(dm, '#b8e04a', 1.2);
   },
@@ -3956,10 +4021,11 @@ function resizeBattle() {
   BT.cam.aspect = a; BT.cam.fov = Math.min(70, Math.atan(tanV) * 360 / Math.PI); BT.cam.updateProjectionMatrix();
 }
 function spawnModel(mon, pos, look, scale) {
-  const pivot = new THREE.Group(), inner = SPECIES[mon.key].make();
-  pivot.add(inner); pivot.position.copy(pos);
+  // pivot (place, facing, size, shadow) > pose (full-body move animation, see pose()) > inner (model and its battle idle)
+  const pivot = new THREE.Group(), pose = new THREE.Group(), inner = SPECIES[mon.key].make();
+  pose.rotation.order = 'YXZ'; pose.add(inner); pivot.add(pose); pivot.position.copy(pos);
   pivot.rotation.y = Math.atan2(look.x - pos.x, look.z - pos.z);
-  pivot.userData = { s: scale * SPECIES[mon.key].scale, inner, base: pos.clone(), ph: rnd() * 6 };
+  pivot.userData = { s: scale * SPECIES[mon.key].scale, inner, pose, base: pos.clone(), ph: rf(0, 6.28), rate: rf(0.85, 1.15) }; // Math.random, not rnd(): idle must not shift battle rolls
   pivot.scale.setScalar(pivot.userData.s);
   const blob = new THREE.Mesh(new THREE.PlaneGeometry(1.1, 1.1).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ map: blobTex, transparent: true, depthWrite: false }));
   blob.position.y = 0.01; pivot.add(blob);
@@ -4029,22 +4095,31 @@ function battleKey(e) {
 }
 
 // ============================================================ battle: animations
-async function lunge(am, dm) {
+async function lunge(am, dm) { // fallback physical move (and misses): snap crouch into a lunge, then settle back
   const a = am.position.clone(), d = dm.position.clone().sub(a).multiplyScalar(0.42);
+  pose(am, 0.16, SNAP_LUNGE);
   await tween(0.16, t => am.position.copy(a).addScaledVector(d, easeIO(t)));
+  pose(am, 0.2, SETTLE);
   await tween(0.2, t => am.position.copy(a).addScaledVector(d, 1 - easeIO(t)));
 }
-const hop = am => tween(0.32, t => (am.position.y = am.userData.base.y + Math.sin(t * Math.PI) * 0.3));
-async function hitAnim(m) {
-  const x = m.position.x;
-  await tween(0.45, t => { m.visible = Math.floor(t * 9) % 2 === 0; m.position.x = x + Math.sin(t * 50) * 0.07 * (1 - t); });
-  m.visible = true; m.position.x = x;
+// fallback status move: crouch, spring up stretched, land squashed, settle
+const hop = am => pose(am, 0.32, [{ t: 0.2, sy: 0.8, lean: -0.1 }, { t: 0.5, y: 0.3, sy: 1.15 }, { t: 0.78, sy: 0.85 }, { t: 1 }]);
+async function hitAnim(m, react = 1) { // hold the hit (the freeze), get pushed further on a big hit, recover with an overshoot
+  const h = m.userData.hit || { z: -0.18, lean: -0.22, roll: 0.12, sy: 0.88 }, k = react;
+  BT.stop = Math.max(BT.stop || 0, 0.06 * k);
+  const far = { z: h.z * (0.6 + k), lean: h.lean * (0.5 + 0.5 * k), roll: h.roll * (0.5 + k), sy: 1 - (1 - h.sy) * k };
+  await pose(m, 0.45, [{ t: 0.02, ...h }, { t: 0.22, ...h }, { t: 0.45, ...far }, { t: 0.75, z: -0.02, lean: 0.06, roll: -h.roll * 0.2, sy: 1.04 }, { t: 1 }]);
+  m.userData.hit = null;
 }
-async function faintAnim(m) {
+async function faintAnim(m) { // stagger, tip over sideways, hit the ground with a small bounce, fade out
   if (!m) return;
-  const y = m.position.y, s = m.userData.s;
-  await tween(0.55, t => { m.position.y = y - t * 0.5; m.scale.set(s, s * (1 - t), s); });
-  dropModel(m);
+  const mats = []; // models share materials with the overworld clones, so the fade works on copies
+  m.traverse(o => { if (o.material) { o.material = [o.material].flat().map(x => { const c = x.clone(); c.transparent = true; c.userData.op = x.opacity; mats.push(c); return c; }); if (o.material.length === 1) o.material = o.material[0]; } });
+  const side = Math.random() < 0.5 ? -1 : 1;
+  pose(m, 0.55, [{ t: 0.12, roll: side * 0.18, lean: 0.12, sy: 0.92 }, { t: 0.25, roll: -side * 0.1, lean: 0.05, sy: 0.95 },
+    { t: 0.68, roll: -side * 1.45, y: -0.05, sy: 0.85 }, { t: 0.8, roll: -side * 1.3, y: 0.04, sy: 1 }, { t: 0.9, roll: -side * 1.45, y: -0.05, sy: 0.9 }, { t: 1, roll: -side * 1.45, y: -0.05, sy: 0.9 }]);
+  await tween(0.55, t => { const f = t < 0.6 ? 1 : 1 - (t - 0.6) / 0.4; for (const c of mats) c.opacity = c.userData.op * f; });
+  dropModel(m); mats.forEach(c => c.dispose());
 }
 function moveFx(mv, am, dm) {
   const tp = dm.position.clone().add(new V3(0, 0.55 * dm.userData.s, 0));
@@ -4248,7 +4323,8 @@ async function useMove(att, def, id) {
   }
   if (show) await show(am, dm); else { SND.hit(); moveFx(mv, am, dm); }
   const r = damage(att, def, mv);
-  await hitAnim(dm);
+  if (!show) knock(dm); // MOVE_FX already knocked the defender back on its impact beat
+  await hitAnim(dm, r.crit || r.eff > 1 ? 1.7 : r.eff < 1 ? 0.6 : 1);
   await setHp(def, def.hp - r.dmg);
   if (r.crit) await bsay('A critical hit!');
   if (r.eff > 1) await bsay("It's super effective!");
@@ -4415,9 +4491,9 @@ async function doTurn(act) {
 }
 async function startBattle(key, level, opts = {}) {
   if (BT.active || !party.some(m => m.hp > 0)) return;
-  Object.assign(BT, { active: true, opts, tries: 0, zoom: 0 });
+  Object.assign(BT, { active: true, opts, tries: 0, zoom: 0, stop: 0 });
   music('battle');
-  ui.battle = true; keys.clear(); moveTarget = null;
+  ui.battle = true; keys.clear(); moveTarget = null; P.v = 0;
   $('btrans').className = 'btrans flash';
   await wait(1.1);
   if (!BT.scene) buildArena();
@@ -4465,13 +4541,18 @@ function battleTick(dt, t) {
     BT.cam.position.add(_v.set(rr(-a, a), rr(-a, a), rr(-a, a) * 0.5));
   }
   BT.cam.lookAt(_camLook.copy(B_LOOK).lerp(B_CATCH_LOOK, BT.zoom));
+  // hit-stop: the idle clock (and the model mixers, see frame()) hold still for a beat after a hit
+  if (BT.stop > 0) BT.stop -= dt; else BT.idle = (BT.idle || 0) + dt;
   for (const m of [BT.foeModel, BT.meModel]) {
     if (!m) continue;
-    const inner = m.userData.inner, u = inner.userData, k = t * 2.4 + m.userData.ph;
-    inner.position.y = u.flies ? 0.32 + Math.sin(k * 1.3) * 0.08 : Math.abs(Math.sin(k)) * 0.03;
-    inner.scale.set(1 - Math.sin(k * 1.7) * 0.012, 1 + Math.sin(k * 1.7) * 0.025, 1 - Math.sin(k * 1.7) * 0.012); // breathing
-    if (u.wings) u.wings.forEach((w, i) => swing(w, (i ? -1 : 1) * (0.2 + Math.sin(t * 16) * 0.6)));
-    if (u.tail) swing(u.tail, Math.sin(t * 6) * 0.2);
+    const inner = m.userData.inner, u = inner.userData, k = BT.idle * 2.4 * m.userData.rate + m.userData.ph, w = 1 + (u.wag || 0);
+    // breathing, plus a slow shift of weight from foot to foot; each battler has its own rate and phase, so they never sync
+    const shift = Math.sin(k * 0.45);
+    inner.position.set(shift * 0.02, u.flies ? 0.32 + Math.sin(k * 1.3) * 0.08 : 0, 0);
+    inner.rotation.z = shift * 0.035;
+    squash(inner, 1 + Math.sin(k * 1.7) * 0.02);
+    if (u.wings) u.wings.forEach((g, i) => swing(g, (i ? -1 : 1) * (0.2 + Math.sin(BT.idle * 16 + m.userData.ph) * 0.6 * w)));
+    if (u.tail) swing(u.tail, Math.sin(BT.idle * 6 + m.userData.ph) * 0.2 * w);
     if (u.flame) u.flame.scale.set(1 + Math.sin(t * 23) * 0.12, 1 + Math.sin(t * 17) * 0.2, 1);
     if (u.leaves) u.leaves.rotation.y = Math.sin(t * 1.5) * 0.15;
   }
@@ -4490,6 +4571,60 @@ let grassDist = 0, firstFrame = true, vw = 0, vh = 0;
 function faceTowards(obj, target, dt, k = 10) {
   let d = target - obj.rotation.y; d = Math.atan2(Math.sin(d), Math.cos(d));
   obj.rotation.y += d * (1 - Math.exp(-dt * k));
+}
+// A Pokémon trailing its trainer: catches up smoothly, moves with a gait that fits its body (four-legged ones bound,
+// two-legged ones waddle, flyers hover), leans into turns and plays a short idle when it stops. Models with their own idle
+// clip keep it playing through the mixer; bone-level tail and ear motion is only added when a model has no clip.
+const STRIDE = { bound: 0.5, waddle: 0.22, hover: 0.6 }; // metres per gait cycle (bound, hover) or per step (waddle)
+const TOP_SPEED = { bound: 6.5, waddle: 2.4, hover: 5 };
+function follow(o, F, tx, tz, idleFace, dt, t) {
+  const u = o.userData, gait = u.gait || (u.flies ? 'hover' : 'waddle');
+  const dx = tx - F.pos.x, dz = tz - F.pos.z, gap = Math.hypot(dx, dz);
+  F.v = approach(F.v, gap > 0.15 ? Math.min(TOP_SPEED[gait], gap * 3) : 0, (gap > 0.15 ? 12 : 9) * dt);
+  let turnRate = 0;
+  if (F.v > 0.02 && gap > 0.02) {
+    const turn = wrapAngle(Math.atan2(dx, dz) - F.face), step = clamp(turn, -8 * dt, 8 * dt);
+    F.face = wrapAngle(F.face + step); turnRate = dt ? step / dt : 0;
+    const s = Math.min(gap, F.v * dt * Math.max(0.3, Math.cos(turn)));
+    F.pos.x += Math.sin(F.face) * s; F.pos.z += Math.cos(F.face) * s;
+    F.ph += s / STRIDE[gait]; // the gait advances with distance covered, so the feet keep pace with the ground
+  } else F.face = wrapAngle(F.face + clamp(wrapAngle(idleFace - F.face), -3 * dt, 3 * dt));
+  const blend = 1 - Math.exp(-dt * 8), a = F.amt = THREE.MathUtils.lerp(F.amt, clamp(F.v / 1.5, 0, 1), blend);
+  F.roll = THREE.MathUtils.lerp(F.roll, clamp(-turnRate * F.v * 0.05, -0.3, 0.3), blend); // lean into the turn
+  F.look = THREE.MathUtils.lerp(F.look, gap > 0.3 ? clamp(wrapAngle(Math.atan2(dx, dz) - F.face), -0.5, 0.5) * 0.6 : 0, blend);
+  let y = 0, sy = 1, lean = 0, roll = F.roll, yaw = 0;
+  if (gait === 'bound') { // airborne for 70% of the cycle: stretch and nose up on take-off, squash and nose down on landing
+    const c = F.ph % 1, air = c < 0.7;
+    y = air ? Math.sin(c / 0.7 * Math.PI) * 0.14 * a : 0;
+    sy = 1 + a * (c < 0.2 ? 0.15 * Math.sin(c / 0.2 * Math.PI) : air ? 0 : -0.2 * Math.sin((c - 0.7) / 0.3 * Math.PI));
+    lean = a * (air ? -0.18 * Math.cos(c / 0.7 * Math.PI) : 0.18 * Math.cos((c - 0.7) / 0.3 * Math.PI));
+  } else if (gait === 'waddle') { // weight rocks onto each foot in turn: lowest and slightly squashed as a foot lands
+    const s = Math.sin(F.ph * Math.PI), lift = Math.abs(s);
+    y = lift * 0.035 * a; sy = 1 - 0.07 * a * (1 - lift) ** 4; lean = 0.06 * a; roll += s * 0.12 * a; yaw = s * 0.05 * a;
+  } else { // hover with a wing beat, pitching forward with speed
+    y = 0.35 + Math.sin(t * 3) * 0.05; lean = 0.25 * a;
+    if (u.wings) u.wings.forEach((w, i) => swing(w, (i ? -1 : 1) * (0.2 + Math.sin(t * 16) * 0.6)));
+  }
+  // idle once it has settled: a glance around, a tail flick or an ear twitch, picked with Math.random (never the battle rnd())
+  const tail = u.tail || u.chains?.tail, hasTail = tail && (tail.userData.chain || tail.children.length), ears = u.chains?.ears;
+  if (a < 0.1) {
+    if (!F.act && (F.idleT -= dt) <= 0) {
+      const acts = ['glance', hasTail && 'tail', ears && 'ears'].filter(Boolean);
+      F.act = acts[Math.floor(Math.random() * acts.length)]; F.actT = 0; F.dir = Math.random() < 0.5 ? -1 : 1;
+    }
+  } else if (F.act) F.act = null;
+  let flick = 0;
+  if (F.act) {
+    const p = (F.actT += dt) / (F.act === 'glance' ? 1.6 : 0.7);
+    if (p >= 1) { F.act = null; F.idleT = rf(1.5, 4); }
+    else if (F.act === 'glance') yaw += F.dir * 0.6 * Math.sin(p * Math.PI) ** 2;
+    else if (F.act === 'tail') flick = Math.sin(F.actT * 26) * 0.5 * (1 - p);
+    else swing(ears, Math.sin(F.actT * 40) * 0.3 * (1 - p));
+  }
+  if (hasTail) swing(tail, Math.sin(t * 6) * 0.15 + flick);
+  o.position.set(F.pos.x, walkH(F.pos.x, F.pos.z) + y, F.pos.z);
+  o.rotation.set(lean, F.face + F.look + yaw, roll);
+  squash(o, sy, u.base);
 }
 function resize() {
   vw = innerWidth; vh = innerHeight;
@@ -4521,48 +4656,50 @@ function update(dt, t) {
   }
   const run = keys.has('ShiftLeft') || keys.has('ShiftRight');
   const il = Math.hypot(ix, iz);
-  let speed = 0;
+  // Speed ramps up and down, and the heading turns at a limited rate: a sharp turn brakes, pivots, then sets off again.
+  let goal = 0, speed = 0;
   if (il > 0) {
-    const sp = (run ? 4.6 : 2.6) * dt; ix /= il; iz /= il;
-    const bx = P.pos.x, bz = P.pos.z;
-    if (tryMove(P.pos, ix * sp, iz * sp)) speed = dt && Math.hypot(P.pos.x - bx, P.pos.z - bz) / dt; // dt is 0 on bunched frames in a throttled tab; 0/0 left P.speed NaN for good
-    else if (moveTarget) moveTarget = null;
-    P.face = Math.atan2(ix, iz);
+    const turn = wrapAngle(Math.atan2(ix, iz) - P.face);
+    P.face = wrapAngle(P.face + clamp(turn, -9 * dt, 9 * dt));
+    goal = (run ? 4.6 : 2.6) * (0.35 + 0.65 * Math.max(0, Math.cos(turn)));
+    if (moveTarget) goal = Math.min(goal, Math.sqrt(24 * Math.hypot(moveTarget.x - P.pos.x, moveTarget.z - P.pos.z))); // brake to arrive
+  }
+  P.v = approach(P.v, goal, (goal > P.v ? 10 : 12) * dt);
+  if (P.v > 0) {
+    const sp = P.v * dt, bx = P.pos.x, bz = P.pos.z;
+    if (tryMove(P.pos, Math.sin(P.face) * sp, Math.cos(P.face) * sp)) speed = dt && Math.hypot(P.pos.x - bx, P.pos.z - bz) / dt; // dt is 0 on bunched frames in a throttled tab; 0/0 left P.speed NaN for good
+    else { P.v = 0; moveTarget = null; }
     if (inTallGrass(P.pos.x, P.pos.z) && speed > 0) {
       grassDist += speed * dt;
       if (grassDist > 2.5 && rnd() < dt * 0.8) { grassDist = 0; startBattle(rollWild(), 2 + Math.floor(rnd() * 4)); }
     }
   }
-  P.speed = THREE.MathUtils.lerp(P.speed, speed, 1 - Math.exp(-dt * 10));
+  P.speed = speed; // the real ground speed, already ramped, so the stride matches it exactly
   P.pos.y = walkH(P.pos.x, P.pos.z);
   player.root.position.lerp(P.pos, 1 - Math.exp(-dt * 30));
   faceTowards(player.root, P.face, dt, 14);
   animWalk(player, dt, P.speed);
   uPlayer.value.copy(P.pos);
 
-  { // pikachu trails behind and to the side
-    const tx = P.pos.x - Math.sin(P.face) * 0.85 - Math.cos(P.face) * 0.3, tz = P.pos.z - Math.cos(P.face) * 0.85 + Math.sin(P.face) * 0.3;
-    const dx = tx - PK.pos.x, dz = tz - PK.pos.z, l = Math.hypot(dx, dz);
-    let moving = false;
-    if (l > 0.2) { const sp = Math.min(l, (l > 2.5 ? 6 : Math.max(P.speed, 1.8)) * dt); PK.pos.x += dx / l * sp; PK.pos.z += dz / l * sp; PK.face = Math.atan2(dx, dz); moving = true; }
-    else if (P.speed < 0.1) PK.face = P.face;
-    PK.hop = moving ? PK.hop + dt * 14 : 0;
-    pika.position.set(PK.pos.x, walkH(PK.pos.x, PK.pos.z) + Math.abs(Math.sin(PK.hop)) * 0.12, PK.pos.z);
-    faceTowards(pika, PK.face, dt, 10);
-    swing(pika.userData.tail, Math.sin(t * 6) * 0.15);
-  }
+  // pikachu trails behind and to the side
+  follow(pika, PK, P.pos.x - Math.sin(P.face) * 0.85 - Math.cos(P.face) * 0.3, P.pos.z - Math.cos(P.face) * 0.85 + Math.sin(P.face) * 0.3, P.face, dt, t);
 
   nearest = null; let best = 1e9;
   for (const n of npcs) {
     const d = Math.hypot(P.pos.x - n.x, P.pos.z - n.z);
     let sp = 0;
-    if (n.patrol && !(ui.dialog && ui.dialog.npc === n) && d > 2) {
-      if (n.wait > 0) n.wait -= dt;
-      else {
-        const [tx, tz] = n.patrol[n.leg], dx = tx - n.x, dz = tz - n.z, l = Math.hypot(dx, dz);
-        if (l < 0.15) { n.leg = 1 - n.leg; n.wait = rr(1.5, 3.5); }
-        else { const s = Math.min(l, 1.1 * dt); n.x += dx / l * s; n.z += dz / l * s; n.face = Math.atan2(dx, dz); sp = 1.1; }
+    if (n.patrol) { // eases into the walk and brakes before each waypoint
+      let want = 0;
+      if (!(ui.dialog && ui.dialog.npc === n) && d > 2) {
+        if (n.wait > 0) n.wait -= dt;
+        else {
+          const [tx, tz] = n.patrol[n.leg], dx = tx - n.x, dz = tz - n.z, l = Math.hypot(dx, dz);
+          if (l < 0.05) { n.leg = 1 - n.leg; n.wait = rr(1.5, 3.5); }
+          else { want = Math.min(1.1, Math.sqrt(4 * l)); n.face = Math.atan2(dx, dz); n.dx = dx / l; n.dz = dz / l; }
+        }
       }
+      n.v = approach(n.v || 0, want, 2 * dt);
+      if (n.v > 0) { n.x += n.dx * n.v * dt; n.z += n.dz * n.v * dt; sp = n.v; }
     }
     if (d < 2.4 && !sp && !n.sit) faceTowards(n.h.root, Math.atan2(P.pos.x - n.x, P.pos.z - n.z), dt, 6);
     else faceTowards(n.h.root, n.patrol ? n.face : n.baseFace, dt, 4);
@@ -4571,11 +4708,8 @@ function update(dt, t) {
     n.h.head.rotation.z = Math.sin(t * 1.3 + n.x) * 0.04;
   }
   { // charmander scampers ahead of the hiker
-    const ry = girl.h.root.rotation.y, tx = girl.x + Math.sin(ry) * 0.9 + Math.cos(ry) * 0.35, tz = girl.z + Math.cos(ry) * 0.9 - Math.sin(ry) * 0.35;
-    const dx = tx - CH.pos.x, dz = tz - CH.pos.z, l = Math.hypot(dx, dz);
-    if (l > 0.2) { const s = Math.min(l, 1.6 * dt); CH.pos.x += dx / l * s; CH.pos.z += dz / l * s; CH.face = Math.atan2(dx, dz); }
-    charm.position.set(CH.pos.x, walkH(CH.pos.x, CH.pos.z) + (l > 0.2 ? Math.abs(Math.sin(t * 10)) * 0.05 : 0), CH.pos.z);
-    faceTowards(charm, CH.face, dt, 8);
+    const ry = girl.h.root.rotation.y;
+    follow(charm, CH, girl.x + Math.sin(ry) * 0.9 + Math.cos(ry) * 0.35, girl.z + Math.cos(ry) * 0.9 - Math.sin(ry) * 0.35, ry, dt, t);
     charm.userData.flame.scale.set(1 + Math.sin(t * 23) * 0.12, 1 + Math.sin(t * 17) * 0.2, 1);
   }
   bulba.position.y = terrainH(BU[0], BU[1]) + Math.abs(Math.sin(t * 2)) * 0.03;
@@ -4708,7 +4842,7 @@ function frame() {
   const dt = Math.min(clock.getDelta(), 0.05), t = clock.elapsedTime;
   musicTick();
   if (ui.pokedex) { tickDex(dt); requestAnimationFrame(frame); return; }
-  tickTweens(dt); tickXYMixers(dt);
+  tickTweens(dt); tickXYMixers(BT.active && BT.stop > 0 ? 0 : dt); // models freeze during a battle hit-stop
   if (!GAL.started && galleryD(P.pos.x, P.pos.z) < 14) loadGallery();
   if (!KAL.started) startKalos();
   if (renderPass.scene === BT.scene) battleTick(dt, t); else update(dt, t);
