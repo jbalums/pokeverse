@@ -1,14 +1,16 @@
 {
-  "0": "VerdantTrails.Target.cs",
-  "1": "VerdantGame.cpp",
-  "2": "AVerdantCharacter",
-  "3": "VerdantTrails.cpp",
-  "4": "TownKit.cpp",
-  "5": "build_kit.py",
-  "6": "TownRules.h",
-  "7": "TownSave.cpp",
+  "0": ".codes",
+  "5": "json",
+  "7": "build_assets.py",
   "8": "import_town.py",
-  "9": "AVerdantGameMode",
   "10": "Build-Town.ps1",
-  "11": "Play-Town.ps1"
+  "11": "Play-Town.ps1",
+  "12": "build_environment.py",
+  "13": "build_characters.py",
+  "14": "verify_release.py",
+  "15": "build_pikachu_v002.py",
+  "16": "blender/build_characters.py",
+  "22": "Build-Proofs.ps1",
+  "24": "verdant-assets.js",
+  "25": "verdant-chars.js"
 }

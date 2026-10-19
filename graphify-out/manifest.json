@@ -1,64 +1,4 @@
 {
-  "Game/Source/VerdantTrails.Target.cs": {
-    "mtime": 1792076851.3794458,
-    "seen": 1792076874.3685284,
-    "ast_hash": "389cc4c3552b4ce00a950e940606b93c",
-    "semantic_hash": "389cc4c3552b4ce00a950e940606b93c"
-  },
-  "Game/Source/VerdantTrailsEditor.Target.cs": {
-    "mtime": 1792076851.3794458,
-    "seen": 1792076874.3685284,
-    "ast_hash": "fd2e1c76051bdd6e5478552d2f2f3384",
-    "semantic_hash": "fd2e1c76051bdd6e5478552d2f2f3384"
-  },
-  "Game/Source/VerdantTrails/VerdantTrails.Build.cs": {
-    "mtime": 1792078121.152238,
-    "seen": 1792078226.2357976,
-    "ast_hash": "1bbf342ed1f026bc3f0a69c7ec202c22",
-    "semantic_hash": ""
-  },
-  "Game/Source/VerdantTrails/VerdantTrails.cpp": {
-    "mtime": 1792076851.3871439,
-    "seen": 1792076874.3685284,
-    "ast_hash": "bb6ef5c608ad4c687d01a16415f9bf93",
-    "semantic_hash": "bb6ef5c608ad4c687d01a16415f9bf93"
-  },
-  "Game/Source/VerdantTrails/TownKit.cpp": {
-    "mtime": 1792079327.352622,
-    "seen": 1792079580.8270743,
-    "ast_hash": "8f5887e18662908d956800eac22d4abb",
-    "semantic_hash": ""
-  },
-  "Game/Source/VerdantTrails/TownKit.h": {
-    "mtime": 1792077842.9240017,
-    "seen": 1792078226.2357976,
-    "ast_hash": "c52b75928697740fd588a71513f39acd",
-    "semantic_hash": ""
-  },
-  "Game/Source/VerdantTrails/TownRules.h": {
-    "mtime": 1792079327.352622,
-    "seen": 1792079580.8270743,
-    "ast_hash": "f5f5bd788fce10afe2c7cf56601c0384",
-    "semantic_hash": ""
-  },
-  "Game/Source/VerdantTrails/TownTests.cpp": {
-    "mtime": 1792078951.752022,
-    "seen": 1792079580.8270743,
-    "ast_hash": "85168fed796f0a7d8e253018fe75cac8",
-    "semantic_hash": ""
-  },
-  "Game/Source/VerdantTrails/VerdantGame.cpp": {
-    "mtime": 1792079327.3536286,
-    "seen": 1792079580.8270743,
-    "ast_hash": "c5d9a0e7782deab27112e659c427676b",
-    "semantic_hash": ""
-  },
-  "Game/Source/VerdantTrails/VerdantGame.h": {
-    "mtime": 1792078517.7607615,
-    "seen": 1792079580.8270743,
-    "ast_hash": "253199384c7ce23bc48edaf9dcdd56b3",
-    "semantic_hash": ""
-  },
   "tools/Build-Town.ps1": {
     "mtime": 1792079468.5557823,
     "seen": 1792079580.8280747,
@@ -66,9 +6,9 @@
     "semantic_hash": ""
   },
   "tools/Play-Town.ps1": {
-    "mtime": 1792079689.6104848,
-    "seen": 1792079924.2220957,
-    "ast_hash": "6a97fc14568cf8df8a01cd222416b818",
+    "mtime": 1792342464.5588207,
+    "seen": 1792342502.2655976,
+    "ast_hash": "7e0687d7a6ccfe24452a27f9c29b326e",
     "semantic_hash": ""
   },
   "tools/build_kit.py": {
@@ -95,22 +35,160 @@
     "ast_hash": "53c193fa04f65102e9d0d52dbe9ce8a0",
     "semantic_hash": ""
   },
-  "Game/Source/VerdantTrails/TownSave.cpp": {
-    "mtime": 1792078951.7508986,
-    "seen": 1792079580.8270743,
-    "ast_hash": "8870bb8cbb3936675d2255bb53014bb7",
-    "semantic_hash": ""
-  },
-  "Game/Source/VerdantTrails/TownSave.h": {
-    "mtime": 1792078951.7493472,
-    "seen": 1792079580.8270743,
-    "ast_hash": "1fcd7561d35796925d455a597aba48c6",
-    "semantic_hash": ""
-  },
   "tools/author_town.py": {
     "mtime": 1792078747.3355005,
     "seen": 1792079580.8280747,
     "ast_hash": "29c92c9665444009e0d0fb5d626d5dfb",
+    "semantic_hash": ""
+  },
+  ".claude/launch.json": {
+    "mtime": 1792408856.9994504,
+    "seen": 1792418617.8711576,
+    "ast_hash": "709688bdb5a2a7c3d045368021f74e61",
+    "semantic_hash": ""
+  },
+  "prototypes/blender/build_assets.py": {
+    "mtime": 1792334060.858895,
+    "seen": 1792340281.15227,
+    "ast_hash": "0d5a32d8dcca6c74753ea733b1281ae5",
+    "semantic_hash": ""
+  },
+  "prototypes/verdant-assets.js": {
+    "mtime": 1792334119.8928297,
+    "seen": 1792340281.15227,
+    "ast_hash": "cc5d91279ace5132e37077b5478f56d5",
+    "semantic_hash": ""
+  },
+  "tools/production/Build-Proofs.ps1": {
+    "mtime": 1792111334.0989122,
+    "seen": 1792134053.8575032,
+    "ast_hash": "0c6963d6f8ccd26858e732ff785614e1",
+    "semantic_hash": ""
+  },
+  "tools/production/build_characters.py": {
+    "mtime": 1792111328.652921,
+    "seen": 1792134053.8575032,
+    "ast_hash": "486c777ad8aae55dacfb60e99aaff8c8",
+    "semantic_hash": ""
+  },
+  "tools/production/build_environment.py": {
+    "mtime": 1792111351.3272784,
+    "seen": 1792134053.8575032,
+    "ast_hash": "6bbd46e1848027e289f8e33df164d7ae",
+    "semantic_hash": ""
+  },
+  "tools/production/build_pikachu_v002.py": {
+    "mtime": 1792120820.725717,
+    "seen": 1792134053.8575032,
+    "ast_hash": "079cabedccc4f7b2cd8106cbcdc6d3fc",
+    "semantic_hash": ""
+  },
+  "tools/production/import_proofs.py": {
+    "mtime": 1792111242.6918485,
+    "seen": 1792134053.8575032,
+    "ast_hash": "808040b64537ee0d02874e4876001d17",
+    "semantic_hash": ""
+  },
+  "tools/production/tests/test_characters.py": {
+    "mtime": 1792111328.8169167,
+    "seen": 1792134053.8575032,
+    "ast_hash": "ab0ca9e8dcfa13eda7d7392f5872bb01",
+    "semantic_hash": ""
+  },
+  "tools/production/tests/test_environment.py": {
+    "mtime": 1792111365.5824156,
+    "seen": 1792134053.8575032,
+    "ast_hash": "9ee858eb7f05b2db773076c75e15e83e",
+    "semantic_hash": ""
+  },
+  "tools/production/tests/test_release.py": {
+    "mtime": 1792111242.519418,
+    "seen": 1792134053.8575032,
+    "ast_hash": "73629e3b10628c47938955d75579c55c",
+    "semantic_hash": ""
+  },
+  "tools/production/verify_release.py": {
+    "mtime": 1792111242.3580902,
+    "seen": 1792134053.8575032,
+    "ast_hash": "08f61a8df5f1cb63a961d9f5aae9e924",
+    "semantic_hash": ""
+  },
+  "prototypes/verdant-town-3d.html": {
+    "mtime": 1792418606.5452514,
+    "seen": 1792418617.8711576,
+    "ast_hash": "7be13f4fe2c43e470ef8fbe070c7b34c",
+    "semantic_hash": ""
+  },
+  "prototypes/blender/build_characters.py": {
+    "mtime": 1792334166.8430355,
+    "seen": 1792340281.15227,
+    "ast_hash": "46dc7bfc626f51247929a2c140ef9265",
+    "semantic_hash": ""
+  },
+  "prototypes/verdant-chars.js": {
+    "mtime": 1792334261.02179,
+    "seen": 1792340281.15227,
+    "ast_hash": "97a1a5ad03a99bbc0c0303f18150c8fc",
+    "semantic_hash": ""
+  },
+  "prototypes/audio/music/01-verdant-town.m4a": {
+    "mtime": 1792417993.8096428,
+    "seen": 1792418617.8711576,
+    "ast_hash": "8cf1023885bd62a7229144dbbb5aaa4f",
+    "semantic_hash": ""
+  },
+  "prototypes/audio/music/02-route-1.m4a": {
+    "mtime": 1792417996.0319307,
+    "seen": 1792418617.8711576,
+    "ast_hash": "ee53a8743062c1444e84156bad66760d",
+    "semantic_hash": ""
+  },
+  "prototypes/audio/music/03-fleurville-town.m4a": {
+    "mtime": 1792417998.3336074,
+    "seen": 1792418617.8711576,
+    "ast_hash": "c9e880b540db04fe6ca22b5171d09551",
+    "semantic_hash": ""
+  },
+  "prototypes/audio/music/04-wild-battle.m4a": {
+    "mtime": 1792418000.4963045,
+    "seen": 1792418617.8711576,
+    "ast_hash": "a45c8c8a8619be8ba3e46a4a95c12d40",
+    "semantic_hash": ""
+  },
+  "prototypes/audio/music/05-victory-fanfare.m4a": {
+    "mtime": 1792418002.5792212,
+    "seen": 1792418617.8711576,
+    "ast_hash": "819c0a18815651d2eda37ed4ab598940",
+    "semantic_hash": ""
+  },
+  "prototypes/audio/music/06-pokemon-center.m4a": {
+    "mtime": 1792418004.8158236,
+    "seen": 1792418617.8711576,
+    "ast_hash": "8c6d5df3ac4e689dff9f15fda1566fdb",
+    "semantic_hash": ""
+  },
+  "prototypes/audio/music/07-shop-cafe.m4a": {
+    "mtime": 1792418006.5284414,
+    "seen": 1792418617.8711576,
+    "ast_hash": "73edd16e797a889f364fb2d52a50ab8b",
+    "semantic_hash": ""
+  },
+  "prototypes/audio/music/08-greenhouse.m4a": {
+    "mtime": 1792418008.7129717,
+    "seen": 1792418617.8711576,
+    "ast_hash": "d06002f7f498e282ea8361d3575a5966",
+    "semantic_hash": ""
+  },
+  "prototypes/audio/music/09-night-town.m4a": {
+    "mtime": 1792418010.9787173,
+    "seen": 1792418617.8711576,
+    "ast_hash": "4cd5e427331a920d9e6b9be5dfcd5065",
+    "semantic_hash": ""
+  },
+  "prototypes/audio/music/10-title-gallery.m4a": {
+    "mtime": 1792418011.2843847,
+    "seen": 1792418617.8711576,
+    "ast_hash": "44d2b9be6c6170d262bfd23386e9fb99",
     "semantic_hash": ""
   }
 }

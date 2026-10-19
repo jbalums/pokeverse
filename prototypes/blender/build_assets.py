@@ -240,16 +240,6 @@ def jitter_verts(bm, amp, seed=0.0):
     return bm
 
 
-def lump(bm, amp, freq, seed):
-    """Radial noise displacement for organic blobs."""
-    off = Vector((seed * 13.1, seed * 7.7, seed * 3.3))
-    for v in bm.verts:
-        d = v.co.normalized()
-        n = noise.noise(v.co * freq + off) * 0.7 + noise.noise(v.co * freq * 2.3 + off) * 0.3
-        v.co += d * n * amp
-    return bm
-
-
 # ---------------------------------------------------------------- shared builders
 def stone_face(part, M, u0, u1, v0, v1, opens, palette, row=(0.19, 0.26), wid=(0.26, 0.5), depth=(0.05, 0.09), bev=0.22, clip=None, segs=1, cfn=None):
     """Course of individually bevelled stones on a wall face. Local frame: u along the wall, v up, w out of the wall."""
@@ -677,126 +667,6 @@ def wall_module():
         x += sw
 
 
-def rocks():
-    for v in range(4):
-        A = Asset(f'rock_{v}', ao_dist=0.5, ao_strength=0.5)
-        bm = bm_ico(1.0, 3)
-        lump(bm, 0.32, 1.3, v * 3.7 + 1)
-        for vert in bm.verts:
-            vert.co.y *= 0.72
-            if vert.co.y < -0.25:
-                vert.co.y = -0.25 + (vert.co.y + 0.25) * 0.3
-        def cfn(p, n, v=v):
-            base = hexc('#86817a').lerp(hexc('#aaa596'), 0.5 + 0.5 * noise.noise(p * 2.2 + Vector((v, 0, 0))))
-            base = base.lerp(hexc('#5f5b54'), smooth(0.0, -0.6, n.y) * 0.5)
-            m = smooth(0.3, 0.8, n.y) * (0.65 + 0.35 * noise.noise(p * 4.0))
-            return base.lerp(hexc('#6e9a38'), max(0.0, min(0.9, m)))
-        add_bm(A.p('base'), bm, cfn=cfn, smooth_deg=180)
-
-
-# ---------------------------------------------------------------- trees (clumps + alpha leaf cards)
-def foliage_col(base, cy, r):
-    dark, light = base * 0.55, base.lerp(hexc('#c9e07a'), 0.35)
-    def f(p, n):
-        t = max(0.0, min(1.0, (p.y - (cy - r)) / (2 * r)))
-        c = dark.lerp(base, smooth(0.0, 0.6, t)).lerp(light, smooth(0.55, 1.0, t) * 0.8)
-        return c * (0.93 + 0.14 * (noise.noise(p * 5.0) * 0.5 + 0.5))
-    return f
-
-
-def round_tree(v):
-    A = Asset(f'tree_round_{v}', ao_dist=0.9, ao_strength=0.85)
-    bark, clumps, cards = A.p('base'), A.p('leaf'), A.p('leafcard')
-    bc = hexc(pick(['#6e4a2c', '#5f3f26', '#73502f']))
-    trunk = bm_cyl(0.17, 0.1, 1.55, 10)
-    for vert in trunk.verts:
-        o = vert.co.y * 1.3 + v
-        vert.co.x += noise.noise(Vector((o, 0, 0))) * 0.08 * vert.co.y
-        vert.co.z += noise.noise(Vector((0, o, 3))) * 0.08 * vert.co.y
-    add_bm(bark, trunk, cfn=lambda p, n: bc * (0.8 + 0.25 * (noise.noise(Vector((p.x * 20, p.y * 3, p.z * 20))) * 0.5 + 0.5)), smooth_deg=70)
-    for k in range(4):
-        a = k * math.pi / 2 + rr(-0.3, 0.3)
-        add_bm(bark, bm_cyl(0.1, 0.01, 0.45, 6), T(math.cos(a) * 0.1, 0.0, math.sin(a) * 0.1) @ RY(-a) @ RZ(-1.9), color=bc, smooth_deg=60)
-    cy = 2.05
-    lc = hexc(pick(['#4f9233', '#5a9b3a', '#4a8c31']))
-    fcol = foliage_col(lc, cy, 1.1)
-    centres = []
-    for k in range(5):
-        a = k * 2 * math.pi / 5 + rr(-0.3, 0.3)
-        tip = Vector((math.cos(a) * rr(0.45, 0.65), cy + rr(-0.25, 0.2), math.sin(a) * rr(0.45, 0.65)))
-        add_bm(bark, bm_tube([Vector((0, 1.15 + k * 0.06, 0)), Vector((tip.x * 0.5, (1.3 + tip.y) / 2, tip.z * 0.5)), tip], 0.045, 6), color=bc, smooth_deg=180)
-    centres.append((Vector((0, cy + 0.15, 0)), 0.66))
-    for k in range(8):
-        a = k * 2 * math.pi / 8 + rr(-0.25, 0.25)
-        rad = rr(0.55, 0.72)
-        centres.append((Vector((math.cos(a) * rad, cy + rr(-0.32, 0.3), math.sin(a) * rad)), rr(0.42, 0.56)))
-    for k in range(4):
-        a = k * math.pi / 2 + rr(0, 1)
-        centres.append((Vector((math.cos(a) * 0.32, cy + 0.62 + rr(-0.05, 0.12), math.sin(a) * 0.32)), rr(0.38, 0.48)))
-    canopy_c = Vector((0, cy, 0))
-    sph_n = lambda p, n: (n * 0.35 + (p - canopy_c).normalized() * 0.65).normalized()
-    for c, r in centres:
-        bm = bm_ico(r, 2)
-        lump(bm, r * 0.16, 3.0, rng.random() * 40)
-        add_bm(clumps, bm, T(c.x, c.y, c.z), cfn=lambda p, n: fcol(p, n) * 0.92, smooth_deg=180, nfn=sph_n)
-        bm.free()
-    for c, r in centres:
-        for i in range(int(14 * r / 0.5)):
-            d = Vector((rr(-1, 1), rr(-0.4, 1), rr(-1, 1))).normalized()
-            p = c + d * r * rr(0.82, 1.02)
-            size = rr(0.36, 0.5)
-            up = Vector((0, 1, 0))
-            tx = d.cross(up)
-            if tx.length < 0.1:
-                tx = Vector((1, 0, 0))
-            tx.normalize()
-            ty = tx.cross(d).normalized()
-            roll = rr(0, 2 * math.pi)
-            ax = tx * math.cos(roll) + ty * math.sin(roll)
-            ay = d.cross(ax).normalized()
-            pts = [p + (-ax - ay) * size / 2, p + (ax - ay) * size / 2, p + (ax + ay) * size / 2, p + (-ax + ay) * size / 2]
-            nrm = [(q - canopy_c).normalized() for q in pts]
-            cols = [fcol(q, nn) for q, nn in zip(pts, nrm)]
-            ou, ov = (0.5 if rng.random() < 0.5 else 0.0), (0.5 if rng.random() < 0.5 else 0.0)
-            add_quad(cards, pts, nrm, cols, [(ou, ov), (ou + 0.5, ov), (ou + 0.5, ov + 0.5), (ou, ov + 0.5)])
-    return A
-
-
-def pine_tree(v):
-    A = Asset(f'tree_pine_{v}', ao_dist=0.5, ao_strength=0.45)
-    bark, core, cards = A.p('base'), A.p('leaf'), A.p('needle')
-    add_bm(bark, bm_cyl(0.11, 0.04, 2.7, 8), color=hexc('#5e3f27'), smooth_deg=70)
-    base = hexc(pick(['#3f8146', '#46894b', '#3a7a41']))
-    tip = hexc('#9bc865')
-    tiers = 6
-    for k in range(tiers):
-        by = 0.42 + k * 0.38
-        r = (0.98 - k * 0.15)
-        h = 0.72 - k * 0.06
-        cone = bm_cyl(r * 0.78, 0.02, h, 12)
-        for vert in cone.verts:
-            if vert.co.y < 0.01 and math.hypot(vert.co.x, vert.co.z) > 0.1:
-                a = math.atan2(vert.co.z, vert.co.x)
-                f = 1.12 if (round(a / (2 * math.pi) * 12) % 2) else 0.9
-                vert.co.x *= f
-                vert.co.z *= f
-                vert.co.y -= 0.08 if f > 1 else 0
-        add_bm(core, cone, T(0, by, 0), cfn=lambda p, n, by=by, h=h: base * (0.8 + 0.35 * max(0.0, min(1.0, (p.y - by) / h))), smooth_deg=180)
-        n = 12 - k
-        for i in range(n):
-            a = 2 * math.pi * (i + rng.random() * 0.5) / n + k * 0.4
-            dirv = Vector((math.cos(a), 0, math.sin(a)))
-            inner = Vector((0, by + h * 0.55, 0)) + dirv * r * 0.1
-            outer = Vector((0, by - 0.05, 0)) + dirv * r * rr(1.0, 1.12)
-            side = Vector((-dirv.z, 0, dirv.x)) * rr(0.17, 0.23)
-            lift = Vector((0, 0.05, 0))
-            pts = [inner - side * 0.4, outer - side + lift, outer + side + lift, inner + side * 0.4]
-            nrm = [((q - Vector((0, q.y, 0))).normalized() * 0.6 + Vector((0, 0.8, 0))).normalized() for q in pts]
-            cols = [base * 0.8, base.lerp(tip, 0.75), base.lerp(tip, 0.75), base * 0.8]
-            add_quad(cards, pts, nrm, cols, [(0, 0), (0, 1), (1, 1), (1, 0)])
-    return A
-
-
 # ---------------------------------------------------------------- finishing: dedupe, AO bake, export
 HEMI = []
 for i in range(16):
@@ -890,12 +760,7 @@ def main():
     lamp()
     bridge()
     fence()
-    wall_module()
-    rocks()
-    for v in range(3):
-        round_tree(v)
-    for v in range(2):
-        pine_tree(v)
+    wall_module()  # trees, bushes, rocks and street props are sculpted in build_characters.py
     print(f'built geometry in {time.time() - t0:.1f}s')
     for A in ASSETS:
         finalize(A)

@@ -1,6 +1,13 @@
+## Active project scope
+
+- Work only on `prototypes/verdant-town-3d.html` unless the user explicitly requests a scope change. This is the project's retained game.
+- Do not create, restore, or develop another game implementation or the removed Unreal project. The former `Game/` and `output/Windows/` folders were intentionally deleted.
+- Preserve the existing supporting scripts, models, and Blender sources; changes to those files require an explicit user request extending the scope.
+- Older Unreal plans and delivery reports are historical context, not the current implementation target.
+
 ## graphify
 
-Graphify is enabled for this project using the globally installed CLI and skill. The project currently contains documentation and research only; no code graph exists yet. This is not a semantic map of the design documents.
+Graphify is enabled for this project using the globally installed CLI and skill. A local code-only graph exists in `graphify-out/graph.json`; it is not a semantic map of the design documents.
 
 When the user types `/graphify`, use the installed graphify skill or instructions before doing anything else.
 

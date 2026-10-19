@@ -1,10 +1,10 @@
 # Isometric Pokémon Game
 
-Planning workspace for a single-player, stylized 3D Pokémon adventure in Unreal Engine.
+Workspace for a single-player, stylized 3D Pokémon browser adventure.
 
-**Status: first town-corner build delivered.** The native Unreal project, reusable environment kit and small gardener errand are implemented, packaged and checked through the complete rendered errand with a verified save. Evidence and limits are tracked in [the delivery report](docs/town-corner-delivery.md). The larger catalog/battle/story systems remain planned. The concept image below is a visual reference, not an engine screenshot.
+The retained game is [Verdant Town 3D](prototypes/verdant-town-3d.html), with its scripts, models, and Blender sources in `prototypes/`. The separate Unreal project in `Game/` and its older packaged build in `output/Windows/` have been removed. Existing Unreal delivery reports are historical. The concept image below is a visual reference.
 
-Start the compiled game with `Play Town.cmd`, or open `Game/VerdantTrails.uproject` in Unreal 5.8. Build instructions and controls are in [the delivery report](docs/town-corner-delivery.md); reusable source assets and conventions are in [the kit guide](assets/town-kit/README.md).
+Open `Play Town.cmd` to launch the browser game, or open `prototypes/verdant-town-3d.html` directly. Internet access is needed for its Three.js CDN imports. Controls: WASD to walk, Shift to run, E to talk, click to move, and scroll to zoom.
 
 Start with the [documentation index](docs/README.md), then review the [decisions](docs/decisions.md) and [game design](docs/game-design.md).
 
