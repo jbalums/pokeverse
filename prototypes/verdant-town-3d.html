@@ -32,11 +32,6 @@
   .btn:focus-visible { outline: 3px solid #ffd84a; outline-offset: 3px; }
   .btn svg { width: 38px; height: 38px; }
 
-  .panel { position: fixed; right: 18px; bottom: 112px; width: 270px; background: #fffdf6; color: var(--ink); border: 4px solid #2a3540; border-radius: 18px; padding: 14px 18px; font-weight: 700; box-shadow: 0 8px 24px rgba(0,0,0,.3); display: none; }
-  .panel.show { display: block; }
-  .panel h3 { font-size: 17px; font-weight: 900; margin-bottom: 8px; }
-  .panel li { list-style: none; display: flex; justify-content: space-between; gap: 10px; padding: 4px 0; border-bottom: 1px dashed #d8d2c0; font-size: 15px; }
-  .panel li:last-child { border: 0; }
   kbd { font-family: inherit; background: #e9e4d4; border-radius: 6px; padding: 0 6px; border-bottom: 2px solid #bdb59c; color: var(--ink); }
 
   .hint { position: fixed; top: 22px; left: 50%; transform: translateX(-50%); background: var(--panel); color: #fff; padding: 8px 18px; border-radius: 999px; font-weight: 700; font-size: 14px; transition: opacity 1s; white-space: nowrap; }
@@ -58,7 +53,7 @@
   /* battle */
   .battle { position: fixed; inset: 0; pointer-events: none; display: none; }
   body.in-battle .battle { display: block; }
-  body.in-battle .loc, body.in-battle .mm, body.in-battle .party, body.in-battle .btns, body.in-battle .hint, body.in-battle .prompt, body.in-battle .panel, body.in-battle .dialog { display: none !important; }
+  body.in-battle .loc, body.in-battle .mm, body.in-battle .party, body.in-battle .btns, body.in-battle .hint, body.in-battle .prompt, body.in-battle .dialog { display: none !important; }
   .bx { position: absolute; width: min(380px, 44vw); background: #fffdf6; border: 4px solid #2a3540; border-radius: 18px 18px 18px 6px; padding: 10px 18px 12px; box-shadow: 0 6px 18px rgba(0,0,0,.3); transition: opacity .3s, transform .3s; }
   .bx.hide { opacity: 0; transform: translateY(-10px); }
   .bx.foe { top: 5vh; left: 4vw; }
@@ -248,6 +243,61 @@
     .bp-tab { flex: none; padding: 6px 10px; } .bp-tab small { display: none; } .bp-tab[aria-selected="true"] { transform: none; }
     .bp-detail .art { height: 80px; } .bp-detail .art svg { width: 64px; height: 64px; }
   }
+  /* ---------- Game Menu (save / load / new game / settings / quit); reuses the backpack's tabs, close button and toast */
+  #gameMenu { border: 0; padding: 0; margin: auto; width: min(880px, 100vw - 24px); height: min(600px, 100dvh - 24px); max-width: none; max-height: none; background: transparent; overflow: visible; }
+  #gameMenu::backdrop { background: rgba(20, 28, 36, .55); backdrop-filter: blur(3px); }
+  .gm { height: 100%; display: grid; grid-template-columns: 210px 1fr; grid-template-rows: auto 1fr; gap: 14px; background: linear-gradient(160deg, #4fa9e0, #2c6fb3); border: 5px solid #2a3540; border-radius: 26px; padding: 16px; box-shadow: 0 18px 50px rgba(0,0,0,.45); color: var(--ink); font-weight: 800; }
+  .gm-head { grid-column: 1 / -1; display: flex; align-items: center; gap: 12px; color: #fff; text-shadow: 0 2px 0 rgba(0,0,0,.25); }
+  .gm-head h2 { font-size: 26px; font-weight: 900; letter-spacing: .5px; }
+  .gm-head .bp-close { margin-left: auto; }
+  .gm-nav { display: flex; flex-direction: column; gap: 8px; }
+  .gm-nav .gm-quit { margin-top: auto; background: #ffe1dc; }
+  .gm button:focus-visible, .gm input:focus-visible, .gm select:focus-visible, .gm-ask button:focus-visible, .quit-screen button:focus-visible { outline: 3px solid #ffd84a; outline-offset: 2px; }
+  .gm-view { background: #fffdf6; border: 4px solid #2a3540; border-radius: 18px; padding: 16px 18px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
+  .gm-view h3 { font-size: 22px; font-weight: 900; }
+  .gm-view p { font-size: 15px; font-weight: 700; line-height: 1.4; }
+  .gm-status { padding: 8px 12px; border-radius: 12px; background: #e3f5e1; border: 2px solid #9fd39a; }
+  .gm-status.warn { background: #fff1d6; border-color: #f0c46a; }
+  .gm-status.err { background: #fde3e0; border-color: #e8897f; }
+  .gm-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .gm-btn { border: 4px solid #2a3540; border-radius: 14px; padding: 7px 14px; font: 900 16px Nunito, sans-serif; cursor: pointer; background: #fff; color: var(--ink); }
+  .gm-btn.go { background: #3fae4a; color: #fff; }
+  .gm-btn.danger { background: #e2473b; color: #fff; }
+  .gm-btn:disabled { opacity: .45; cursor: default; }
+  .gm input[type=text] { flex: 1 1 160px; min-width: 0; border: 3px solid #2a3540; border-radius: 12px; padding: 8px 12px; font: 800 16px Nunito, sans-serif; color: var(--ink); background: #fff; user-select: text; }
+  .gm-slots { display: flex; flex-direction: column; gap: 8px; }
+  .gm-slot { display: grid; grid-template-columns: 1fr auto; gap: 2px 12px; align-items: center; border: 3px solid #2a3540; border-radius: 14px; padding: 8px 12px; background: #fff; }
+  .gm-slot b { font-size: 17px; font-weight: 900; overflow-wrap: anywhere; }
+  .gm-slot b em { font-style: normal; font-size: 11px; background: #2c6fb3; color: #fff; border-radius: 6px; padding: 1px 6px; margin-left: 8px; vertical-align: middle; letter-spacing: .5px; }
+  .gm-slot small { grid-column: 1; font-size: 13px; opacity: .7; line-height: 1.4; }
+  .gm-slot .gm-row { grid-column: 2; grid-row: 1 / span 2; }
+  .gm-empty { opacity: .6; text-align: center; padding: 24px; }
+  .gm-set { display: grid; grid-template-columns: 1fr minmax(150px, 220px); align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px dashed #d8d2c0; font-size: 16px; }
+  .gm-set small { display: block; font-size: 12px; opacity: .6; font-weight: 700; }
+  .gm-set input[type=range] { width: 100%; accent-color: #2c6fb3; }
+  .gm-set select { border: 3px solid #2a3540; border-radius: 10px; padding: 4px 8px; font: 800 15px Nunito, sans-serif; background: #fff; color: var(--ink); }
+  .gm-set input[type=checkbox] { width: 22px; height: 22px; accent-color: #2c6fb3; }
+  .gm-keys li { list-style: none; display: flex; justify-content: space-between; gap: 10px; padding: 6px 0; border-bottom: 1px dashed #d8d2c0; font-size: 16px; }
+  .gm-keys li:last-child { border: 0; }
+  .gm-ask { position: absolute; inset: 0; display: none; place-items: center; background: rgba(20, 28, 36, .55); border-radius: 26px; }
+  .gm-ask.show { display: grid; }
+  .gm-ask .sheet { width: min(440px, 92%); background: #fffdf6; border: 5px solid #2a3540; border-radius: 22px; padding: 18px; display: flex; flex-direction: column; gap: 12px; color: var(--ink); }
+  .gm-ask h3 { font-size: 21px; font-weight: 900; overflow-wrap: anywhere; }
+  .gm-ask p { font-size: 16px; font-weight: 700; line-height: 1.4; }
+  .gm-ask .gm-row { justify-content: flex-end; }
+  .bp-toast.err { background: #b3261e; }
+  .quit-screen { position: fixed; inset: 0; z-index: 20; display: none; place-items: center; text-align: center; padding: 16px; background: radial-gradient(circle at 50% 40%, #2c4a5e, #0d1620); color: #fff; }
+  .quit-screen.show { display: grid; }
+  .quit-screen h2 { font-size: 34px; font-weight: 900; }
+  .quit-screen p { margin: 10px 0 22px; font-size: 17px; opacity: .8; }
+  @media (max-width: 760px) {
+    #gameMenu { height: calc(100dvh - 16px); width: calc(100vw - 16px); }
+    .gm { grid-template-columns: 1fr; grid-template-rows: auto auto 1fr; padding: 12px; gap: 10px; }
+    .gm-nav { flex-direction: row; overflow-x: auto; }
+    .gm-nav .bp-tab { flex: none; padding: 6px 10px; } .gm-nav .bp-tab[aria-selected="true"] { transform: none; }
+    .gm-set { grid-template-columns: 1fr; }
+    .gm-slot { grid-template-columns: 1fr; } .gm-slot .gm-row { grid-column: 1; grid-row: auto; }
+  }
 </style>
 <script src="verdant-assets.js"></script><!-- optional Blender assets; the demo falls back to code-built shapes -->
 <script src="verdant-chars.js"></script><!-- sculpted characters and Pokémon (prototypes/blender/build_characters.py) -->
@@ -270,7 +320,7 @@
 <div class="btns">
   <button class="btn" id="dexBtn" aria-label="Open Pokédex" aria-haspopup="dialog" aria-controls="pokedex"><svg viewBox="0 0 24 24" fill="none" stroke="#a6ffff" stroke-width="1.7" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="3"/><circle cx="9" cy="7" r="2"/><path d="M14 6h3M14 9h3M7 13h10v5H7zM8 20h8"/></svg></button>
   <button class="btn" id="bagBtn" aria-label="Bag"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linejoin="round"><path d="M8 7V5.5A2.5 2.5 0 0 1 10.5 3h3A2.5 2.5 0 0 1 16 5.5V7"/><path d="M5 10a3 3 0 0 1 3-3h8a3 3 0 0 1 3 3v9a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2z"/><path d="M8 14h8v4H8z"/><path d="M5 12h14"/></svg></button>
-  <button class="btn" id="menuBtn" aria-label="Menu"><svg viewBox="0 0 24 24" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+  <button class="btn" id="menuBtn" aria-label="Game menu" aria-haspopup="dialog" aria-controls="gameMenu"><svg viewBox="0 0 24 24" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
 </div>
 <dialog id="backpack" aria-labelledby="bpTitle">
   <div class="bp">
@@ -282,7 +332,23 @@
   <div class="bp-party" id="bpParty"><div class="sheet" role="dialog" aria-label="Choose a Pokémon"><h3 id="bpPartyTitle">Use on which Pokémon?</h3><div id="bpPartyList" style="display:flex;flex-direction:column;gap:8px"></div><div class="bp-actions"><button id="bpPartyBack">Back</button></div></div></div>
   <div class="bp-toast" id="bpToast"></div>
 </dialog>
-<div class="panel" id="menu"><h3>Controls</h3><ul><li>Walk <span><kbd>WASD</kbd> / arrows</span></li><li>Run <span><kbd>Shift</kbd></span></li><li>Talk / read <span><kbd>E</kbd> / <kbd>Space</kbd></span></li><li>Walk to spot <span>click / tap</span></li><li>Zoom <span>scroll wheel</span></li><li>Travel to Fleurville / Verdant <span><kbd>T</kbd></span></li></ul></div>
+<dialog id="gameMenu" aria-labelledby="gmTitle">
+  <div class="gm" id="gmBody">
+    <div class="gm-head"><h2 id="gmTitle">Game Menu</h2><button class="bp-close" id="gmClose" aria-label="Close game menu">Resume ✕</button></div>
+    <div class="gm-nav" id="gmNav" role="tablist" aria-label="Game menu sections">
+      <button class="bp-tab" role="tab" data-v="save" aria-controls="gmView">Save</button>
+      <button class="bp-tab" role="tab" data-v="load" aria-controls="gmView">Load</button>
+      <button class="bp-tab" data-v="new">New Game</button>
+      <button class="bp-tab" role="tab" data-v="settings" aria-controls="gmView">Settings</button>
+      <button class="bp-tab" role="tab" data-v="controls" aria-controls="gmView">Controls</button>
+      <button class="bp-tab gm-quit" data-v="quit">Quit Game</button>
+    </div>
+    <div class="gm-view" id="gmView" role="tabpanel"></div>
+  </div>
+  <div class="gm-ask" id="gmAsk"><div class="sheet" role="alertdialog" aria-modal="true" aria-labelledby="gmAskTitle" aria-describedby="gmAskText"><h3 id="gmAskTitle"></h3><p id="gmAskText"></p><div class="gm-row"><button class="gm-btn" id="gmAskNo">Cancel</button><button class="gm-btn" id="gmAskYes"></button></div></div></div>
+  <div class="bp-toast" id="gmToast" role="status"></div>
+</dialog>
+<div class="quit-screen" id="quitScreen"><div><h2>Thanks for playing!</h2><p>You have quit Verdant Town. You can close this tab now.</p><button class="gm-btn go" id="quitBack">Return to game</button></div></div>
 
 <div class="prompt" id="prompt">E</div>
 <div class="dialog" id="dialog"><span class="who" id="who"></span><p id="dtext"></p><span class="more">▼</span></div>
@@ -529,7 +595,7 @@ const walkH = (x, z) => onBridge(x, z) ? bridgeH(bridgeLocal(x, z)[0]) + 0.05 : 
 // ============================================================ renderer / scene / post
 const canvas = document.getElementById('c');
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: false, powerPreference: 'high-performance' });
-const DPR = Math.min(devicePixelRatio, 1.75);
+let DPR = Math.min(devicePixelRatio, 1.75); // lowered by the Graphics quality setting
 renderer.setPixelRatio(DPR);
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -1969,7 +2035,7 @@ function bodyBounds(root) { // meshes near the biggest one, so thrown props, eff
   for (const [n, b] of parts) if (n >= mainCount * 0.15 || b.getCenter(new V3()).distanceTo(c) < reach) box.union(b);
   return box;
 }
-function prepXY(name, scene, animated) { // runs after textures load, so effect parts can be told apart by texture file name
+function prepXY(name, scene, animated, height) { // runs after textures load, so effect parts can be told apart by texture file name; height sizes species with no sculpt to match
   const fire = new V3(), tmp = new V3(); let nFire = 0;
   if (name === 'pikachu' && !animated) relaxPikachuArms(scene); // pose the template so followers, battles and portraits all inherit it
   scene.updateMatrixWorld(true);
@@ -2002,15 +2068,15 @@ function prepXY(name, scene, animated) { // runs after textures load, so effect 
     const m = new THREE.AnimationMixer(scene); m.clipAction(scene.animations[0]).play(); m.update(0);
   }
   const box = bodyBounds(scene);
-  const want = new THREE.Box3().setFromObject(rig(FOLK[name]?.[1] || name).root);
-  const k = (want.max.y - want.min.y) / (box.max.y - box.min.y), c = box.getCenter(new V3());
+  const want = height ? null : new THREE.Box3().setFromObject(rig(FOLK[name]?.[1] || name).root), H = height ?? want.max.y - want.min.y;
+  const k = H / (box.max.y - box.min.y), c = box.getCenter(new V3());
   const g = new THREE.Group(), fit = new THREE.Group(); fit.add(scene); fit.scale.setScalar(k); g.add(fit);
   scene.position.set(-c.x, -box.min.y, -c.z);
   if (nFire) g.userData.fire = fire.divideScalar(nFire).add(scene.position).multiplyScalar(k);
   // bone names in the rips are generic (Bone14, joint21), so tail and wing chains are found by position:
   // the tip furthest out, then its parents while they stay out there. Stored as traversal indices so clones can find them.
   if (animated) { g.userData.clips = scene.animations; g.userData.chains = {}; return g; } // Pokédex 3D Pro idle clip moves tail and wings itself
-  const bones = [], H = want.max.y - want.min.y; g.traverse(o => o.isBone && bones.push(o));
+  const bones = []; g.traverse(o => o.isBone && bones.push(o));
   for (const b of bones) if (XY_HIDE[name]?.includes(b.name)) b.scale.setScalar(1e-4);
   g.updateMatrixWorld(true);
   const at = bones.map(b => b.getWorldPosition(new V3()));
@@ -2373,9 +2439,10 @@ if (new URLSearchParams(location.search).get('map') === 'kalos') placePlayer(...
 
 // ============================================================ input
 const keys = new Set();
-const ui = { dialog: null, battle: false, pokedex: false, bag: false };
+const ui = { dialog: null, battle: false, pokedex: false, bag: false, menu: false, quit: false };
 const $ = id => document.getElementById(id);
 addEventListener('keydown', e => {
+  if (ui.menu || ui.quit) return; // the Game Menu dialog handles its own keys (Esc closes it)
   if (ui.pokedex) { if (e.code === 'Escape') { e.preventDefault(); closePokedex(); } return; }
   if (ui.bag) return bagKey(e);
   if (BT.active) return battleKey(e);
@@ -2385,14 +2452,19 @@ addEventListener('keydown', e => {
   if (e.code === 'KeyG' && !e.repeat) { // testing shortcut: jump to the Character Gallery entrance (walking there along the east road works too)
     const [x, z] = [29, -12.2]; P.pos.set(x, walkH(x, z), z); PK.pos.set(x - 0.8, walkH(x - 0.8, z + 0.6), z + 0.6); moveTarget = null;
   }
-  if (e.code === 'Escape') $('menu').classList.remove('show');
+  if (e.code === 'Escape' && !e.repeat) { e.preventDefault(); openMenu(); } // preventDefault: this Esc must not also close the dialog it opens
   if (e.code === 'KeyB' && !e.repeat) openBag();
   if (e.code === 'KeyT' && !e.repeat) travel(!inKalos(P.pos.x)); // travel between Verdant Town (test map) and Fleurville Town
+  if (e.code === 'Backquote' && !e.repeat) { // testing shortcut: give a Pokémon at a level, plus items (see window.debug)
+    keys.clear();
+    const a = prompt('Debug give: SPECIES LEVEL [item=qty ...] [nick=Name]', 'CHARMANDER 15 potion=3');
+    if (a) { const [k, lv, ...rest] = a.trim().split(/\s+/), items = {}; let nick; for (const r of rest) { const [x, y] = r.split('='); if (x === 'nick') nick = y; else items[x] = y ?? 1; } debug.give(k, lv, items, nick); }
+  }
 });
 addEventListener('keyup', e => keys.delete(e.code));
 addEventListener('blur', () => keys.clear());
 let zoom = 1, moveTarget = null;
-addEventListener('wheel', e => { if (!ui.pokedex) zoom = clamp(zoom * (e.deltaY > 0 ? 1.08 : 0.93), 0.6, 2.2); }, { passive: true });
+addEventListener('wheel', e => { if (!ui.pokedex && !ui.menu) zoom = clamp(zoom * (e.deltaY > 0 ? 1.08 : 0.93), 0.6, 2.2); }, { passive: true });
 const ray = new THREE.Raycaster(), ndc = new THREE.Vector2();
 canvas.addEventListener('pointerdown', e => {
   if (ui.pokedex) return;
@@ -2410,7 +2482,7 @@ $('bpClose').onclick = closeBag;
 $('bpPartyBack').onclick = () => $('bpParty').classList.remove('show');
 $('backpack').addEventListener('cancel', e => { e.preventDefault(); closeBag(); });
 $('backpack').addEventListener('click', e => { if (e.target === $('backpack')) closeBag(); }); // click on the dimmed backdrop
-$('menuBtn').onclick = () => $('menu').classList.toggle('show');
+$('menuBtn').onclick = () => openMenu();
 $('dexBtn').onclick = openPokedex;
 
 let nearest = null, typed = 0;
@@ -2504,6 +2576,716 @@ const SPECIES = {
   WEEDLE: { name: 'WEEDLE', types: ['BUG', 'POISON'], base: [40, 35, 30, 20, 20, 50], moves: ['POISON_STING', 'STRING_SHOT'], exp: 39, rate: 255, make: makeWeedle, face: 0.46, scale: 1.25 },
   ODDISH: { name: 'ODDISH', types: ['GRASS', 'POISON'], base: [45, 50, 55, 75, 65, 30], moves: ['ABSORB', 'ACID', 'GROWTH'], exp: 64, rate: 255, make: makeOddish, face: 0.5, scale: 1.15 },
 };
+
+// ============================================================ Evolution data
+/**
+ * One evolution edge: `trigger` picks the test in EVO_CHECK, the other fields are that trigger's conditions.
+ * Only `level` is filled in so far; the other kinds are typed here and stubbed in EVO_CHECK for later.
+ * @typedef {{ from: string, to: string } & (
+ *   { trigger: 'level', minLevel: number } |
+ *   { trigger: 'item', item: string } |
+ *   { trigger: 'friendship', minHappiness: number, time?: 'day' | 'night' } |
+ *   { trigger: 'trade', heldItem?: string, withSpecies?: string } |
+ *   { trigger: 'heldItem', heldItem: string, time?: 'day' | 'night' } |
+ *   { trigger: 'time', time: 'day' | 'night' | 'dusk', minLevel?: number } |
+ *   { trigger: 'move', move?: string, moveType?: string } |
+ *   { trigger: 'location', location: string } |
+ *   { trigger: 'gender', gender: 'male' | 'female', minLevel?: number, item?: string } |
+ *   { trigger: 'stats', minLevel: number, compare: 'atk>def' | 'atk<def' | 'atk=def' } |
+ *   { trigger: 'party', minLevel: number, partySpecies?: string, partyType?: string } |
+ *   { trigger: 'special', note: string }
+ * )} Evolution
+ */
+// Source: PokeAPI v2 evolution-chain + pokemon + pokemon-species, snapshot 2026-10-19 (static; never fetched at runtime).
+// Level-only = trigger level-up with min_level and no other condition. Rows that only apply to a regional form are ignored
+// (Alolan Rattata, Galarian Meowth > Perrserker, Paldean Wooper > Clodsire...); cosmetic forms (Vivillon patterns) still count.
+// Cross-checked with the Serebii SV/SwSh Pokédex evolution chains (2026-10-19): Charmander 16/36, Caterpie 7/10, Weedle 7/10,
+// Pidgey 18/36, Oddish 21, Cyndaquil 14/36, Grookey 16/35, Nymble 24, Frigibax 35/54 all match.
+// Left for later triggers: Wurmple (personality), Cosmoem (game version), Tyrogue (stats), Tandemaus, gender/time/rain/party cases.
+/** @type {Evolution[]} */
+const EVOLUTIONS = [
+  { from: 'BULBASAUR', to: 'IVYSAUR', trigger: 'level', minLevel: 16 },
+  { from: 'IVYSAUR', to: 'VENUSAUR', trigger: 'level', minLevel: 32 },
+  { from: 'CHARMANDER', to: 'CHARMELEON', trigger: 'level', minLevel: 16 },
+  { from: 'CHARMELEON', to: 'CHARIZARD', trigger: 'level', minLevel: 36 },
+  { from: 'SQUIRTLE', to: 'WARTORTLE', trigger: 'level', minLevel: 16 },
+  { from: 'WARTORTLE', to: 'BLASTOISE', trigger: 'level', minLevel: 36 },
+  { from: 'CATERPIE', to: 'METAPOD', trigger: 'level', minLevel: 7 },
+  { from: 'METAPOD', to: 'BUTTERFREE', trigger: 'level', minLevel: 10 },
+  { from: 'WEEDLE', to: 'KAKUNA', trigger: 'level', minLevel: 7 },
+  { from: 'KAKUNA', to: 'BEEDRILL', trigger: 'level', minLevel: 10 },
+  { from: 'PIDGEY', to: 'PIDGEOTTO', trigger: 'level', minLevel: 18 },
+  { from: 'PIDGEOTTO', to: 'PIDGEOT', trigger: 'level', minLevel: 36 },
+  { from: 'RATTATA', to: 'RATICATE', trigger: 'level', minLevel: 20 },
+  { from: 'SPEAROW', to: 'FEAROW', trigger: 'level', minLevel: 20 },
+  { from: 'EKANS', to: 'ARBOK', trigger: 'level', minLevel: 22 },
+  { from: 'SANDSHREW', to: 'SANDSLASH', trigger: 'level', minLevel: 22 },
+  { from: 'NIDORAN_F', to: 'NIDORINA', trigger: 'level', minLevel: 16 },
+  { from: 'NIDORAN_M', to: 'NIDORINO', trigger: 'level', minLevel: 16 },
+  { from: 'ZUBAT', to: 'GOLBAT', trigger: 'level', minLevel: 22 },
+  { from: 'ODDISH', to: 'GLOOM', trigger: 'level', minLevel: 21 },
+  { from: 'PARAS', to: 'PARASECT', trigger: 'level', minLevel: 24 },
+  { from: 'VENONAT', to: 'VENOMOTH', trigger: 'level', minLevel: 31 },
+  { from: 'DIGLETT', to: 'DUGTRIO', trigger: 'level', minLevel: 26 },
+  { from: 'MEOWTH', to: 'PERSIAN', trigger: 'level', minLevel: 28 },
+  { from: 'PSYDUCK', to: 'GOLDUCK', trigger: 'level', minLevel: 33 },
+  { from: 'MANKEY', to: 'PRIMEAPE', trigger: 'level', minLevel: 28 },
+  { from: 'POLIWAG', to: 'POLIWHIRL', trigger: 'level', minLevel: 25 },
+  { from: 'ABRA', to: 'KADABRA', trigger: 'level', minLevel: 16 },
+  { from: 'MACHOP', to: 'MACHOKE', trigger: 'level', minLevel: 28 },
+  { from: 'BELLSPROUT', to: 'WEEPINBELL', trigger: 'level', minLevel: 21 },
+  { from: 'TENTACOOL', to: 'TENTACRUEL', trigger: 'level', minLevel: 30 },
+  { from: 'GEODUDE', to: 'GRAVELER', trigger: 'level', minLevel: 25 },
+  { from: 'PONYTA', to: 'RAPIDASH', trigger: 'level', minLevel: 40 },
+  { from: 'SLOWPOKE', to: 'SLOWBRO', trigger: 'level', minLevel: 37 },
+  { from: 'MAGNEMITE', to: 'MAGNETON', trigger: 'level', minLevel: 30 },
+  { from: 'DODUO', to: 'DODRIO', trigger: 'level', minLevel: 31 },
+  { from: 'SEEL', to: 'DEWGONG', trigger: 'level', minLevel: 34 },
+  { from: 'GRIMER', to: 'MUK', trigger: 'level', minLevel: 38 },
+  { from: 'GASTLY', to: 'HAUNTER', trigger: 'level', minLevel: 25 },
+  { from: 'DROWZEE', to: 'HYPNO', trigger: 'level', minLevel: 26 },
+  { from: 'KRABBY', to: 'KINGLER', trigger: 'level', minLevel: 28 },
+  { from: 'VOLTORB', to: 'ELECTRODE', trigger: 'level', minLevel: 30 },
+  { from: 'CUBONE', to: 'MAROWAK', trigger: 'level', minLevel: 28 },
+  { from: 'KOFFING', to: 'WEEZING', trigger: 'level', minLevel: 35 },
+  { from: 'RHYHORN', to: 'RHYDON', trigger: 'level', minLevel: 42 },
+  { from: 'HORSEA', to: 'SEADRA', trigger: 'level', minLevel: 32 },
+  { from: 'GOLDEEN', to: 'SEAKING', trigger: 'level', minLevel: 33 },
+  { from: 'MAGIKARP', to: 'GYARADOS', trigger: 'level', minLevel: 20 },
+  { from: 'OMANYTE', to: 'OMASTAR', trigger: 'level', minLevel: 40 },
+  { from: 'KABUTO', to: 'KABUTOPS', trigger: 'level', minLevel: 40 },
+  { from: 'DRATINI', to: 'DRAGONAIR', trigger: 'level', minLevel: 30 },
+  { from: 'DRAGONAIR', to: 'DRAGONITE', trigger: 'level', minLevel: 55 },
+  { from: 'CHIKORITA', to: 'BAYLEEF', trigger: 'level', minLevel: 16 },
+  { from: 'BAYLEEF', to: 'MEGANIUM', trigger: 'level', minLevel: 32 },
+  { from: 'CYNDAQUIL', to: 'QUILAVA', trigger: 'level', minLevel: 14 },
+  { from: 'QUILAVA', to: 'TYPHLOSION', trigger: 'level', minLevel: 36 },
+  { from: 'TOTODILE', to: 'CROCONAW', trigger: 'level', minLevel: 18 },
+  { from: 'CROCONAW', to: 'FERALIGATR', trigger: 'level', minLevel: 30 },
+  { from: 'SENTRET', to: 'FURRET', trigger: 'level', minLevel: 15 },
+  { from: 'HOOTHOOT', to: 'NOCTOWL', trigger: 'level', minLevel: 20 },
+  { from: 'LEDYBA', to: 'LEDIAN', trigger: 'level', minLevel: 18 },
+  { from: 'SPINARAK', to: 'ARIADOS', trigger: 'level', minLevel: 22 },
+  { from: 'CHINCHOU', to: 'LANTURN', trigger: 'level', minLevel: 27 },
+  { from: 'NATU', to: 'XATU', trigger: 'level', minLevel: 25 },
+  { from: 'MAREEP', to: 'FLAAFFY', trigger: 'level', minLevel: 15 },
+  { from: 'FLAAFFY', to: 'AMPHAROS', trigger: 'level', minLevel: 30 },
+  { from: 'MARILL', to: 'AZUMARILL', trigger: 'level', minLevel: 18 },
+  { from: 'HOPPIP', to: 'SKIPLOOM', trigger: 'level', minLevel: 18 },
+  { from: 'SKIPLOOM', to: 'JUMPLUFF', trigger: 'level', minLevel: 27 },
+  { from: 'WOOPER', to: 'QUAGSIRE', trigger: 'level', minLevel: 20 },
+  { from: 'PINECO', to: 'FORRETRESS', trigger: 'level', minLevel: 31 },
+  { from: 'SNUBBULL', to: 'GRANBULL', trigger: 'level', minLevel: 23 },
+  { from: 'TEDDIURSA', to: 'URSARING', trigger: 'level', minLevel: 30 },
+  { from: 'SLUGMA', to: 'MAGCARGO', trigger: 'level', minLevel: 38 },
+  { from: 'SWINUB', to: 'PILOSWINE', trigger: 'level', minLevel: 33 },
+  { from: 'REMORAID', to: 'OCTILLERY', trigger: 'level', minLevel: 25 },
+  { from: 'HOUNDOUR', to: 'HOUNDOOM', trigger: 'level', minLevel: 24 },
+  { from: 'PHANPY', to: 'DONPHAN', trigger: 'level', minLevel: 25 },
+  { from: 'SMOOCHUM', to: 'JYNX', trigger: 'level', minLevel: 30 },
+  { from: 'ELEKID', to: 'ELECTABUZZ', trigger: 'level', minLevel: 30 },
+  { from: 'MAGBY', to: 'MAGMAR', trigger: 'level', minLevel: 30 },
+  { from: 'LARVITAR', to: 'PUPITAR', trigger: 'level', minLevel: 30 },
+  { from: 'PUPITAR', to: 'TYRANITAR', trigger: 'level', minLevel: 55 },
+  { from: 'TREECKO', to: 'GROVYLE', trigger: 'level', minLevel: 16 },
+  { from: 'GROVYLE', to: 'SCEPTILE', trigger: 'level', minLevel: 36 },
+  { from: 'TORCHIC', to: 'COMBUSKEN', trigger: 'level', minLevel: 16 },
+  { from: 'COMBUSKEN', to: 'BLAZIKEN', trigger: 'level', minLevel: 36 },
+  { from: 'MUDKIP', to: 'MARSHTOMP', trigger: 'level', minLevel: 16 },
+  { from: 'MARSHTOMP', to: 'SWAMPERT', trigger: 'level', minLevel: 36 },
+  { from: 'POOCHYENA', to: 'MIGHTYENA', trigger: 'level', minLevel: 18 },
+  { from: 'ZIGZAGOON', to: 'LINOONE', trigger: 'level', minLevel: 20 },
+  { from: 'SILCOON', to: 'BEAUTIFLY', trigger: 'level', minLevel: 10 },
+  { from: 'CASCOON', to: 'DUSTOX', trigger: 'level', minLevel: 10 },
+  { from: 'LOTAD', to: 'LOMBRE', trigger: 'level', minLevel: 14 },
+  { from: 'SEEDOT', to: 'NUZLEAF', trigger: 'level', minLevel: 14 },
+  { from: 'TAILLOW', to: 'SWELLOW', trigger: 'level', minLevel: 22 },
+  { from: 'WINGULL', to: 'PELIPPER', trigger: 'level', minLevel: 25 },
+  { from: 'RALTS', to: 'KIRLIA', trigger: 'level', minLevel: 20 },
+  { from: 'KIRLIA', to: 'GARDEVOIR', trigger: 'level', minLevel: 30 },
+  { from: 'SURSKIT', to: 'MASQUERAIN', trigger: 'level', minLevel: 22 },
+  { from: 'SHROOMISH', to: 'BRELOOM', trigger: 'level', minLevel: 23 },
+  { from: 'SLAKOTH', to: 'VIGOROTH', trigger: 'level', minLevel: 18 },
+  { from: 'VIGOROTH', to: 'SLAKING', trigger: 'level', minLevel: 36 },
+  { from: 'NINCADA', to: 'NINJASK', trigger: 'level', minLevel: 20 },
+  { from: 'WHISMUR', to: 'LOUDRED', trigger: 'level', minLevel: 20 },
+  { from: 'LOUDRED', to: 'EXPLOUD', trigger: 'level', minLevel: 40 },
+  { from: 'MAKUHITA', to: 'HARIYAMA', trigger: 'level', minLevel: 24 },
+  { from: 'ARON', to: 'LAIRON', trigger: 'level', minLevel: 32 },
+  { from: 'LAIRON', to: 'AGGRON', trigger: 'level', minLevel: 42 },
+  { from: 'MEDITITE', to: 'MEDICHAM', trigger: 'level', minLevel: 37 },
+  { from: 'ELECTRIKE', to: 'MANECTRIC', trigger: 'level', minLevel: 26 },
+  { from: 'GULPIN', to: 'SWALOT', trigger: 'level', minLevel: 26 },
+  { from: 'CARVANHA', to: 'SHARPEDO', trigger: 'level', minLevel: 30 },
+  { from: 'WAILMER', to: 'WAILORD', trigger: 'level', minLevel: 40 },
+  { from: 'NUMEL', to: 'CAMERUPT', trigger: 'level', minLevel: 33 },
+  { from: 'SPOINK', to: 'GRUMPIG', trigger: 'level', minLevel: 32 },
+  { from: 'TRAPINCH', to: 'VIBRAVA', trigger: 'level', minLevel: 35 },
+  { from: 'VIBRAVA', to: 'FLYGON', trigger: 'level', minLevel: 45 },
+  { from: 'CACNEA', to: 'CACTURNE', trigger: 'level', minLevel: 32 },
+  { from: 'SWABLU', to: 'ALTARIA', trigger: 'level', minLevel: 35 },
+  { from: 'BARBOACH', to: 'WHISCASH', trigger: 'level', minLevel: 30 },
+  { from: 'CORPHISH', to: 'CRAWDAUNT', trigger: 'level', minLevel: 30 },
+  { from: 'BALTOY', to: 'CLAYDOL', trigger: 'level', minLevel: 36 },
+  { from: 'LILEEP', to: 'CRADILY', trigger: 'level', minLevel: 40 },
+  { from: 'ANORITH', to: 'ARMALDO', trigger: 'level', minLevel: 40 },
+  { from: 'SHUPPET', to: 'BANETTE', trigger: 'level', minLevel: 37 },
+  { from: 'DUSKULL', to: 'DUSCLOPS', trigger: 'level', minLevel: 37 },
+  { from: 'WYNAUT', to: 'WOBBUFFET', trigger: 'level', minLevel: 15 },
+  { from: 'SNORUNT', to: 'GLALIE', trigger: 'level', minLevel: 42 },
+  { from: 'SPHEAL', to: 'SEALEO', trigger: 'level', minLevel: 32 },
+  { from: 'SEALEO', to: 'WALREIN', trigger: 'level', minLevel: 44 },
+  { from: 'BAGON', to: 'SHELGON', trigger: 'level', minLevel: 30 },
+  { from: 'SHELGON', to: 'SALAMENCE', trigger: 'level', minLevel: 50 },
+  { from: 'BELDUM', to: 'METANG', trigger: 'level', minLevel: 20 },
+  { from: 'METANG', to: 'METAGROSS', trigger: 'level', minLevel: 45 },
+  { from: 'TURTWIG', to: 'GROTLE', trigger: 'level', minLevel: 18 },
+  { from: 'GROTLE', to: 'TORTERRA', trigger: 'level', minLevel: 32 },
+  { from: 'CHIMCHAR', to: 'MONFERNO', trigger: 'level', minLevel: 14 },
+  { from: 'MONFERNO', to: 'INFERNAPE', trigger: 'level', minLevel: 36 },
+  { from: 'PIPLUP', to: 'PRINPLUP', trigger: 'level', minLevel: 16 },
+  { from: 'PRINPLUP', to: 'EMPOLEON', trigger: 'level', minLevel: 36 },
+  { from: 'STARLY', to: 'STARAVIA', trigger: 'level', minLevel: 14 },
+  { from: 'STARAVIA', to: 'STARAPTOR', trigger: 'level', minLevel: 34 },
+  { from: 'BIDOOF', to: 'BIBAREL', trigger: 'level', minLevel: 15 },
+  { from: 'KRICKETOT', to: 'KRICKETUNE', trigger: 'level', minLevel: 10 },
+  { from: 'SHINX', to: 'LUXIO', trigger: 'level', minLevel: 15 },
+  { from: 'LUXIO', to: 'LUXRAY', trigger: 'level', minLevel: 30 },
+  { from: 'CRANIDOS', to: 'RAMPARDOS', trigger: 'level', minLevel: 30 },
+  { from: 'SHIELDON', to: 'BASTIODON', trigger: 'level', minLevel: 30 },
+  { from: 'BUIZEL', to: 'FLOATZEL', trigger: 'level', minLevel: 26 },
+  { from: 'CHERUBI', to: 'CHERRIM', trigger: 'level', minLevel: 25 },
+  { from: 'SHELLOS', to: 'GASTRODON', trigger: 'level', minLevel: 30 },
+  { from: 'DRIFLOON', to: 'DRIFBLIM', trigger: 'level', minLevel: 28 },
+  { from: 'GLAMEOW', to: 'PURUGLY', trigger: 'level', minLevel: 38 },
+  { from: 'STUNKY', to: 'SKUNTANK', trigger: 'level', minLevel: 34 },
+  { from: 'BRONZOR', to: 'BRONZONG', trigger: 'level', minLevel: 33 },
+  { from: 'GIBLE', to: 'GABITE', trigger: 'level', minLevel: 24 },
+  { from: 'GABITE', to: 'GARCHOMP', trigger: 'level', minLevel: 48 },
+  { from: 'HIPPOPOTAS', to: 'HIPPOWDON', trigger: 'level', minLevel: 34 },
+  { from: 'SKORUPI', to: 'DRAPION', trigger: 'level', minLevel: 40 },
+  { from: 'CROAGUNK', to: 'TOXICROAK', trigger: 'level', minLevel: 37 },
+  { from: 'FINNEON', to: 'LUMINEON', trigger: 'level', minLevel: 31 },
+  { from: 'SNOVER', to: 'ABOMASNOW', trigger: 'level', minLevel: 40 },
+  { from: 'SNIVY', to: 'SERVINE', trigger: 'level', minLevel: 17 },
+  { from: 'SERVINE', to: 'SERPERIOR', trigger: 'level', minLevel: 36 },
+  { from: 'TEPIG', to: 'PIGNITE', trigger: 'level', minLevel: 17 },
+  { from: 'PIGNITE', to: 'EMBOAR', trigger: 'level', minLevel: 36 },
+  { from: 'OSHAWOTT', to: 'DEWOTT', trigger: 'level', minLevel: 17 },
+  { from: 'DEWOTT', to: 'SAMUROTT', trigger: 'level', minLevel: 36 },
+  { from: 'PATRAT', to: 'WATCHOG', trigger: 'level', minLevel: 20 },
+  { from: 'LILLIPUP', to: 'HERDIER', trigger: 'level', minLevel: 16 },
+  { from: 'HERDIER', to: 'STOUTLAND', trigger: 'level', minLevel: 32 },
+  { from: 'PURRLOIN', to: 'LIEPARD', trigger: 'level', minLevel: 20 },
+  { from: 'PIDOVE', to: 'TRANQUILL', trigger: 'level', minLevel: 21 },
+  { from: 'TRANQUILL', to: 'UNFEZANT', trigger: 'level', minLevel: 32 },
+  { from: 'BLITZLE', to: 'ZEBSTRIKA', trigger: 'level', minLevel: 27 },
+  { from: 'ROGGENROLA', to: 'BOLDORE', trigger: 'level', minLevel: 25 },
+  { from: 'DRILBUR', to: 'EXCADRILL', trigger: 'level', minLevel: 31 },
+  { from: 'TIMBURR', to: 'GURDURR', trigger: 'level', minLevel: 25 },
+  { from: 'TYMPOLE', to: 'PALPITOAD', trigger: 'level', minLevel: 25 },
+  { from: 'PALPITOAD', to: 'SEISMITOAD', trigger: 'level', minLevel: 36 },
+  { from: 'SEWADDLE', to: 'SWADLOON', trigger: 'level', minLevel: 20 },
+  { from: 'VENIPEDE', to: 'WHIRLIPEDE', trigger: 'level', minLevel: 22 },
+  { from: 'WHIRLIPEDE', to: 'SCOLIPEDE', trigger: 'level', minLevel: 30 },
+  { from: 'SANDILE', to: 'KROKOROK', trigger: 'level', minLevel: 29 },
+  { from: 'KROKOROK', to: 'KROOKODILE', trigger: 'level', minLevel: 40 },
+  { from: 'DARUMAKA', to: 'DARMANITAN', trigger: 'level', minLevel: 35 },
+  { from: 'DWEBBLE', to: 'CRUSTLE', trigger: 'level', minLevel: 34 },
+  { from: 'SCRAGGY', to: 'SCRAFTY', trigger: 'level', minLevel: 39 },
+  { from: 'YAMASK', to: 'COFAGRIGUS', trigger: 'level', minLevel: 34 },
+  { from: 'TIRTOUGA', to: 'CARRACOSTA', trigger: 'level', minLevel: 37 },
+  { from: 'ARCHEN', to: 'ARCHEOPS', trigger: 'level', minLevel: 37 },
+  { from: 'TRUBBISH', to: 'GARBODOR', trigger: 'level', minLevel: 36 },
+  { from: 'ZORUA', to: 'ZOROARK', trigger: 'level', minLevel: 30 },
+  { from: 'GOTHITA', to: 'GOTHORITA', trigger: 'level', minLevel: 32 },
+  { from: 'GOTHORITA', to: 'GOTHITELLE', trigger: 'level', minLevel: 41 },
+  { from: 'SOLOSIS', to: 'DUOSION', trigger: 'level', minLevel: 32 },
+  { from: 'DUOSION', to: 'REUNICLUS', trigger: 'level', minLevel: 41 },
+  { from: 'DUCKLETT', to: 'SWANNA', trigger: 'level', minLevel: 35 },
+  { from: 'VANILLITE', to: 'VANILLISH', trigger: 'level', minLevel: 35 },
+  { from: 'VANILLISH', to: 'VANILLUXE', trigger: 'level', minLevel: 47 },
+  { from: 'DEERLING', to: 'SAWSBUCK', trigger: 'level', minLevel: 34 },
+  { from: 'FOONGUS', to: 'AMOONGUSS', trigger: 'level', minLevel: 39 },
+  { from: 'FRILLISH', to: 'JELLICENT', trigger: 'level', minLevel: 40 },
+  { from: 'JOLTIK', to: 'GALVANTULA', trigger: 'level', minLevel: 36 },
+  { from: 'FERROSEED', to: 'FERROTHORN', trigger: 'level', minLevel: 40 },
+  { from: 'KLINK', to: 'KLANG', trigger: 'level', minLevel: 38 },
+  { from: 'KLANG', to: 'KLINKLANG', trigger: 'level', minLevel: 49 },
+  { from: 'TYNAMO', to: 'EELEKTRIK', trigger: 'level', minLevel: 39 },
+  { from: 'ELGYEM', to: 'BEHEEYEM', trigger: 'level', minLevel: 42 },
+  { from: 'LITWICK', to: 'LAMPENT', trigger: 'level', minLevel: 41 },
+  { from: 'AXEW', to: 'FRAXURE', trigger: 'level', minLevel: 38 },
+  { from: 'FRAXURE', to: 'HAXORUS', trigger: 'level', minLevel: 48 },
+  { from: 'CUBCHOO', to: 'BEARTIC', trigger: 'level', minLevel: 37 },
+  { from: 'MIENFOO', to: 'MIENSHAO', trigger: 'level', minLevel: 50 },
+  { from: 'GOLETT', to: 'GOLURK', trigger: 'level', minLevel: 43 },
+  { from: 'PAWNIARD', to: 'BISHARP', trigger: 'level', minLevel: 52 },
+  { from: 'RUFFLET', to: 'BRAVIARY', trigger: 'level', minLevel: 54 },
+  { from: 'VULLABY', to: 'MANDIBUZZ', trigger: 'level', minLevel: 54 },
+  { from: 'DEINO', to: 'ZWEILOUS', trigger: 'level', minLevel: 50 },
+  { from: 'ZWEILOUS', to: 'HYDREIGON', trigger: 'level', minLevel: 64 },
+  { from: 'LARVESTA', to: 'VOLCARONA', trigger: 'level', minLevel: 59 },
+  { from: 'CHESPIN', to: 'QUILLADIN', trigger: 'level', minLevel: 16 },
+  { from: 'QUILLADIN', to: 'CHESNAUGHT', trigger: 'level', minLevel: 36 },
+  { from: 'FENNEKIN', to: 'BRAIXEN', trigger: 'level', minLevel: 16 },
+  { from: 'BRAIXEN', to: 'DELPHOX', trigger: 'level', minLevel: 36 },
+  { from: 'FROAKIE', to: 'FROGADIER', trigger: 'level', minLevel: 16 },
+  { from: 'FROGADIER', to: 'GRENINJA', trigger: 'level', minLevel: 36 },
+  { from: 'BUNNELBY', to: 'DIGGERSBY', trigger: 'level', minLevel: 20 },
+  { from: 'FLETCHLING', to: 'FLETCHINDER', trigger: 'level', minLevel: 17 },
+  { from: 'FLETCHINDER', to: 'TALONFLAME', trigger: 'level', minLevel: 35 },
+  { from: 'SCATTERBUG', to: 'SPEWPA', trigger: 'level', minLevel: 9 },
+  { from: 'SPEWPA', to: 'VIVILLON', trigger: 'level', minLevel: 12 },
+  { from: 'LITLEO', to: 'PYROAR', trigger: 'level', minLevel: 35 },
+  { from: 'FLABEBE', to: 'FLOETTE', trigger: 'level', minLevel: 19 },
+  { from: 'SKIDDO', to: 'GOGOAT', trigger: 'level', minLevel: 32 },
+  { from: 'HONEDGE', to: 'DOUBLADE', trigger: 'level', minLevel: 35 },
+  { from: 'BINACLE', to: 'BARBARACLE', trigger: 'level', minLevel: 39 },
+  { from: 'SKRELP', to: 'DRAGALGE', trigger: 'level', minLevel: 48 },
+  { from: 'CLAUNCHER', to: 'CLAWITZER', trigger: 'level', minLevel: 37 },
+  { from: 'GOOMY', to: 'SLIGGOO', trigger: 'level', minLevel: 40 },
+  { from: 'BERGMITE', to: 'AVALUGG', trigger: 'level', minLevel: 37 },
+  { from: 'NOIBAT', to: 'NOIVERN', trigger: 'level', minLevel: 48 },
+  { from: 'ROWLET', to: 'DARTRIX', trigger: 'level', minLevel: 17 },
+  { from: 'DARTRIX', to: 'DECIDUEYE', trigger: 'level', minLevel: 34 },
+  { from: 'LITTEN', to: 'TORRACAT', trigger: 'level', minLevel: 17 },
+  { from: 'TORRACAT', to: 'INCINEROAR', trigger: 'level', minLevel: 34 },
+  { from: 'POPPLIO', to: 'BRIONNE', trigger: 'level', minLevel: 17 },
+  { from: 'BRIONNE', to: 'PRIMARINA', trigger: 'level', minLevel: 34 },
+  { from: 'PIKIPEK', to: 'TRUMBEAK', trigger: 'level', minLevel: 14 },
+  { from: 'TRUMBEAK', to: 'TOUCANNON', trigger: 'level', minLevel: 28 },
+  { from: 'GRUBBIN', to: 'CHARJABUG', trigger: 'level', minLevel: 20 },
+  { from: 'CUTIEFLY', to: 'RIBOMBEE', trigger: 'level', minLevel: 25 },
+  { from: 'MAREANIE', to: 'TOXAPEX', trigger: 'level', minLevel: 38 },
+  { from: 'MUDBRAY', to: 'MUDSDALE', trigger: 'level', minLevel: 30 },
+  { from: 'DEWPIDER', to: 'ARAQUANID', trigger: 'level', minLevel: 22 },
+  { from: 'MORELULL', to: 'SHIINOTIC', trigger: 'level', minLevel: 24 },
+  { from: 'STUFFUL', to: 'BEWEAR', trigger: 'level', minLevel: 27 },
+  { from: 'BOUNSWEET', to: 'STEENEE', trigger: 'level', minLevel: 18 },
+  { from: 'WIMPOD', to: 'GOLISOPOD', trigger: 'level', minLevel: 30 },
+  { from: 'SANDYGAST', to: 'PALOSSAND', trigger: 'level', minLevel: 42 },
+  { from: 'JANGMO_O', to: 'HAKAMO_O', trigger: 'level', minLevel: 35 },
+  { from: 'HAKAMO_O', to: 'KOMMO_O', trigger: 'level', minLevel: 45 },
+  { from: 'COSMOG', to: 'COSMOEM', trigger: 'level', minLevel: 43 },
+  { from: 'GROOKEY', to: 'THWACKEY', trigger: 'level', minLevel: 16 },
+  { from: 'THWACKEY', to: 'RILLABOOM', trigger: 'level', minLevel: 35 },
+  { from: 'SCORBUNNY', to: 'RABOOT', trigger: 'level', minLevel: 16 },
+  { from: 'RABOOT', to: 'CINDERACE', trigger: 'level', minLevel: 35 },
+  { from: 'SOBBLE', to: 'DRIZZILE', trigger: 'level', minLevel: 16 },
+  { from: 'DRIZZILE', to: 'INTELEON', trigger: 'level', minLevel: 35 },
+  { from: 'SKWOVET', to: 'GREEDENT', trigger: 'level', minLevel: 24 },
+  { from: 'ROOKIDEE', to: 'CORVISQUIRE', trigger: 'level', minLevel: 18 },
+  { from: 'CORVISQUIRE', to: 'CORVIKNIGHT', trigger: 'level', minLevel: 38 },
+  { from: 'BLIPBUG', to: 'DOTTLER', trigger: 'level', minLevel: 10 },
+  { from: 'DOTTLER', to: 'ORBEETLE', trigger: 'level', minLevel: 30 },
+  { from: 'NICKIT', to: 'THIEVUL', trigger: 'level', minLevel: 18 },
+  { from: 'GOSSIFLEUR', to: 'ELDEGOSS', trigger: 'level', minLevel: 20 },
+  { from: 'WOOLOO', to: 'DUBWOOL', trigger: 'level', minLevel: 24 },
+  { from: 'CHEWTLE', to: 'DREDNAW', trigger: 'level', minLevel: 22 },
+  { from: 'YAMPER', to: 'BOLTUND', trigger: 'level', minLevel: 25 },
+  { from: 'ROLYCOLY', to: 'CARKOL', trigger: 'level', minLevel: 18 },
+  { from: 'CARKOL', to: 'COALOSSAL', trigger: 'level', minLevel: 34 },
+  { from: 'SILICOBRA', to: 'SANDACONDA', trigger: 'level', minLevel: 36 },
+  { from: 'ARROKUDA', to: 'BARRASKEWDA', trigger: 'level', minLevel: 26 },
+  { from: 'SIZZLIPEDE', to: 'CENTISKORCH', trigger: 'level', minLevel: 28 },
+  { from: 'HATENNA', to: 'HATTREM', trigger: 'level', minLevel: 32 },
+  { from: 'HATTREM', to: 'HATTERENE', trigger: 'level', minLevel: 42 },
+  { from: 'IMPIDIMP', to: 'MORGREM', trigger: 'level', minLevel: 32 },
+  { from: 'MORGREM', to: 'GRIMMSNARL', trigger: 'level', minLevel: 42 },
+  { from: 'CUFANT', to: 'COPPERAJAH', trigger: 'level', minLevel: 34 },
+  { from: 'DREEPY', to: 'DRAKLOAK', trigger: 'level', minLevel: 50 },
+  { from: 'DRAKLOAK', to: 'DRAGAPULT', trigger: 'level', minLevel: 60 },
+  { from: 'SPRIGATITO', to: 'FLORAGATO', trigger: 'level', minLevel: 16 },
+  { from: 'FLORAGATO', to: 'MEOWSCARADA', trigger: 'level', minLevel: 36 },
+  { from: 'FUECOCO', to: 'CROCALOR', trigger: 'level', minLevel: 16 },
+  { from: 'CROCALOR', to: 'SKELEDIRGE', trigger: 'level', minLevel: 36 },
+  { from: 'QUAXLY', to: 'QUAXWELL', trigger: 'level', minLevel: 16 },
+  { from: 'QUAXWELL', to: 'QUAQUAVAL', trigger: 'level', minLevel: 36 },
+  { from: 'TAROUNTULA', to: 'SPIDOPS', trigger: 'level', minLevel: 15 },
+  { from: 'NYMBLE', to: 'LOKIX', trigger: 'level', minLevel: 24 },
+  { from: 'PAWMI', to: 'PAWMO', trigger: 'level', minLevel: 18 },
+  { from: 'FIDOUGH', to: 'DACHSBUN', trigger: 'level', minLevel: 26 },
+  { from: 'SMOLIV', to: 'DOLLIV', trigger: 'level', minLevel: 25 },
+  { from: 'DOLLIV', to: 'ARBOLIVA', trigger: 'level', minLevel: 35 },
+  { from: 'NACLI', to: 'NACLSTACK', trigger: 'level', minLevel: 24 },
+  { from: 'NACLSTACK', to: 'GARGANACL', trigger: 'level', minLevel: 38 },
+  { from: 'WATTREL', to: 'KILOWATTREL', trigger: 'level', minLevel: 25 },
+  { from: 'MASCHIFF', to: 'MABOSSTIFF', trigger: 'level', minLevel: 30 },
+  { from: 'SHROODLE', to: 'GRAFAIAI', trigger: 'level', minLevel: 28 },
+  { from: 'TOEDSCOOL', to: 'TOEDSCRUEL', trigger: 'level', minLevel: 30 },
+  { from: 'FLITTLE', to: 'ESPATHRA', trigger: 'level', minLevel: 35 },
+  { from: 'TINKATINK', to: 'TINKATUFF', trigger: 'level', minLevel: 24 },
+  { from: 'TINKATUFF', to: 'TINKATON', trigger: 'level', minLevel: 38 },
+  { from: 'WIGLETT', to: 'WUGTRIO', trigger: 'level', minLevel: 26 },
+  { from: 'VAROOM', to: 'REVAVROOM', trigger: 'level', minLevel: 40 },
+  { from: 'GLIMMET', to: 'GLIMMORA', trigger: 'level', minLevel: 35 },
+  { from: 'FRIGIBAX', to: 'ARCTIBAX', trigger: 'level', minLevel: 35 },
+  { from: 'ARCTIBAX', to: 'BAXCALIBUR', trigger: 'level', minLevel: 54 },
+];
+// EVO_SPECIES (same source and date): every evolution target the game did not define yet. h = official height in dm; learn =
+// the full level-up learnset (level move ...) from the newest game that has the species (noted per line), 0 = learned on
+// evolving. Moves missing from MOVES are skipped at runtime, so new MOVES entries are picked up without regenerating this.
+const EVO_SPECIES = {
+  IVYSAUR: { name: "IVYSAUR", dex: 2, types: ['GRASS', 'POISON'], base: [60, 62, 63, 80, 80, 60], rate: 45, exp: 142, h: 10, learn: '1 GROWL 1 GROWTH 1 TACKLE 1 VINE_WHIP 9 LEECH_SEED 12 RAZOR_LEAF 15 POISON_POWDER 15 SLEEP_POWDER 20 SEED_BOMB 25 TAKE_DOWN 30 SWEET_SCENT 35 SYNTHESIS 40 WORRY_SEED 45 POWER_WHIP 50 SOLAR_BEAM' }, // scarlet-violet
+  VENUSAUR: { name: "VENUSAUR", dex: 3, types: ['GRASS', 'POISON'], base: [80, 82, 83, 100, 100, 80], rate: 45, exp: 236, h: 20, learn: '0 PETAL_BLIZZARD 1 GROWL 1 GROWTH 1 PETAL_DANCE 1 TACKLE 1 VINE_WHIP 9 LEECH_SEED 12 RAZOR_LEAF 15 POISON_POWDER 15 SLEEP_POWDER 20 SEED_BOMB 25 TAKE_DOWN 30 SWEET_SCENT 37 SYNTHESIS 44 WORRY_SEED 51 POWER_WHIP 58 SOLAR_BEAM' }, // scarlet-violet
+  CHARMELEON: { name: "CHARMELEON", dex: 5, types: ['FIRE'], base: [58, 64, 58, 80, 65, 80], rate: 45, exp: 142, h: 11, learn: '1 EMBER 1 GROWL 1 SCRATCH 1 SMOKESCREEN 12 DRAGON_BREATH 19 FIRE_FANG 24 SLASH 30 FLAMETHROWER 37 SCARY_FACE 48 INFERNO 54 FLARE_BLITZ' }, // scarlet-violet
+  CHARIZARD: { name: "CHARIZARD", dex: 6, types: ['FIRE', 'FLYING'], base: [78, 84, 78, 109, 85, 100], rate: 45, exp: 240, h: 17, learn: '0 AIR_SLASH 1 DRAGON_CLAW 1 EMBER 1 GROWL 1 HEAT_WAVE 1 SCRATCH 1 SMOKESCREEN 12 DRAGON_BREATH 19 FIRE_FANG 24 SLASH 30 FLAMETHROWER 39 SCARY_FACE 46 FIRE_SPIN 54 INFERNO 62 FLARE_BLITZ' }, // scarlet-violet
+  WARTORTLE: { name: "WARTORTLE", dex: 8, types: ['WATER'], base: [59, 63, 80, 65, 80, 58], rate: 45, exp: 142, h: 10, learn: '1 TACKLE 1 TAIL_WHIP 1 WATER_GUN 1 WITHDRAW 9 RAPID_SPIN 12 BITE 15 WATER_PULSE 20 PROTECT 25 RAIN_DANCE 30 AQUA_TAIL 35 SHELL_SMASH 40 IRON_DEFENSE 45 HYDRO_PUMP 50 WAVE_CRASH' }, // scarlet-violet
+  BLASTOISE: { name: "BLASTOISE", dex: 9, types: ['WATER'], base: [79, 83, 100, 85, 105, 78], rate: 45, exp: 239, h: 16, learn: '0 FLASH_CANNON 1 TACKLE 1 TAIL_WHIP 1 WATER_GUN 1 WITHDRAW 9 RAPID_SPIN 12 BITE 15 WATER_PULSE 20 PROTECT 25 RAIN_DANCE 30 AQUA_TAIL 35 SHELL_SMASH 42 IRON_DEFENSE 49 HYDRO_PUMP 56 WAVE_CRASH' }, // scarlet-violet
+  METAPOD: { name: "METAPOD", dex: 11, types: ['BUG'], base: [50, 20, 55, 25, 25, 30], rate: 120, exp: 72, h: 7, learn: '0 HARDEN 1 HARDEN' }, // brilliant-diamond-shining-pearl
+  BUTTERFREE: { name: "BUTTERFREE", dex: 12, types: ['BUG', 'FLYING'], base: [60, 45, 50, 90, 80, 70], rate: 45, exp: 178, h: 11, learn: '0 GUST 1 BUG_BITE 1 GUST 1 HARDEN 1 STRING_SHOT 1 TACKLE 4 SUPERSONIC 8 CONFUSION 12 POISON_POWDER 12 SLEEP_POWDER 12 STUN_SPORE 16 PSYBEAM 20 WHIRLWIND 24 AIR_SLASH 28 SAFEGUARD 32 BUG_BUZZ 36 TAILWIND 40 RAGE_POWDER 44 QUIVER_DANCE' }, // brilliant-diamond-shining-pearl
+  KAKUNA: { name: "KAKUNA", dex: 14, types: ['BUG', 'POISON'], base: [45, 25, 50, 25, 25, 35], rate: 120, exp: 72, h: 6, learn: '0 HARDEN 1 HARDEN' }, // brilliant-diamond-shining-pearl
+  BEEDRILL: { name: "BEEDRILL", dex: 15, types: ['BUG', 'POISON'], base: [65, 90, 40, 45, 80, 75], rate: 45, exp: 178, h: 10, learn: '0 FURY_ATTACK 1 BUG_BITE 1 FURY_ATTACK 1 HARDEN 1 POISON_STING 1 STRING_SHOT 11 FURY_CUTTER 14 LASER_FOCUS 17 POISON_STING 20 FOCUS_ENERGY 23 VENOSHOCK 26 ASSURANCE 29 TOXIC_SPIKES 32 PIN_MISSILE 35 POISON_JAB 38 AGILITY 41 ENDEAVOR 44 FELL_STINGER' }, // brilliant-diamond-shining-pearl
+  PIDGEOTTO: { name: "PIDGEOTTO", dex: 17, types: ['NORMAL', 'FLYING'], base: [63, 60, 55, 50, 50, 71], rate: 120, exp: 122, h: 11, learn: '1 GUST 1 SAND_ATTACK 1 TACKLE 5 SAND_ATTACK 9 GUST 13 QUICK_ATTACK 17 WHIRLWIND 22 TWISTER 27 FEATHER_DANCE 32 AGILITY 37 WING_ATTACK 42 ROOST 47 TAILWIND 52 AERIAL_ACE 57 AIR_SLASH 62 HURRICANE' }, // brilliant-diamond-shining-pearl
+  PIDGEOT: { name: "PIDGEOT", dex: 18, types: ['NORMAL', 'FLYING'], base: [83, 80, 75, 70, 70, 101], rate: 45, exp: 216, h: 15, learn: '1 GUST 1 HURRICANE 1 QUICK_ATTACK 1 SAND_ATTACK 1 TACKLE 5 SAND_ATTACK 9 GUST 13 QUICK_ATTACK 17 WHIRLWIND 22 TWISTER 27 FEATHER_DANCE 32 AGILITY 38 WING_ATTACK 44 ROOST 50 TAILWIND 56 AERIAL_ACE 62 AIR_SLASH 68 HURRICANE' }, // brilliant-diamond-shining-pearl
+  RATICATE: { name: "RATICATE", dex: 20, types: ['NORMAL'], base: [55, 81, 60, 50, 70, 97], rate: 127, exp: 145, h: 7, learn: '0 SCARY_FACE 1 FOCUS_ENERGY 1 QUICK_ATTACK 1 SCARY_FACE 1 SWORDS_DANCE 1 TACKLE 1 TAIL_WHIP 4 QUICK_ATTACK 7 FOCUS_ENERGY 10 BITE 13 LASER_FOCUS 16 TAKE_DOWN 19 ASSURANCE 24 CRUNCH 29 SUCKER_PUNCH 34 SUPER_FANG 39 DOUBLE_EDGE 44 ENDEAVOR' }, // brilliant-diamond-shining-pearl
+  FEAROW: { name: "FEAROW", dex: 22, types: ['NORMAL', 'FLYING'], base: [65, 90, 65, 61, 61, 100], rate: 90, exp: 155, h: 12, learn: '1 DRILL_RUN 1 GROWL 1 LEER 1 PECK 1 PLUCK 4 LEER 8 ASSURANCE 11 FURY_ATTACK 15 AERIAL_ACE 18 WING_ATTACK 23 TAKE_DOWN 27 AGILITY 32 FOCUS_ENERGY 36 ROOST 41 DRILL_PECK 45 DRILL_RUN' }, // brilliant-diamond-shining-pearl
+  ARBOK: { name: "ARBOK", dex: 24, types: ['POISON'], base: [60, 95, 69, 65, 79, 80], rate: 90, exp: 157, h: 35, learn: '0 CRUNCH 1 BITE 1 FIRE_FANG 1 ICE_FANG 1 LEER 1 POISON_STING 1 THUNDER_FANG 1 WRAP 12 GLARE 17 SCREECH 20 ACID 27 SPIT_UP 27 STOCKPILE 27 SWALLOW 32 ACID_SPRAY 39 SLUDGE_BOMB 44 GASTRO_ACID 48 BELCH 51 HAZE 56 COIL 63 GUNK_SHOT' }, // scarlet-violet
+  SANDSLASH: { name: "SANDSLASH", dex: 28, types: ['GROUND'], base: [75, 100, 110, 45, 55, 65], rate: 90, exp: 158, h: 10, learn: '1 CRUSH_CLAW 1 DEFENSE_CURL 1 POISON_STING 1 SAND_ATTACK 1 SCRATCH 9 ROLLOUT 12 FURY_CUTTER 15 RAPID_SPIN 18 BULLDOZE 21 SWIFT 26 FURY_SWIPES 31 SAND_TOMB 36 SLASH 41 DIG 46 GYRO_BALL 51 SWORDS_DANCE 56 SANDSTORM 61 EARTHQUAKE' }, // scarlet-violet
+  NIDORINA: { name: "NIDORINA", dex: 30, types: ['POISON'], base: [70, 62, 67, 55, 55, 56], rate: 120, exp: 128, h: 8, learn: '1 GROWL 1 POISON_STING 1 SCRATCH 1 TAIL_WHIP 15 FURY_SWIPES 22 TOXIC_SPIKES 29 DOUBLE_KICK 36 BITE 43 HELPING_HAND 50 TOXIC 57 FLATTER 64 CRUNCH 71 EARTH_POWER' }, // brilliant-diamond-shining-pearl
+  NIDORINO: { name: "NIDORINO", dex: 33, types: ['POISON'], base: [61, 72, 57, 55, 55, 65], rate: 120, exp: 128, h: 9, learn: '1 FOCUS_ENERGY 1 LEER 1 PECK 1 POISON_STING 15 FURY_ATTACK 22 TOXIC_SPIKES 29 DOUBLE_KICK 36 HORN_ATTACK 43 HELPING_HAND 50 TOXIC 57 FLATTER 64 POISON_JAB 71 EARTH_POWER' }, // brilliant-diamond-shining-pearl
+  GOLBAT: { name: "GOLBAT", dex: 42, types: ['POISON', 'FLYING'], base: [75, 80, 70, 65, 75, 90], rate: 90, exp: 159, h: 16, learn: '1 GUST 6 HYPNOSIS 11 BITE 18 AIR_CUTTER 25 CROSS_POISON 34 AIR_SLASH 43 LEECH_LIFE' }, // legends-arceus
+  GLOOM: { name: "GLOOM", dex: 44, types: ['GRASS', 'POISON'], base: [60, 65, 70, 85, 75, 40], rate: 120, exp: 138, h: 8, learn: '1 ABSORB 1 ACID 1 GROWTH 1 SWEET_SCENT 12 MEGA_DRAIN 14 POISON_POWDER 16 STUN_SPORE 18 SLEEP_POWDER 20 GIGA_DRAIN 26 TOXIC 32 MOONBLAST 38 GRASSY_TERRAIN 44 MOONLIGHT 50 PETAL_DANCE' }, // scarlet-violet
+  PARASECT: { name: "PARASECT", dex: 47, types: ['BUG', 'GRASS'], base: [60, 95, 80, 60, 80, 30], rate: 75, exp: 142, h: 10, learn: '1 ABSORB 5 STUN_SPORE 9 POISON_POWDER 15 VENOSHOCK 21 SLASH 29 SPORE 37 X_SCISSOR 47 ENERGY_BALL' }, // legends-arceus
+  VENOMOTH: { name: "VENOMOTH", dex: 49, types: ['BUG', 'POISON'], base: [70, 65, 60, 90, 75, 90], rate: 75, exp: 158, h: 15, learn: '0 AIR_SLASH 1 DISABLE 1 QUIVER_DANCE 1 SUPERSONIC 1 TACKLE 11 CONFUSION 13 POISON_POWDER 17 PSYBEAM 23 STUN_SPORE 25 BUG_BUZZ 29 SLEEP_POWDER 37 LEECH_LIFE 41 ZEN_HEADBUTT 47 POISON_FANG 55 PSYCHIC' }, // scarlet-violet
+  DUGTRIO: { name: "DUGTRIO", dex: 51, types: ['GROUND'], base: [35, 100, 50, 50, 70, 120], rate: 50, exp: 149, h: 7, learn: '0 SAND_TOMB 1 ASTONISH 1 GROWL 1 NIGHT_SLASH 1 SAND_ATTACK 1 SCRATCH 1 TRI_ATTACK 12 MUD_SLAP 16 BULLDOZE 20 SUCKER_PUNCH 24 SLASH 30 SANDSTORM 36 DIG 42 EARTH_POWER 48 EARTHQUAKE 54 FISSURE' }, // scarlet-violet
+  PERSIAN: { name: "PERSIAN", dex: 53, types: ['NORMAL'], base: [65, 70, 60, 65, 65, 115], rate: 90, exp: 154, h: 10, learn: '0 POWER_GEM 1 FAKE_OUT 1 FEINT 1 GROWL 1 SCRATCH 1 SWITCHEROO 12 PAY_DAY 16 BITE 20 TAUNT 24 ASSURANCE 31 FURY_SWIPES 36 SCREECH 42 SLASH 48 NASTY_PLOT 54 PLAY_ROUGH' }, // scarlet-violet
+  GOLDUCK: { name: "GOLDUCK", dex: 55, types: ['WATER'], base: [80, 82, 78, 95, 80, 85], rate: 75, exp: 175, h: 17, learn: '1 AQUA_JET 1 CONFUSION 1 SCRATCH 1 TAIL_WHIP 1 WATER_GUN 9 FURY_SWIPES 12 WATER_PULSE 15 DISABLE 18 ZEN_HEADBUTT 21 SCREECH 24 AQUA_TAIL 27 SOAK 30 PSYCH_UP 36 AMNESIA 40 HYDRO_PUMP 45 WONDER_ROOM' }, // scarlet-violet
+  PRIMEAPE: { name: "PRIMEAPE", dex: 57, types: ['FIGHTING'], base: [65, 105, 60, 60, 70, 95], rate: 75, exp: 159, h: 10, learn: '1 FLING 1 FOCUS_ENERGY 1 LEER 1 SCRATCH 5 FURY_SWIPES 8 LOW_KICK 15 SEISMIC_TOSS 17 SWAGGER 22 CROSS_CHOP 26 ASSURANCE 30 THRASH 35 RAGE_FIST 39 CLOSE_COMBAT 44 SCREECH 48 STOMPING_TANTRUM 53 OUTRAGE 57 FINAL_GAMBIT' }, // scarlet-violet
+  POLIWHIRL: { name: "POLIWHIRL", dex: 61, types: ['WATER'], base: [65, 65, 65, 50, 50, 90], rate: 120, exp: 135, h: 10, learn: '1 HYPNOSIS 1 MUD_SHOT 1 POUND 1 WATER_GUN 18 BUBBLE_BEAM 24 RAIN_DANCE 32 BODY_SLAM 40 EARTH_POWER 48 HYDRO_PUMP 56 BELLY_DRUM 66 DOUBLE_EDGE' }, // scarlet-violet
+  KADABRA: { name: "KADABRA", dex: 64, types: ['PSYCHIC'], base: [40, 35, 30, 120, 70, 105], rate: 100, exp: 140, h: 13, learn: '0 CONFUSION 1 TELEPORT 6 HYPNOSIS 11 CALM_MIND 18 PSYCHO_CUT 25 ZEN_HEADBUTT 34 RECOVER 43 PSYCHIC' }, // legends-arceus
+  MACHOKE: { name: "MACHOKE", dex: 67, types: ['FIGHTING'], base: [80, 100, 70, 50, 60, 45], rate: 90, exp: 142, h: 15, learn: '1 TACKLE 6 ROCK_SMASH 11 BULLET_PUNCH 18 DOUBLE_HIT 22 MACH_PUNCH 25 BULK_UP 34 DOUBLE_EDGE 43 CLOSE_COMBAT' }, // legends-arceus
+  WEEPINBELL: { name: "WEEPINBELL", dex: 70, types: ['GRASS', 'POISON'], base: [65, 90, 50, 85, 45, 55], rate: 120, exp: 137, h: 10, learn: '1 GROWTH 1 VINE_WHIP 1 WRAP 13 SLEEP_POWDER 15 POISON_POWDER 17 STUN_SPORE 24 ACID 29 KNOCK_OFF 32 SWEET_SCENT 39 GASTRO_ACID 44 RAZOR_LEAF 47 POISON_JAB 54 SLAM 58 POWER_WHIP' }, // scarlet-violet
+  TENTACRUEL: { name: "TENTACRUEL", dex: 73, types: ['WATER', 'POISON'], base: [80, 70, 65, 80, 120, 100], rate: 60, exp: 180, h: 16, learn: '1 ACID 1 POISON_STING 1 REFLECT_TYPE 1 WATER_GUN 1 WRAP 12 SUPERSONIC 16 WATER_PULSE 20 SCREECH 24 BUBBLE_BEAM 28 HEX 34 ACID_ARMOR 40 POISON_JAB 46 SURF 52 SLUDGE_WAVE 58 HYDRO_PUMP' }, // scarlet-violet
+  GRAVELER: { name: "GRAVELER", dex: 75, types: ['ROCK', 'GROUND'], base: [55, 95, 115, 45, 45, 35], rate: 120, exp: 137, h: 10, learn: '1 DEFENSE_CURL 1 ROCK_POLISH 1 TACKLE 10 ROLLOUT 12 BULLDOZE 16 ROCK_THROW 18 SMACK_DOWN 24 SELF_DESTRUCT 30 STEALTH_ROCK 34 ROCK_BLAST 40 EARTHQUAKE 44 EXPLOSION 50 DOUBLE_EDGE 54 STONE_EDGE' }, // scarlet-violet
+  RAPIDASH: { name: "RAPIDASH", dex: 78, types: ['FIRE'], base: [65, 100, 70, 80, 80, 105], rate: 60, exp: 175, h: 17, learn: '1 TACKLE 5 EMBER 9 DOUBLE_HIT 15 FLAME_WHEEL 21 HYPNOSIS 29 FIRE_BLAST 37 DOUBLE_EDGE 47 FLARE_BLITZ' }, // legends-arceus
+  SLOWBRO: { name: "SLOWBRO", dex: 80, types: ['WATER', 'PSYCHIC'], base: [95, 75, 110, 100, 80, 30], rate: 75, exp: 172, h: 16, learn: '1 CURSE 1 GROWL 1 TACKLE 1 WATER_GUN 1 WITHDRAW 9 YAWN 12 CONFUSION 15 DISABLE 18 WATER_PULSE 21 HEADBUTT 24 ZEN_HEADBUTT 27 AMNESIA 30 SURF 33 SLACK_OFF 36 PSYCHIC 41 PSYCH_UP 46 RAIN_DANCE 51 HEAL_PULSE' }, // scarlet-violet
+  MAGNETON: { name: "MAGNETON", dex: 82, types: ['ELECTRIC', 'STEEL'], base: [50, 60, 95, 120, 70, 70], rate: 60, exp: 163, h: 10, learn: '0 TRI_ATTACK 1 ELECTRIC_TERRAIN 1 SUPERSONIC 1 TACKLE 1 THUNDER_SHOCK 1 THUNDER_WAVE 12 ELECTRO_BALL 16 GYRO_BALL 20 SPARK 24 SCREECH 28 MAGNET_RISE 34 FLASH_CANNON 40 DISCHARGE 46 METAL_SOUND 52 LIGHT_SCREEN 58 LOCK_ON 64 ZAP_CANNON' }, // scarlet-violet
+  DODRIO: { name: "DODRIO", dex: 85, types: ['NORMAL', 'FLYING'], base: [60, 110, 70, 60, 60, 110], rate: 45, exp: 165, h: 18, learn: '0 TRI_ATTACK 1 GROWL 1 PECK 1 QUICK_ATTACK 12 FURY_ATTACK 15 PLUCK 19 DOUBLE_HIT 23 AGILITY 26 UPROAR 30 ACUPRESSURE 34 SWORDS_DANCE 38 DRILL_PECK 43 ENDEAVOR 50 THRASH' }, // scarlet-violet
+  DEWGONG: { name: "DEWGONG", dex: 87, types: ['WATER', 'ICE'], base: [90, 70, 80, 70, 95, 70], rate: 75, exp: 166, h: 17, learn: '0 SHEER_COLD 1 GROWL 1 HEADBUTT 1 ICY_WIND 13 ENCORE 17 ICE_SHARD 21 REST 23 AQUA_RING 27 AURORA_BEAM 31 AQUA_JET 33 BRINE 39 TAKE_DOWN 45 DIVE 49 AQUA_TAIL 55 ICE_BEAM 61 SAFEGUARD 65 SNOWSCAPE' }, // scarlet-violet
+  MUK: { name: "MUK", dex: 89, types: ['POISON'], base: [105, 105, 75, 65, 100, 50], rate: 75, exp: 175, h: 12, learn: '1 HARDEN 1 MUD_SLAP 1 POISON_GAS 1 POUND 12 DISABLE 15 SLUDGE 18 MUD_SHOT 21 MINIMIZE 26 TOXIC 29 SLUDGE_BOMB 32 SLUDGE_WAVE 37 SCREECH 40 GUNK_SHOT 46 ACID_ARMOR 52 BELCH 57 MEMENTO' }, // scarlet-violet
+  HAUNTER: { name: "HAUNTER", dex: 93, types: ['GHOST', 'POISON'], base: [45, 50, 45, 115, 55, 95], rate: 90, exp: 142, h: 16, learn: '0 SHADOW_PUNCH 1 CONFUSE_RAY 1 HYPNOSIS 1 LICK 1 MEAN_LOOK 12 PAYBACK 16 SPITE 20 CURSE 24 HEX 30 NIGHT_SHADE 36 SUCKER_PUNCH 42 DARK_PULSE 48 SHADOW_BALL 54 DESTINY_BOND 60 DREAM_EATER' }, // scarlet-violet
+  HYPNO: { name: "HYPNO", dex: 97, types: ['PSYCHIC'], base: [85, 73, 70, 73, 115, 67], rate: 75, exp: 169, h: 16, learn: '1 CONFUSION 1 DISABLE 1 HYPNOSIS 1 POUND 1 SWITCHEROO 13 HEADBUTT 17 POISON_GAS 21 PSYBEAM 25 PSYCH_UP 32 ZEN_HEADBUTT 37 SWAGGER 42 PSYCHIC 47 NASTY_PLOT 51 PSYSHOCK 56 FUTURE_SIGHT' }, // scarlet-violet
+  KINGLER: { name: "KINGLER", dex: 99, types: ['WATER'], base: [55, 130, 115, 50, 50, 75], rate: 60, exp: 166, h: 13, learn: '1 HAMMER_ARM 1 HARDEN 1 LEER 1 METAL_CLAW 1 WATER_GUN 1 WIDE_GUARD 12 MUD_SHOT 16 PROTECT 20 BUBBLE_BEAM 24 STOMP 31 FLAIL 36 RAZOR_SHELL 42 SLAM 48 SWORDS_DANCE 54 CRABHAMMER 60 GUILLOTINE' }, // brilliant-diamond-shining-pearl
+  ELECTRODE: { name: "ELECTRODE", dex: 101, types: ['ELECTRIC'], base: [60, 50, 70, 80, 80, 150], rate: 60, exp: 172, h: 12, learn: '1 CHARGE 1 EERIE_IMPULSE 1 MAGNETIC_FLUX 1 TACKLE 1 THUNDER_SHOCK 9 SPARK 11 ROLLOUT 13 SCREECH 16 CHARGE_BEAM 20 SWIFT 22 ELECTRO_BALL 26 SELF_DESTRUCT 29 LIGHT_SCREEN 36 MAGNET_RISE 41 DISCHARGE 47 EXPLOSION 54 GYRO_BALL 58 MIRROR_COAT' }, // scarlet-violet
+  MAROWAK: { name: "MAROWAK", dex: 105, types: ['GROUND'], base: [60, 80, 110, 50, 80, 45], rate: 75, exp: 149, h: 10, learn: '1 FALSE_SWIPE 1 GROWL 1 MUD_SLAP 1 TAIL_WHIP 12 HEADBUTT 16 RETALIATE 20 FLING 24 STOMPING_TANTRUM 31 BONE_RUSH 36 FOCUS_ENERGY 42 ENDEAVOR 48 BONEMERANG 54 THRASH 60 DOUBLE_EDGE' }, // brilliant-diamond-shining-pearl
+  WEEZING: { name: "WEEZING", dex: 110, types: ['POISON'], base: [65, 90, 120, 85, 70, 60], rate: 60, exp: 172, h: 12, learn: '0 DOUBLE_HIT 1 HEAT_WAVE 1 POISON_GAS 1 SMOG 1 SMOKESCREEN 1 TACKLE 12 CLEAR_SMOG 16 ASSURANCE 20 SLUDGE 24 HAZE 28 SELF_DESTRUCT 32 SLUDGE_BOMB 38 TOXIC 44 BELCH 50 EXPLOSION 56 MEMENTO 62 DESTINY_BOND' }, // scarlet-violet
+  RHYDON: { name: "RHYDON", dex: 112, types: ['GROUND', 'ROCK'], base: [105, 130, 120, 45, 45, 40], rate: 60, exp: 170, h: 19, learn: '0 HAMMER_ARM 1 BULLDOZE 1 SMACK_DOWN 1 TACKLE 1 TAIL_WHIP 15 HORN_ATTACK 20 SCARY_FACE 25 STOMP 30 ROCK_BLAST 35 DRILL_RUN 40 TAKE_DOWN 47 EARTHQUAKE 54 STONE_EDGE 61 MEGAHORN 68 HORN_DRILL' }, // scarlet-violet
+  SEADRA: { name: "SEADRA", dex: 117, types: ['WATER'], base: [55, 65, 95, 95, 45, 85], rate: 75, exp: 154, h: 12, learn: '1 LEER 1 SMOKESCREEN 1 TWISTER 1 WATER_GUN 15 FOCUS_ENERGY 20 DRAGON_BREATH 25 BUBBLE_BEAM 30 AGILITY 37 WATER_PULSE 44 DRAGON_PULSE 51 HYDRO_PUMP 58 DRAGON_DANCE 65 RAIN_DANCE' }, // scarlet-violet
+  SEAKING: { name: "SEAKING", dex: 119, types: ['WATER'], base: [80, 92, 65, 65, 80, 68], rate: 60, exp: 158, h: 13, learn: '1 PECK 1 SUPERSONIC 1 TAIL_WHIP 1 WATER_PULSE 15 HORN_ATTACK 20 AGILITY 25 AQUA_RING 30 FLAIL 37 WATERFALL 44 SOAK 51 MEGAHORN 58 HORN_DRILL' }, // brilliant-diamond-shining-pearl
+  JYNX: { name: "JYNX", dex: 124, types: ['ICE', 'PSYCHIC'], base: [65, 50, 35, 115, 95, 95], rate: 45, exp: 159, h: 14, learn: '1 COPYCAT 1 LICK 1 POUND 1 POWDER_SNOW 1 SWEET_KISS 12 CONFUSION 16 COVET 20 SING 24 FAKE_TEARS 28 ICE_PUNCH 34 PSYCHIC 40 LOVELY_KISS 46 MEAN_LOOK 52 PERISH_SONG 58 BLIZZARD' }, // brilliant-diamond-shining-pearl
+  ELECTABUZZ: { name: "ELECTABUZZ", dex: 125, types: ['ELECTRIC'], base: [65, 83, 57, 95, 85, 105], rate: 45, exp: 172, h: 11, learn: '1 CHARGE 1 LEER 1 QUICK_ATTACK 1 THUNDER_SHOCK 12 SWIFT 16 SHOCK_WAVE 20 THUNDER_WAVE 24 SCREECH 28 THUNDER_PUNCH 34 DISCHARGE 40 LOW_KICK 46 THUNDERBOLT 52 LIGHT_SCREEN 58 THUNDER 64 GIGA_IMPACT' }, // scarlet-violet
+  MAGMAR: { name: "MAGMAR", dex: 126, types: ['FIRE'], base: [65, 95, 57, 100, 85, 93], rate: 45, exp: 173, h: 13, learn: '1 EMBER 1 LEER 1 SMOG 1 SMOKESCREEN 12 CLEAR_SMOG 16 FLAME_WHEEL 20 CONFUSE_RAY 24 SCARY_FACE 28 FIRE_PUNCH 34 LAVA_PLUME 40 LOW_KICK 46 FLAMETHROWER 52 SUNNY_DAY 58 FIRE_BLAST 64 HYPER_BEAM' }, // scarlet-violet
+  GYARADOS: { name: "GYARADOS", dex: 130, types: ['WATER', 'FLYING'], base: [95, 125, 79, 60, 100, 81], rate: 45, exp: 189, h: 65, learn: '0 BITE 1 FLAIL 1 LEER 1 SPLASH 1 TACKLE 1 TWISTER 4 WHIRLPOOL 8 ICE_FANG 12 BRINE 16 SCARY_FACE 21 WATERFALL 24 CRUNCH 28 RAIN_DANCE 32 AQUA_TAIL 36 DRAGON_DANCE 40 HYDRO_PUMP 44 HURRICANE 48 THRASH 52 HYPER_BEAM' }, // scarlet-violet
+  OMASTAR: { name: "OMASTAR", dex: 139, types: ['ROCK', 'WATER'], base: [70, 60, 125, 115, 70, 55], rate: 45, exp: 173, h: 10, learn: '0 CRUNCH 1 BIND 1 CRUNCH 1 ROLLOUT 1 SAND_ATTACK 1 WITHDRAW 15 WATER_GUN 20 LEER 25 MUD_SHOT 30 ANCIENT_POWER 35 BRINE 43 PROTECT 49 ROCK_BLAST 56 SURF 63 SHELL_SMASH 70 HYDRO_PUMP' }, // brilliant-diamond-shining-pearl
+  KABUTOPS: { name: "KABUTOPS", dex: 141, types: ['ROCK', 'WATER'], base: [60, 115, 105, 65, 70, 80], rate: 45, exp: 173, h: 13, learn: '0 SLASH 1 ABSORB 1 FEINT 1 HARDEN 1 NIGHT_SLASH 1 SAND_ATTACK 1 SCRATCH 1 SLASH 15 AQUA_JET 20 LEER 25 MUD_SHOT 30 ANCIENT_POWER 35 BRINE 43 PROTECT 49 LEECH_LIFE 56 LIQUIDATION 63 METAL_SOUND 70 STONE_EDGE' }, // brilliant-diamond-shining-pearl
+  DRAGONAIR: { name: "DRAGONAIR", dex: 148, types: ['DRAGON'], base: [61, 84, 65, 70, 70, 70], rate: 45, exp: 147, h: 40, learn: '1 LEER 1 THUNDER_WAVE 1 TWISTER 1 WRAP 15 DRAGON_TAIL 20 AGILITY 25 SLAM 33 AQUA_TAIL 39 DRAGON_RUSH 46 SAFEGUARD 53 RAIN_DANCE 60 DRAGON_DANCE 67 OUTRAGE 74 HYPER_BEAM' }, // scarlet-violet
+  DRAGONITE: { name: "DRAGONITE", dex: 149, types: ['DRAGON', 'FLYING'], base: [91, 134, 95, 100, 100, 80], rate: 45, exp: 270, h: 22, learn: '0 HURRICANE 1 EXTREME_SPEED 1 FIRE_PUNCH 1 LEER 1 ROOST 1 THUNDER_PUNCH 1 THUNDER_WAVE 1 TWISTER 1 WING_ATTACK 1 WRAP 15 DRAGON_TAIL 20 AGILITY 25 SLAM 33 AQUA_TAIL 39 DRAGON_RUSH 41 OUTRAGE 46 SAFEGUARD 53 RAIN_DANCE 62 DRAGON_DANCE 80 HYPER_BEAM' }, // scarlet-violet
+  BAYLEEF: { name: "BAYLEEF", dex: 153, types: ['GRASS'], base: [60, 62, 80, 63, 80, 60], rate: 45, exp: 142, h: 12, learn: '1 GROWL 1 POISON_POWDER 1 RAZOR_LEAF 1 TACKLE 12 SYNTHESIS 18 REFLECT 22 MAGICAL_LEAF 26 LEECH_SEED 32 SWEET_SCENT 36 LIGHT_SCREEN 40 BODY_SLAM 46 SAFEGUARD 50 GIGA_DRAIN 54 SOLAR_BEAM' }, // scarlet-violet
+  MEGANIUM: { name: "MEGANIUM", dex: 154, types: ['GRASS'], base: [80, 82, 100, 83, 100, 80], rate: 45, exp: 236, h: 18, learn: '0 PETAL_DANCE 1 GROWL 1 PETAL_BLIZZARD 1 POISON_POWDER 1 RAZOR_LEAF 1 TACKLE 12 SYNTHESIS 18 REFLECT 22 MAGICAL_LEAF 26 LEECH_SEED 34 SWEET_SCENT 40 LIGHT_SCREEN 46 BODY_SLAM 54 SAFEGUARD 60 GIGA_DRAIN 65 SOLAR_BEAM' }, // scarlet-violet
+  QUILAVA: { name: "QUILAVA", dex: 156, types: ['FIRE'], base: [58, 64, 58, 80, 65, 80], rate: 45, exp: 142, h: 9, learn: '1 LEER 1 SMOKESCREEN 1 TACKLE 10 EMBER 13 QUICK_ATTACK 20 FLAME_WHEEL 24 DEFENSE_CURL 31 SWIFT 35 FLAME_CHARGE 42 LAVA_PLUME 46 FLAMETHROWER 53 INFERNO 57 ROLLOUT 64 DOUBLE_EDGE 68 OVERHEAT 75 ERUPTION' }, // scarlet-violet
+  TYPHLOSION: { name: "TYPHLOSION", dex: 157, types: ['FIRE'], base: [78, 84, 78, 109, 85, 100], rate: 45, exp: 240, h: 17, learn: '1 DOUBLE_EDGE 1 EMBER 1 ERUPTION 1 GYRO_BALL 1 LEER 1 SMOKESCREEN 1 TACKLE 13 QUICK_ATTACK 20 FLAME_WHEEL 24 DEFENSE_CURL 31 SWIFT 35 FLAME_CHARGE 43 LAVA_PLUME 48 FLAMETHROWER 56 INFERNO 61 ROLLOUT 74 OVERHEAT' }, // scarlet-violet
+  CROCONAW: { name: "CROCONAW", dex: 159, types: ['WATER'], base: [65, 80, 80, 59, 63, 58], rate: 45, exp: 142, h: 11, learn: '1 LEER 1 SCRATCH 1 WATER_GUN 13 BITE 15 SCARY_FACE 21 ICE_FANG 24 FLAIL 30 CRUNCH 34 SLASH 37 SCREECH 42 THRASH 47 AQUA_TAIL 50 SUPERPOWER 55 HYDRO_PUMP' }, // scarlet-violet
+  FERALIGATR: { name: "FERALIGATR", dex: 160, types: ['WATER'], base: [85, 105, 100, 79, 83, 78], rate: 45, exp: 239, h: 23, learn: '1 AGILITY 1 LEER 1 SCRATCH 1 WATER_GUN 13 BITE 15 SCARY_FACE 21 ICE_FANG 24 FLAIL 32 CRUNCH 37 SLASH 44 SCREECH 51 THRASH 59 AQUA_TAIL 65 SUPERPOWER 70 HYDRO_PUMP' }, // scarlet-violet
+  FURRET: { name: "FURRET", dex: 162, types: ['NORMAL'], base: [85, 76, 64, 45, 55, 90], rate: 90, exp: 145, h: 18, learn: '0 AGILITY 1 COIL 1 DEFENSE_CURL 1 QUICK_ATTACK 1 SCRATCH 13 FURY_SWIPES 17 HELPING_HAND 21 FOLLOW_ME 28 SLAM 32 REST 36 SUCKER_PUNCH 42 AMNESIA 46 BATON_PASS 50 DOUBLE_EDGE 56 HYPER_VOICE' }, // scarlet-violet
+  NOCTOWL: { name: "NOCTOWL", dex: 164, types: ['NORMAL', 'FLYING'], base: [100, 50, 50, 86, 96, 70], rate: 90, exp: 158, h: 16, learn: '1 ECHOED_VOICE 1 GROWL 1 PECK 1 SKY_ATTACK 1 TACKLE 9 CONFUSION 12 REFLECT 18 AIR_SLASH 23 EXTRASENSORY 28 TAKE_DOWN 33 UPROAR 38 ROOST 43 MOONBLAST 48 HYPNOSIS 53 DREAM_EATER' }, // scarlet-violet
+  LEDIAN: { name: "LEDIAN", dex: 166, types: ['BUG', 'FLYING'], base: [55, 35, 50, 55, 110, 85], rate: 90, exp: 137, h: 14, learn: '1 SUPERSONIC 1 SWIFT 1 TACKLE 5 SUPERSONIC 8 SWIFT 12 LIGHT_SCREEN 12 REFLECT 12 SAFEGUARD 15 MACH_PUNCH 20 ROOST 24 STRUGGLE_BUG 29 BATON_PASS 33 AGILITY 38 BUG_BUZZ 42 AIR_SLASH 47 DOUBLE_EDGE' }, // brilliant-diamond-shining-pearl
+  ARIADOS: { name: "ARIADOS", dex: 168, types: ['BUG', 'POISON'], base: [70, 90, 70, 60, 70, 40], rate: 90, exp: 140, h: 11, learn: '0 SWORDS_DANCE 1 ABSORB 1 BUG_BITE 1 FELL_STINGER 1 FOCUS_ENERGY 1 POISON_STING 1 STRING_SHOT 8 INFESTATION 12 SCARY_FACE 15 NIGHT_SHADE 19 SHADOW_SNEAK 23 FURY_SWIPES 28 SUCKER_PUNCH 31 AGILITY 35 PIN_MISSILE 41 PSYCHIC 46 POISON_JAB 50 CROSS_POISON 54 STICKY_WEB 59 TOXIC_THREAD' }, // scarlet-violet
+  LANTURN: { name: "LANTURN", dex: 171, types: ['WATER', 'ELECTRIC'], base: [125, 58, 58, 76, 76, 67], rate: 75, exp: 161, h: 12, learn: '0 SPIT_UP 0 STOCKPILE 0 SWALLOW 1 EERIE_IMPULSE 1 ELECTRO_BALL 1 SUPERSONIC 1 THUNDER_WAVE 1 WATER_GUN 12 BUBBLE_BEAM 16 CONFUSE_RAY 20 SPARK 24 CHARGE 30 DISCHARGE 36 AQUA_RING 42 FLAIL 48 TAKE_DOWN 54 HYDRO_PUMP' }, // scarlet-violet
+  XATU: { name: "XATU", dex: 178, types: ['PSYCHIC', 'FLYING'], base: [65, 75, 70, 95, 70, 95], rate: 75, exp: 165, h: 15, learn: '0 AIR_SLASH 1 AIR_SLASH 1 LEER 1 PECK 1 STORED_POWER 1 TAILWIND 1 TELEPORT 15 CONFUSE_RAY 20 NIGHT_SHADE 28 PSYCHO_SHIFT 34 GUARD_SWAP 34 POWER_SWAP 41 PSYCHIC 48 WISH 55 FUTURE_SIGHT' }, // brilliant-diamond-shining-pearl
+  FLAAFFY: { name: "FLAAFFY", dex: 180, types: ['ELECTRIC'], base: [70, 55, 55, 80, 60, 45], rate: 120, exp: 128, h: 8, learn: '1 GROWL 1 TACKLE 6 THUNDER_SHOCK 9 THUNDER_WAVE 11 COTTON_SPORE 16 CHARGE 20 TAKE_DOWN 25 ELECTRO_BALL 29 CONFUSE_RAY 34 POWER_GEM 38 DISCHARGE 43 COTTON_GUARD 47 DAZZLING_GLEAM 52 LIGHT_SCREEN 56 THUNDER' }, // scarlet-violet
+  AMPHAROS: { name: "AMPHAROS", dex: 181, types: ['ELECTRIC'], base: [90, 75, 85, 115, 90, 55], rate: 45, exp: 230, h: 14, learn: '0 THUNDER_PUNCH 1 DRAGON_PULSE 1 FIRE_PUNCH 1 GROWL 1 MAGNETIC_FLUX 1 TACKLE 1 THUNDER_SHOCK 1 THUNDER_WAVE 1 ZAP_CANNON 11 COTTON_SPORE 16 CHARGE 20 TAKE_DOWN 25 ELECTRO_BALL 29 CONFUSE_RAY 35 POWER_GEM 40 DISCHARGE 46 COTTON_GUARD 51 DAZZLING_GLEAM 57 LIGHT_SCREEN 62 THUNDER' }, // scarlet-violet
+  AZUMARILL: { name: "AZUMARILL", dex: 184, types: ['WATER', 'FAIRY'], base: [100, 50, 80, 60, 80, 50], rate: 75, exp: 189, h: 8, learn: '1 DEFENSE_CURL 1 HELPING_HAND 1 ROLLOUT 1 TACKLE 1 TAIL_WHIP 1 WATER_GUN 6 BUBBLE_BEAM 9 CHARM 12 SLAM 15 BOUNCE 21 AQUA_TAIL 25 PLAY_ROUGH 30 AQUA_RING 35 RAIN_DANCE 40 HYDRO_PUMP 45 DOUBLE_EDGE 50 SUPERPOWER' }, // scarlet-violet
+  SKIPLOOM: { name: "SKIPLOOM", dex: 188, types: ['GRASS', 'FLYING'], base: [55, 45, 50, 45, 65, 80], rate: 120, exp: 119, h: 6, learn: '1 ABSORB 1 SPLASH 1 SYNTHESIS 1 TAIL_WHIP 8 TACKLE 10 FAIRY_WIND 12 POISON_POWDER 12 SLEEP_POWDER 12 STUN_SPORE 15 BULLET_SEED 20 LEECH_SEED 24 MEGA_DRAIN 28 ACROBATICS 31 COTTON_SPORE 34 U_TURN 37 GIGA_DRAIN 41 BOUNCE 44 MEMENTO' }, // scarlet-violet
+  JUMPLUFF: { name: "JUMPLUFF", dex: 189, types: ['GRASS', 'FLYING'], base: [75, 55, 70, 55, 95, 110], rate: 45, exp: 207, h: 8, learn: '1 ABSORB 1 SPLASH 1 SYNTHESIS 1 TAIL_WHIP 8 TACKLE 10 FAIRY_WIND 12 POISON_POWDER 12 SLEEP_POWDER 12 STUN_SPORE 15 BULLET_SEED 20 LEECH_SEED 24 MEGA_DRAIN 30 ACROBATICS 35 COTTON_SPORE 39 U_TURN 43 GIGA_DRAIN 49 BOUNCE 55 MEMENTO' }, // scarlet-violet
+  QUAGSIRE: { name: "QUAGSIRE", dex: 195, types: ['WATER', 'GROUND'], base: [95, 85, 85, 65, 65, 35], rate: 90, exp: 151, h: 14, learn: '1 MUD_SHOT 1 RAIN_DANCE 1 TAIL_WHIP 1 WATER_GUN 12 HAZE 12 MIST 16 SLAM 23 YAWN 28 AQUA_TAIL 34 MUDDY_WATER 40 AMNESIA 46 TOXIC 52 EARTHQUAKE' }, // scarlet-violet
+  WOBBUFFET: { name: "WOBBUFFET", dex: 202, types: ['PSYCHIC'], base: [190, 33, 58, 33, 58, 33], rate: 45, exp: 142, h: 13, learn: '0 COUNTER 0 DESTINY_BOND 0 MIRROR_COAT 0 SAFEGUARD 1 AMNESIA 1 CHARM 1 COUNTER 1 DESTINY_BOND 1 ENCORE 1 MIRROR_COAT 1 SAFEGUARD 1 SPLASH' }, // brilliant-diamond-shining-pearl
+  FORRETRESS: { name: "FORRETRESS", dex: 205, types: ['BUG', 'STEEL'], base: [75, 90, 140, 60, 60, 40], rate: 75, exp: 163, h: 12, learn: '0 HEAVY_SLAM 1 BUG_BITE 1 MAGNET_RISE 1 PROTECT 1 SELF_DESTRUCT 1 TACKLE 1 TOXIC_SPIKES 1 ZAP_CANNON 12 TAKE_DOWN 17 RAPID_SPIN 20 ROLLOUT 23 CURSE 28 SPIKES 32 PAYBACK 36 EXPLOSION 42 IRON_DEFENSE 46 GYRO_BALL 50 DOUBLE_EDGE' }, // scarlet-violet
+  GRANBULL: { name: "GRANBULL", dex: 210, types: ['FAIRY'], base: [90, 120, 75, 60, 60, 45], rate: 75, exp: 158, h: 14, learn: '1 CHARM 1 FIRE_FANG 1 GROWL 1 ICE_FANG 1 OUTRAGE 1 SCARY_FACE 1 TACKLE 1 TAIL_WHIP 1 THUNDER_FANG 7 BITE 13 LICK 19 HEADBUTT 27 ROAR 35 LAST_RESORT 43 PLAY_ROUGH 51 PAYBACK 59 CRUNCH' }, // scarlet-violet
+  URSARING: { name: "URSARING", dex: 217, types: ['NORMAL'], base: [90, 130, 75, 75, 75, 55], rate: 60, exp: 175, h: 18, learn: '1 COVET 1 FAKE_TEARS 1 LEER 1 LICK 1 SCRATCH 8 FURY_SWIPES 13 PAYBACK 17 SWEET_SCENT 22 SLASH 25 PLAY_NICE 29 PLAY_ROUGH 35 SCARY_FACE 41 REST 41 SNORE 48 HIGH_HORSEPOWER 56 THRASH 64 HAMMER_ARM' }, // scarlet-violet
+  MAGCARGO: { name: "MAGCARGO", dex: 219, types: ['FIRE', 'ROCK'], base: [60, 50, 120, 90, 80, 30], rate: 75, exp: 151, h: 8, learn: '0 SHELL_SMASH 1 EARTH_POWER 1 EMBER 1 ROCK_THROW 1 SMOG 1 YAWN 13 HARDEN 20 CLEAR_SMOG 22 ANCIENT_POWER 27 INCINERATE 29 ROCK_SLIDE 34 LAVA_PLUME 36 AMNESIA 43 BODY_SLAM 47 RECOVER 54 FLAMETHROWER' }, // scarlet-violet
+  PILOSWINE: { name: "PILOSWINE", dex: 221, types: ['ICE', 'GROUND'], base: [100, 100, 80, 60, 60, 50], rate: 75, exp: 158, h: 11, learn: '0 ICE_FANG 1 ANCIENT_POWER 1 FLAIL 1 MUD_SLAP 1 POWDER_SNOW 1 TACKLE 15 ICE_SHARD 20 MIST 25 ENDURE 30 ICY_WIND 37 AMNESIA 44 TAKE_DOWN 51 EARTHQUAKE 58 BLIZZARD 65 THRASH' }, // scarlet-violet
+  OCTILLERY: { name: "OCTILLERY", dex: 224, types: ['WATER'], base: [75, 105, 75, 105, 75, 45], rate: 75, exp: 168, h: 9, learn: '0 OCTAZOOKA 1 BUBBLE 6 ACID_SPRAY 11 CHARGE_BEAM 18 WATER_PULSE 25 ICE_BEAM 34 HYDRO_PUMP 43 HYPER_BEAM' }, // legends-arceus
+  HOUNDOOM: { name: "HOUNDOOM", dex: 229, types: ['DARK', 'FIRE'], base: [75, 90, 50, 110, 80, 95], rate: 45, exp: 175, h: 14, learn: '1 EMBER 1 HOWL 1 LEER 1 NASTY_PLOT 1 SMOG 1 THUNDER_FANG 13 ROAR 16 BITE 20 INCINERATE 26 BEAT_UP 30 FIRE_FANG 35 TORMENT 41 COMEUPPANCE 45 FOUL_PLAY 50 FLAMETHROWER 56 CRUNCH 62 INFERNO' }, // scarlet-violet
+  DONPHAN: { name: "DONPHAN", dex: 232, types: ['GROUND'], base: [90, 120, 120, 60, 60, 50], rate: 60, exp: 175, h: 11, learn: '0 FURY_ATTACK 1 BULLDOZE 1 DEFENSE_CURL 1 FIRE_FANG 1 GROWL 1 HORN_ATTACK 1 THUNDER_FANG 6 RAPID_SPIN 10 ROLLOUT 15 ASSURANCE 19 KNOCK_OFF 24 SLAM 30 STOMPING_TANTRUM 37 SCARY_FACE 43 EARTHQUAKE 50 GIGA_IMPACT' }, // scarlet-violet
+  PUPITAR: { name: "PUPITAR", dex: 247, types: ['ROCK', 'GROUND'], base: [70, 84, 70, 65, 70, 51], rate: 45, exp: 144, h: 12, learn: '0 IRON_DEFENSE 1 LEER 1 PAYBACK 1 ROCK_THROW 1 TACKLE 9 BITE 12 SCARY_FACE 15 ROCK_SLIDE 18 STOMPING_TANTRUM 21 SCREECH 24 SMACK_DOWN 27 CRUNCH 33 EARTHQUAKE 37 STONE_EDGE 42 THRASH 47 SANDSTORM 52 HYPER_BEAM' }, // scarlet-violet
+  TYRANITAR: { name: "TYRANITAR", dex: 248, types: ['ROCK', 'DARK'], base: [100, 134, 110, 95, 100, 61], rate: 45, exp: 270, h: 20, learn: '1 DARK_PULSE 1 FIRE_FANG 1 ICE_FANG 1 IRON_DEFENSE 1 LEER 1 PAYBACK 1 ROCK_THROW 1 TACKLE 1 THUNDER_FANG 9 BITE 12 SCARY_FACE 15 ROCK_SLIDE 18 STOMPING_TANTRUM 21 SCREECH 24 SMACK_DOWN 27 CRUNCH 33 EARTHQUAKE 37 STONE_EDGE 42 THRASH 47 SANDSTORM 52 HYPER_BEAM 59 GIGA_IMPACT' }, // scarlet-violet
+  GROVYLE: { name: "GROVYLE", dex: 253, types: ['GRASS'], base: [50, 65, 45, 85, 65, 95], rate: 45, exp: 142, h: 9, learn: '1 LEAFAGE 1 LEER 1 POUND 1 QUICK_ATTACK 9 MEGA_DRAIN 12 DETECT 15 QUICK_GUARD 20 ASSURANCE 25 GIGA_DRAIN 30 SLAM 35 DOUBLE_TEAM 40 LEAF_BLADE 45 SCREECH 50 ENDEAVOR 55 LEAF_STORM' }, // scarlet-violet
+  SCEPTILE: { name: "SCEPTILE", dex: 254, types: ['GRASS'], base: [70, 85, 65, 105, 85, 120], rate: 45, exp: 239, h: 17, learn: '0 LEAF_BLADE 1 LEAFAGE 1 LEER 1 POUND 1 QUICK_ATTACK 5 MEGA_DRAIN 12 DETECT 15 QUICK_GUARD 20 ASSURANCE 25 GIGA_DRAIN 30 SLAM 35 DOUBLE_TEAM 42 SCREECH 49 ENDEAVOR 56 LEAF_STORM' }, // scarlet-violet
+  COMBUSKEN: { name: "COMBUSKEN", dex: 256, types: ['FIRE', 'FIGHTING'], base: [60, 85, 60, 85, 60, 55], rate: 45, exp: 142, h: 9, learn: '0 DOUBLE_KICK 1 EMBER 1 GROWL 1 QUICK_ATTACK 1 SCRATCH 9 FLAME_CHARGE 12 DETECT 15 SAND_ATTACK 20 AERIAL_ACE 25 SLASH 30 BOUNCE 35 FOCUS_ENERGY 40 BLAZE_KICK 45 BULK_UP 50 REVERSAL 55 FLARE_BLITZ' }, // scarlet-violet
+  BLAZIKEN: { name: "BLAZIKEN", dex: 257, types: ['FIRE', 'FIGHTING'], base: [80, 120, 70, 110, 70, 80], rate: 45, exp: 239, h: 19, learn: '0 BLAZE_KICK 1 DOUBLE_KICK 1 GROWL 1 QUICK_ATTACK 1 SCRATCH 9 FLAME_CHARGE 12 DETECT 15 SAND_ATTACK 20 AERIAL_ACE 25 SLASH 30 BOUNCE 35 FOCUS_ENERGY 42 BULK_UP 49 REVERSAL 56 FLARE_BLITZ 63 BRAVE_BIRD' }, // scarlet-violet
+  MARSHTOMP: { name: "MARSHTOMP", dex: 259, types: ['WATER', 'GROUND'], base: [70, 85, 70, 60, 70, 50], rate: 45, exp: 142, h: 7, learn: '0 MUD_SHOT 1 GROWL 1 TACKLE 1 WATER_GUN 9 ROCK_THROW 12 PROTECT 15 SUPERSONIC 20 WATER_PULSE 25 ROCK_SLIDE 30 TAKE_DOWN 35 AMNESIA 40 MUDDY_WATER 45 SCREECH 50 ENDEAVOR 55 HYDRO_PUMP' }, // scarlet-violet
+  SWAMPERT: { name: "SWAMPERT", dex: 260, types: ['WATER', 'GROUND'], base: [100, 110, 90, 85, 90, 60], rate: 45, exp: 241, h: 15, learn: '1 GROWL 1 MUD_SHOT 1 TACKLE 1 WATER_GUN 9 ROCK_THROW 12 PROTECT 15 SUPERSONIC 20 WATER_PULSE 25 ROCK_SLIDE 30 TAKE_DOWN 35 AMNESIA 42 MUDDY_WATER 49 SCREECH 56 ENDEAVOR 63 HYDRO_PUMP' }, // scarlet-violet
+  MIGHTYENA: { name: "MIGHTYENA", dex: 262, types: ['DARK'], base: [70, 90, 70, 60, 60, 70], rate: 127, exp: 147, h: 10, learn: '0 SNARL 1 BITE 1 CRUNCH 1 FIRE_FANG 1 ICE_FANG 1 SAND_ATTACK 1 TACKLE 1 THIEF 1 THUNDER_FANG 13 HOWL 13 LEER 16 ROAR 20 SWAGGER 24 ASSURANCE 28 SCARY_FACE 36 TAUNT 44 YAWN 48 TAKE_DOWN 52 SUCKER_PUNCH 56 PLAY_ROUGH' }, // scarlet-violet
+  LINOONE: { name: "LINOONE", dex: 264, types: ['NORMAL'], base: [78, 70, 61, 50, 61, 100], rate: 90, exp: 147, h: 5, learn: '0 SLASH 1 BABY_DOLL_EYES 1 GROWL 1 PIN_MISSILE 1 SAND_ATTACK 1 SLASH 1 SWITCHEROO 1 TACKLE 1 TAIL_WHIP 9 COVET 12 HEADBUTT 15 HONE_CLAWS 18 FURY_SWIPES 23 REST 28 TAKE_DOWN 33 FLING 38 FLAIL 43 BELLY_DRUM 48 DOUBLE_EDGE' }, // brilliant-diamond-shining-pearl
+  BEAUTIFLY: { name: "BEAUTIFLY", dex: 267, types: ['BUG', 'FLYING'], base: [60, 70, 50, 100, 50, 65], rate: 45, exp: 178, h: 10, learn: '0 AIR_CUTTER 1 POISON_STING 6 IRON_DEFENSE 6 TACKLE 11 STUN_SPORE 18 SILVER_WIND 25 VENOSHOCK 34 AIR_SLASH 43 BUG_BUZZ' }, // legends-arceus
+  DUSTOX: { name: "DUSTOX", dex: 269, types: ['BUG', 'POISON'], base: [60, 50, 70, 50, 90, 65], rate: 45, exp: 173, h: 12, learn: '0 CONFUSION 1 POISON_STING 6 IRON_DEFENSE 6 TACKLE 11 POISON_POWDER 18 SILVER_WIND 25 VENOSHOCK 34 EXTRASENSORY 43 BUG_BUZZ' }, // legends-arceus
+  LOMBRE: { name: "LOMBRE", dex: 271, types: ['WATER', 'GRASS'], base: [60, 50, 50, 60, 70, 50], rate: 120, exp: 119, h: 12, learn: '1 ABSORB 1 ASTONISH 1 FAKE_OUT 1 FLAIL 1 GROWL 1 KNOCK_OFF 1 TEETER_DANCE 1 WATER_GUN 9 MIST 12 MEGA_DRAIN 18 FURY_SWIPES 24 BUBBLE_BEAM 30 LEECH_SEED 36 GIGA_DRAIN 50 ZEN_HEADBUTT 57 ENERGY_BALL 64 HYDRO_PUMP' }, // scarlet-violet
+  NUZLEAF: { name: "NUZLEAF", dex: 274, types: ['GRASS', 'DARK'], base: [70, 70, 40, 60, 40, 60], rate: 120, exp: 119, h: 10, learn: '0 RAZOR_LEAF 1 ABSORB 1 AIR_CUTTER 1 ASTONISH 1 EXPLOSION 1 FAKE_OUT 1 HARDEN 1 SWAGGER 1 TACKLE 1 TORMENT 9 GROWTH 12 ROLLOUT 18 MEGA_DRAIN 24 PAYBACK 30 SYNTHESIS 36 SUNNY_DAY 43 EXTRASENSORY 50 SUCKER_PUNCH 57 LEAF_BLADE' }, // scarlet-violet
+  SWELLOW: { name: "SWELLOW", dex: 277, types: ['NORMAL', 'FLYING'], base: [60, 85, 60, 75, 50, 125], rate: 45, exp: 159, h: 7, learn: '1 AIR_SLASH 1 BRAVE_BIRD 1 FOCUS_ENERGY 1 GROWL 1 PECK 1 PLUCK 1 QUICK_ATTACK 5 FOCUS_ENERGY 9 QUICK_ATTACK 13 WING_ATTACK 17 DOUBLE_TEAM 21 AERIAL_ACE 27 QUICK_GUARD 33 AGILITY 39 AIR_SLASH 45 ENDEAVOR 51 BRAVE_BIRD 57 REVERSAL' }, // brilliant-diamond-shining-pearl
+  PELIPPER: { name: "PELIPPER", dex: 279, types: ['WATER', 'FLYING'], base: [60, 50, 100, 95, 70, 65], rate: 45, exp: 154, h: 12, learn: '1 AGILITY 1 AIR_SLASH 1 GROWL 1 PROTECT 1 QUICK_ATTACK 1 SOAK 1 SUPERSONIC 1 TAILWIND 1 WATER_GUN 15 WING_ATTACK 20 WATER_PULSE 28 SPIT_UP 28 STOCKPILE 28 SWALLOW 34 FLING 41 MIST 48 ROOST 55 HURRICANE 62 HYDRO_PUMP' }, // scarlet-violet
+  KIRLIA: { name: "KIRLIA", dex: 281, types: ['PSYCHIC', 'FAIRY'], base: [38, 35, 35, 65, 55, 50], rate: 120, exp: 97, h: 8, learn: '1 CONFUSION 1 DISARMING_VOICE 1 DOUBLE_TEAM 1 GROWL 9 HYPNOSIS 12 DRAINING_KISS 15 TELEPORT 18 PSYBEAM 23 LIFE_DEW 28 CHARM 33 CALM_MIND 38 PSYCHIC 43 HEAL_PULSE 48 DREAM_EATER 53 FUTURE_SIGHT' }, // scarlet-violet
+  GARDEVOIR: { name: "GARDEVOIR", dex: 282, types: ['PSYCHIC', 'FAIRY'], base: [68, 65, 65, 125, 115, 80], rate: 45, exp: 233, h: 16, learn: '0 DAZZLING_GLEAM 1 CHARM 1 CONFUSION 1 DISARMING_VOICE 1 DOUBLE_TEAM 1 GROWL 1 HEAL_PULSE 1 HEALING_WISH 1 MISTY_TERRAIN 1 MYSTICAL_FIRE 9 HYPNOSIS 12 DRAINING_KISS 15 TELEPORT 18 PSYBEAM 23 LIFE_DEW 28 WISH 35 CALM_MIND 42 PSYCHIC 49 MOONBLAST 56 DREAM_EATER 63 FUTURE_SIGHT' }, // scarlet-violet
+  MASQUERAIN: { name: "MASQUERAIN", dex: 284, types: ['BUG', 'FLYING'], base: [70, 60, 62, 100, 82, 80], rate: 75, exp: 159, h: 8, learn: '1 QUICK_ATTACK 1 SOAK 1 SWEET_SCENT 1 WATER_GUN 1 WHIRLWIND 17 GUST 22 AIR_CUTTER 22 SCARY_FACE 26 STUN_SPORE 32 AIR_SLASH 38 GIGA_DRAIN 44 BUG_BUZZ 52 QUIVER_DANCE' }, // scarlet-violet
+  BRELOOM: { name: "BRELOOM", dex: 286, types: ['GRASS', 'FIGHTING'], base: [60, 130, 80, 60, 60, 70], rate: 90, exp: 161, h: 12, learn: '0 MACH_PUNCH 1 ABSORB 1 GROWTH 1 LEECH_SEED 1 POISON_POWDER 1 STUN_SPORE 1 TACKLE 1 TOXIC 12 MEGA_DRAIN 15 HEADBUTT 19 FEINT 22 COUNTER 28 FORCE_PALM 33 WORRY_SEED 39 BRICK_BREAK 44 SEED_BOMB 50 DYNAMIC_PUNCH 55 FOCUS_PUNCH' }, // scarlet-violet
+  VIGOROTH: { name: "VIGOROTH", dex: 288, types: ['NORMAL'], base: [80, 80, 80, 55, 55, 90], rate: 120, exp: 154, h: 14, learn: '1 ENCORE 1 FOCUS_ENERGY 1 SCRATCH 1 UPROAR 14 FURY_SWIPES 17 ENDURE 23 SLASH 27 THROAT_CHOP 33 COUNTER 37 FOCUS_PUNCH 43 REVERSAL' }, // scarlet-violet
+  SLAKING: { name: "SLAKING", dex: 289, types: ['NORMAL'], base: [150, 160, 100, 95, 65, 100], rate: 45, exp: 252, h: 20, learn: '0 SWAGGER 1 ENCORE 1 SCRATCH 1 SLACK_OFF 1 SUCKER_PUNCH 1 YAWN 17 AMNESIA 23 COVET 27 THROAT_CHOP 33 COUNTER 39 FLAIL 45 FLING 52 MEGA_KICK 63 HAMMER_ARM' }, // scarlet-violet
+  NINJASK: { name: "NINJASK", dex: 291, types: ['BUG', 'FLYING'], base: [61, 90, 45, 50, 50, 160], rate: 120, exp: 160, h: 8, learn: '0 DOUBLE_TEAM 0 FURY_CUTTER 0 SCREECH 1 AERIAL_ACE 1 BATON_PASS 1 DIG 1 DOUBLE_TEAM 1 FALSE_SWIPE 1 FURY_CUTTER 1 HARDEN 1 METAL_CLAW 1 MUD_SLAP 1 SAND_ATTACK 1 SCRATCH 1 SCREECH 15 AGILITY 23 ABSORB 29 BUG_BITE 36 FURY_SWIPES 43 MIND_READER 50 SLASH 57 SWORDS_DANCE 64 X_SCISSOR' }, // brilliant-diamond-shining-pearl
+  LOUDRED: { name: "LOUDRED", dex: 294, types: ['NORMAL'], base: [84, 71, 43, 71, 43, 48], rate: 120, exp: 126, h: 10, learn: '0 BITE 1 ASTONISH 1 BITE 1 ECHOED_VOICE 1 HOWL 1 POUND 15 REST 15 SLEEP_TALK 23 STOMP 29 ROAR 36 SUPERSONIC 43 UPROAR 50 SCREECH 57 HYPER_VOICE' }, // brilliant-diamond-shining-pearl
+  EXPLOUD: { name: "EXPLOUD", dex: 295, types: ['NORMAL'], base: [104, 91, 63, 91, 73, 68], rate: 45, exp: 221, h: 15, learn: '0 CRUNCH 1 ASTONISH 1 BITE 1 CRUNCH 1 ECHOED_VOICE 1 FIRE_FANG 1 HOWL 1 ICE_FANG 1 POUND 1 THUNDER_FANG 15 REST 15 SLEEP_TALK 23 STOMP 29 ROAR 36 SUPERSONIC 45 UPROAR 54 SCREECH 63 HYPER_VOICE 72 BOOMBURST 81 HYPER_BEAM' }, // brilliant-diamond-shining-pearl
+  HARIYAMA: { name: "HARIYAMA", dex: 297, types: ['FIGHTING'], base: [144, 120, 60, 40, 60, 50], rate: 200, exp: 166, h: 23, learn: '1 ARM_THRUST 1 BRINE 1 FOCUS_ENERGY 1 SAND_ATTACK 1 TACKLE 10 FAKE_OUT 13 FORCE_PALM 16 WHIRLWIND 19 KNOCK_OFF 22 BULK_UP 26 BELLY_DRUM 30 DETECT 34 SEISMIC_TOSS 38 FOCUS_PUNCH 42 ENDURE 46 CLOSE_COMBAT 50 REVERSAL 54 HEAVY_SLAM 60 HEADLONG_RUSH' }, // scarlet-violet
+  LAIRON: { name: "LAIRON", dex: 305, types: ['STEEL', 'ROCK'], base: [60, 90, 140, 50, 50, 40], rate: 90, exp: 151, h: 9, learn: '1 HARDEN 1 METAL_CLAW 1 ROCK_TOMB 1 TACKLE 12 ROAR 16 HEADBUTT 20 PROTECT 24 ROCK_SLIDE 28 IRON_HEAD 35 METAL_SOUND 40 TAKE_DOWN 46 AUTOTOMIZE 52 IRON_TAIL 58 IRON_DEFENSE 64 HEAVY_SLAM 70 DOUBLE_EDGE 76 METAL_BURST' }, // brilliant-diamond-shining-pearl
+  AGGRON: { name: "AGGRON", dex: 306, types: ['STEEL', 'ROCK'], base: [70, 110, 180, 60, 60, 50], rate: 45, exp: 239, h: 21, learn: '1 HARDEN 1 METAL_CLAW 1 ROCK_TOMB 1 TACKLE 12 ROAR 16 HEADBUTT 20 PROTECT 24 ROCK_SLIDE 28 IRON_HEAD 35 METAL_SOUND 40 TAKE_DOWN 48 AUTOTOMIZE 56 IRON_TAIL 64 IRON_DEFENSE 72 HEAVY_SLAM 80 DOUBLE_EDGE 88 METAL_BURST' }, // brilliant-diamond-shining-pearl
+  MEDICHAM: { name: "MEDICHAM", dex: 308, types: ['FIGHTING', 'PSYCHIC'], base: [60, 60, 75, 60, 75, 80], rate: 90, exp: 144, h: 13, learn: '1 CONFUSION 1 DETECT 1 FIRE_PUNCH 1 ICE_PUNCH 1 THUNDER_PUNCH 1 WORK_UP 12 ENDURE 15 FEINT 17 FORCE_PALM 20 PSYBEAM 23 CALM_MIND 25 ZEN_HEADBUTT 28 HIGH_JUMP_KICK 31 PSYCH_UP 33 ACUPRESSURE 36 POWER_TRICK 47 RECOVER 53 AXE_KICK 53 COUNTER' }, // scarlet-violet
+  MANECTRIC: { name: "MANECTRIC", dex: 310, types: ['ELECTRIC'], base: [70, 75, 60, 105, 60, 105], rate: 45, exp: 166, h: 15, learn: '1 FIRE_FANG 1 HOWL 1 LEER 1 TACKLE 1 THUNDER_WAVE 12 QUICK_ATTACK 16 SHOCK_WAVE 20 BITE 24 THUNDER_FANG 30 ROAR 36 DISCHARGE 42 CHARGE 48 WILD_CHARGE 54 THUNDER 60 ELECTRIC_TERRAIN' }, // brilliant-diamond-shining-pearl
+  SWALOT: { name: "SWALOT", dex: 317, types: ['POISON'], base: [100, 73, 83, 73, 83, 55], rate: 75, exp: 163, h: 17, learn: '0 BODY_SLAM 1 GUNK_SHOT 1 POISON_GAS 1 POUND 1 SLUDGE 1 YAWN 12 AMNESIA 17 ACID_SPRAY 20 ENCORE 25 TOXIC 30 SPIT_UP 30 STOCKPILE 30 SWALLOW 37 SLUDGE_BOMB 42 GASTRO_ACID 49 BELCH' }, // scarlet-violet
+  SHARPEDO: { name: "SHARPEDO", dex: 319, types: ['WATER', 'DARK'], base: [70, 120, 40, 95, 40, 95], rate: 60, exp: 161, h: 18, learn: '0 SLASH 1 AQUA_JET 1 FOCUS_ENERGY 1 LEER 1 NIGHT_SLASH 1 POISON_FANG 1 SLASH 12 SCARY_FACE 16 BITE 20 ICE_FANG 24 SCREECH 28 SWAGGER 34 CRUNCH 40 AGILITY 46 LIQUIDATION 52 TAKE_DOWN' }, // brilliant-diamond-shining-pearl
+  WAILORD: { name: "WAILORD", dex: 321, types: ['WATER'], base: [170, 90, 45, 90, 45, 60], rate: 60, exp: 175, h: 145, learn: '1 ASTONISH 1 GROWL 1 NOBLE_ROAR 1 SOAK 1 SPLASH 1 WATER_GUN 15 MIST 18 WATER_PULSE 21 HEAVY_SLAM 24 BRINE 27 WHIRLPOOL 30 DIVE 33 BOUNCE 36 BODY_SLAM 39 REST 44 AMNESIA 49 HYDRO_PUMP 54 WATER_SPOUT' }, // brilliant-diamond-shining-pearl
+  CAMERUPT: { name: "CAMERUPT", dex: 323, types: ['FIRE', 'GROUND'], base: [70, 100, 70, 105, 75, 40], rate: 150, exp: 161, h: 19, learn: '0 ROCK_SLIDE 1 EMBER 1 ERUPTION 1 FISSURE 1 FOCUS_ENERGY 1 GROWL 1 TACKLE 12 BULLDOZE 15 INCINERATE 19 AMNESIA 22 LAVA_PLUME 26 EARTH_POWER 29 CURSE 31 TAKE_DOWN 39 YAWN 46 EARTHQUAKE' }, // scarlet-violet
+  GRUMPIG: { name: "GRUMPIG", dex: 326, types: ['PSYCHIC'], base: [80, 45, 65, 90, 110, 80], rate: 60, exp: 165, h: 9, learn: '0 TEETER_DANCE 1 BELCH 1 CONFUSION 1 PSYBEAM 1 SPLASH 18 PSYCH_UP 22 CONFUSE_RAY 26 ZEN_HEADBUTT 29 POWER_GEM 35 REST 35 SNORE 42 PSYSHOCK 46 PAYBACK 52 PSYCHIC 60 BOUNCE' }, // scarlet-violet
+  VIBRAVA: { name: "VIBRAVA", dex: 329, types: ['GROUND', 'DRAGON'], base: [50, 70, 50, 50, 50, 70], rate: 120, exp: 119, h: 11, learn: '0 DRAGON_BREATH 1 BITE 1 DIG 1 SAND_ATTACK 12 MUD_SLAP 16 SAND_TOMB 20 DRAGON_TAIL 24 SCREECH 28 BUG_BUZZ 32 SANDSTORM 38 EARTH_POWER 44 EARTHQUAKE 50 UPROAR 56 DRAGON_RUSH 62 BOOMBURST' }, // scarlet-violet
+  FLYGON: { name: "FLYGON", dex: 330, types: ['GROUND', 'DRAGON'], base: [80, 100, 80, 80, 80, 100], rate: 45, exp: 234, h: 20, learn: '0 DRAGON_CLAW 1 BULLDOZE 1 DRAGON_BREATH 1 SAND_ATTACK 1 SUPERSONIC 12 MUD_SLAP 16 SAND_TOMB 20 DRAGON_TAIL 24 SCREECH 28 BUG_BUZZ 32 SANDSTORM 38 EARTH_POWER 44 EARTHQUAKE 52 UPROAR 60 DRAGON_RUSH 68 BOOMBURST' }, // scarlet-violet
+  CACTURNE: { name: "CACTURNE", dex: 332, types: ['GRASS', 'DARK'], base: [70, 115, 60, 115, 60, 55], rate: 60, exp: 166, h: 13, learn: '0 SPIKY_SHIELD 1 ABSORB 1 DESTINY_BOND 1 GROWTH 1 LEER 1 POISON_STING 10 LEECH_SEED 13 SAND_ATTACK 16 BULLET_SEED 19 POWER_TRIP 22 INGRAIN 26 PAYBACK 30 SPIKES 35 SUCKER_PUNCH 38 PIN_MISSILE 44 ENERGY_BALL 49 COTTON_SPORE 54 SANDSTORM' }, // scarlet-violet
+  ALTARIA: { name: "ALTARIA", dex: 334, types: ['DRAGON', 'FLYING'], base: [75, 70, 90, 70, 105, 80], rate: 45, exp: 172, h: 11, learn: '0 DRAGON_PULSE 1 DISARMING_VOICE 1 GROWL 1 MIST 1 PECK 1 PLUCK 12 FURY_ATTACK 16 ROUND 20 DRAGON_BREATH 24 SAFEGUARD 28 SING 32 COTTON_GUARD 38 TAKE_DOWN 44 MOONBLAST 50 PERISH_SONG 56 SKY_ATTACK' }, // scarlet-violet
+  WHISCASH: { name: "WHISCASH", dex: 340, types: ['WATER', 'GROUND'], base: [110, 78, 73, 76, 71, 60], rate: 75, exp: 164, h: 9, learn: '0 THRASH 1 BELCH 1 MUD_SLAP 1 REST 1 SNORE 1 TICKLE 1 WATER_GUN 1 ZEN_HEADBUTT 12 WATER_PULSE 18 AMNESIA 24 AQUA_TAIL 33 MUDDY_WATER 40 EARTHQUAKE 48 FUTURE_SIGHT 56 FISSURE' }, // scarlet-violet
+  CRAWDAUNT: { name: "CRAWDAUNT", dex: 342, types: ['WATER', 'DARK'], base: [63, 120, 85, 90, 55, 55], rate: 155, exp: 164, h: 11, learn: '0 SWIFT 1 HARDEN 1 LEER 1 TAUNT 1 WATER_GUN 12 BUBBLE_BEAM 16 KNOCK_OFF 20 DOUBLE_HIT 24 PROTECT 28 NIGHT_SLASH 34 RAZOR_SHELL 40 SWORDS_DANCE 46 CRUNCH 52 CRABHAMMER 58 ENDEAVOR 64 GUILLOTINE' }, // scarlet-violet
+  CLAYDOL: { name: "CLAYDOL", dex: 344, types: ['GROUND', 'PSYCHIC'], base: [60, 70, 105, 70, 120, 75], rate: 90, exp: 175, h: 15, learn: '0 HYPER_BEAM 1 CONFUSION 1 HARDEN 1 HYPER_BEAM 1 MUD_SLAP 1 RAPID_SPIN 1 TELEPORT 9 ROCK_TOMB 12 POWER_TRICK 15 PSYBEAM 18 ANCIENT_POWER 21 IMPRISON 24 COSMIC_POWER 27 EXTRASENSORY 30 EARTH_POWER 33 SELF_DESTRUCT 38 GUARD_SPLIT 38 POWER_SPLIT 43 SANDSTORM 48 EXPLOSION' }, // brilliant-diamond-shining-pearl
+  CRADILY: { name: "CRADILY", dex: 346, types: ['ROCK', 'GRASS'], base: [86, 81, 97, 81, 107, 43], rate: 45, exp: 173, h: 15, learn: '1 ACID 1 ASTONISH 1 CONFUSE_RAY 1 LEECH_SEED 1 WRAP 12 INGRAIN 16 ANCIENT_POWER 20 MEGA_DRAIN 24 BRINE 28 AMNESIA 32 GASTRO_ACID 36 GIGA_DRAIN 43 SPIT_UP 43 STOCKPILE 43 SWALLOW 48 ENERGY_BALL' }, // brilliant-diamond-shining-pearl
+  ARMALDO: { name: "ARMALDO", dex: 348, types: ['ROCK', 'BUG'], base: [75, 125, 100, 70, 80, 45], rate: 45, exp: 173, h: 15, learn: '1 FURY_CUTTER 1 HARDEN 1 SMACK_DOWN 1 WATER_GUN 12 METAL_CLAW 16 ANCIENT_POWER 20 BUG_BITE 24 BRINE 28 SLASH 32 CRUSH_CLAW 36 ROCK_BLAST 43 PROTECT 48 X_SCISSOR' }, // brilliant-diamond-shining-pearl
+  BANETTE: { name: "BANETTE", dex: 354, types: ['GHOST'], base: [64, 115, 65, 83, 63, 65], rate: 45, exp: 159, h: 11, learn: '0 KNOCK_OFF 1 NIGHT_SHADE 1 SCREECH 1 SPITE 16 WILL_O_WISP 19 SHADOW_SNEAK 22 HEX 26 CURSE 30 SHADOW_BALL 34 ROLE_PLAY 40 SUCKER_PUNCH 46 TRICK 53 PHANTOM_FORCE' }, // scarlet-violet
+  DUSCLOPS: { name: "DUSCLOPS", dex: 356, types: ['GHOST'], base: [40, 70, 130, 60, 130, 25], rate: 90, exp: 159, h: 16, learn: '0 SHADOW_PUNCH 1 ASTONISH 1 BIND 1 DISABLE 1 FIRE_PUNCH 1 GRAVITY 1 ICE_PUNCH 1 LEER 1 SHADOW_SNEAK 1 THUNDER_PUNCH 12 CONFUSE_RAY 16 NIGHT_SHADE 20 PAYBACK 24 WILL_O_WISP 28 MEAN_LOOK 32 HEX 36 CURSE 42 SHADOW_BALL 48 FUTURE_SIGHT' }, // scarlet-violet
+  GLALIE: { name: "GLALIE", dex: 362, types: ['ICE'], base: [80, 80, 80, 80, 80, 80], rate: 75, exp: 168, h: 15, learn: '0 FREEZE_DRY 1 ASTONISH 1 DOUBLE_TEAM 1 HEADBUTT 1 LEER 1 POWDER_SNOW 1 SHEER_COLD 15 ICE_SHARD 20 PROTECT 25 ICY_WIND 30 FROST_BREATH 35 BITE 40 ICE_FANG 47 SNOWSCAPE 54 WEATHER_BALL 61 CRUNCH 68 BLIZZARD' }, // scarlet-violet
+  SEALEO: { name: "SEALEO", dex: 364, types: ['ICE', 'WATER'], base: [90, 60, 70, 75, 70, 45], rate: 120, exp: 144, h: 11, learn: '1 ROLLOUT 6 POWDER_SNOW 11 WATER_PULSE 18 REST 25 LIQUIDATION 34 ICE_BEAM 43 BLIZZARD' }, // legends-arceus
+  WALREIN: { name: "WALREIN", dex: 365, types: ['ICE', 'WATER'], base: [110, 80, 90, 95, 90, 65], rate: 45, exp: 239, h: 14, learn: '1 ROLLOUT 6 POWDER_SNOW 11 WATER_PULSE 18 REST 25 LIQUIDATION 34 ICE_BEAM 43 BLIZZARD' }, // legends-arceus
+  SHELGON: { name: "SHELGON", dex: 372, types: ['DRAGON'], base: [65, 95, 100, 60, 50, 50], rate: 45, exp: 147, h: 11, learn: '0 PROTECT 1 BITE 1 DRAGON_BREATH 1 EMBER 1 LEER 15 HEADBUTT 20 SCARY_FACE 25 CRUNCH 33 DRAGON_CLAW 39 ZEN_HEADBUTT 46 FOCUS_ENERGY 53 FLAMETHROWER 60 OUTRAGE 67 DOUBLE_EDGE' }, // scarlet-violet
+  SALAMENCE: { name: "SALAMENCE", dex: 373, types: ['DRAGON', 'FLYING'], base: [95, 135, 80, 110, 80, 100], rate: 45, exp: 270, h: 15, learn: '0 FLY 1 BITE 1 DRAGON_BREATH 1 DRAGON_TAIL 1 DUAL_WINGBEAT 1 EMBER 1 LEER 1 PROTECT 1 ROOST 15 HEADBUTT 20 SCARY_FACE 25 CRUNCH 33 DRAGON_CLAW 39 ZEN_HEADBUTT 46 FOCUS_ENERGY 55 FLAMETHROWER 73 DOUBLE_EDGE' }, // scarlet-violet
+  METANG: { name: "METANG", dex: 375, types: ['STEEL', 'PSYCHIC'], base: [60, 75, 100, 55, 80, 50], rate: 3, exp: 147, h: 12, learn: '0 CONFUSION 0 METAL_CLAW 1 BULLET_PUNCH 1 HONE_CLAWS 1 TACKLE 6 ZEN_HEADBUTT 12 MAGNET_RISE 18 FLASH_CANNON 26 TAKE_DOWN 34 PSYCHIC 42 SCARY_FACE 50 METEOR_MASH 58 IRON_DEFENSE 66 AGILITY 74 HYPER_BEAM' }, // scarlet-violet
+  METAGROSS: { name: "METAGROSS", dex: 376, types: ['STEEL', 'PSYCHIC'], base: [80, 135, 130, 95, 90, 70], rate: 3, exp: 270, h: 16, learn: '0 HAMMER_ARM 1 BULLET_PUNCH 1 CONFUSION 1 METAL_CLAW 1 TACKLE 6 ZEN_HEADBUTT 12 MAGNET_RISE 16 FLASH_CANNON 26 TAKE_DOWN 34 PSYCHIC 42 SCARY_FACE 52 METEOR_MASH 62 IRON_DEFENSE 72 AGILITY 82 HYPER_BEAM' }, // scarlet-violet
+  GROTLE: { name: "GROTLE", dex: 388, types: ['GRASS'], base: [75, 89, 85, 55, 65, 36], rate: 45, exp: 142, h: 11, learn: '1 ABSORB 1 TACKLE 1 WITHDRAW 13 RAZOR_LEAF 17 CURSE 22 BITE 27 MEGA_DRAIN 32 LEECH_SEED 37 SYNTHESIS 42 CRUNCH 47 GIGA_DRAIN 52 LEAF_STORM' }, // scarlet-violet
+  TORTERRA: { name: "TORTERRA", dex: 389, types: ['GRASS', 'GROUND'], base: [95, 109, 105, 75, 85, 56], rate: 45, exp: 236, h: 22, learn: '0 EARTHQUAKE 1 ABSORB 1 RAZOR_LEAF 1 TACKLE 1 WITHDRAW 1 WOOD_HAMMER 17 CURSE 22 BITE 27 MEGA_DRAIN 33 LEECH_SEED 39 SYNTHESIS 45 CRUNCH 51 GIGA_DRAIN 57 LEAF_STORM 63 HEADLONG_RUSH' }, // scarlet-violet
+  MONFERNO: { name: "MONFERNO", dex: 391, types: ['FIRE', 'FIGHTING'], base: [64, 78, 52, 78, 52, 81], rate: 45, exp: 142, h: 9, learn: '0 MACH_PUNCH 1 EMBER 1 LEER 1 SCRATCH 9 TAUNT 16 FURY_SWIPES 19 FLAME_WHEEL 26 FEINT 29 TORMENT 36 CLOSE_COMBAT 39 FIRE_SPIN 46 ACROBATICS 49 SLACK_OFF 56 FLARE_BLITZ' }, // scarlet-violet
+  INFERNAPE: { name: "INFERNAPE", dex: 392, types: ['FIRE', 'FIGHTING'], base: [76, 104, 71, 104, 71, 108], rate: 45, exp: 240, h: 12, learn: '0 CLOSE_COMBAT 1 EMBER 1 LEER 1 MACH_PUNCH 1 SCRATCH 16 FURY_SWIPES 19 FLAME_WHEEL 26 FEINT 29 TORMENT 42 FIRE_SPIN 47 FLARE_BLITZ 52 ACROBATICS 58 CALM_MIND 65 RAGING_FURY' }, // scarlet-violet
+  PRINPLUP: { name: "PRINPLUP", dex: 394, types: ['WATER'], base: [64, 66, 68, 81, 76, 50], rate: 45, exp: 142, h: 8, learn: '0 METAL_CLAW 1 GROWL 1 TACKLE 1 WATER_GUN 15 PECK 19 BUBBLE_BEAM 24 SWAGGER 28 FURY_ATTACK 33 BRINE 37 WHIRLPOOL 42 MIST 46 DRILL_PECK 50 HYDRO_PUMP' }, // scarlet-violet
+  EMPOLEON: { name: "EMPOLEON", dex: 395, types: ['WATER', 'STEEL'], base: [84, 86, 88, 111, 101, 60], rate: 45, exp: 239, h: 17, learn: '0 AQUA_JET 1 GROWL 1 METAL_CLAW 1 TACKLE 1 WATER_GUN 11 SWORDS_DANCE 15 PECK 19 BUBBLE_BEAM 24 SWAGGER 28 FURY_ATTACK 33 BRINE 39 WHIRLPOOL 46 MIST 52 DRILL_PECK 59 HYDRO_PUMP 66 WAVE_CRASH' }, // scarlet-violet
+  STARAVIA: { name: "STARAVIA", dex: 397, types: ['NORMAL', 'FLYING'], base: [55, 75, 50, 40, 40, 80], rate: 120, exp: 119, h: 6, learn: '1 GROWL 1 QUICK_ATTACK 1 TACKLE 9 WING_ATTACK 13 DOUBLE_TEAM 18 ENDEAVOR 23 WHIRLWIND 28 AERIAL_ACE 33 TAKE_DOWN 38 AGILITY 43 BRAVE_BIRD 48 FINAL_GAMBIT' }, // scarlet-violet
+  STARAPTOR: { name: "STARAPTOR", dex: 398, types: ['NORMAL', 'FLYING'], base: [85, 120, 70, 50, 60, 100], rate: 45, exp: 218, h: 12, learn: '0 CLOSE_COMBAT 1 GROWL 1 QUICK_ATTACK 1 TACKLE 1 WING_ATTACK 13 DOUBLE_TEAM 18 ENDEAVOR 23 WHIRLWIND 28 AERIAL_ACE 33 TAKE_DOWN 41 AGILITY 49 BRAVE_BIRD 57 FINAL_GAMBIT' }, // scarlet-violet
+  BIBAREL: { name: "BIBAREL", dex: 400, types: ['NORMAL', 'WATER'], base: [79, 85, 60, 55, 60, 71], rate: 127, exp: 144, h: 10, learn: '0 WATER_PULSE 1 ROLLOUT 5 TACKLE 10 BITE 16 REST 23 AQUA_TAIL 23 CRUNCH 31 SWORDS_DANCE 40 DOUBLE_EDGE' }, // legends-arceus
+  KRICKETUNE: { name: "KRICKETUNE", dex: 402, types: ['BUG'], base: [77, 85, 51, 55, 51, 65], rate: 45, exp: 134, h: 10, learn: '0 FURY_CUTTER 1 GROWL 1 TACKLE 14 ABSORB 18 SING 22 FOCUS_ENERGY 26 SLASH 30 X_SCISSOR 34 SCREECH 36 FELL_STINGER 38 TAUNT 42 NIGHT_SLASH 44 STICKY_WEB 46 BUG_BUZZ 50 PERISH_SONG' }, // scarlet-violet
+  LUXIO: { name: "LUXIO", dex: 404, types: ['ELECTRIC'], base: [60, 85, 49, 60, 49, 60], rate: 120, exp: 127, h: 9, learn: '1 CHARGE 1 LEER 1 TACKLE 1 THUNDER_SHOCK 12 BITE 18 SPARK 24 ROAR 31 VOLT_SWITCH 36 SCARY_FACE 42 THUNDER_WAVE 48 CRUNCH 54 DISCHARGE 60 SWAGGER 68 WILD_CHARGE' }, // scarlet-violet
+  LUXRAY: { name: "LUXRAY", dex: 405, types: ['ELECTRIC'], base: [80, 120, 79, 95, 79, 70], rate: 45, exp: 235, h: 14, learn: '1 CHARGE 1 ELECTRIC_TERRAIN 1 LEER 1 TACKLE 1 THUNDER_SHOCK 12 BITE 18 SPARK 24 ROAR 33 VOLT_SWITCH 40 SCARY_FACE 48 THUNDER_WAVE 56 CRUNCH 64 DISCHARGE 72 SWAGGER 80 WILD_CHARGE' }, // scarlet-violet
+  RAMPARDOS: { name: "RAMPARDOS", dex: 409, types: ['ROCK'], base: [97, 165, 60, 65, 50, 58], rate: 45, exp: 173, h: 16, learn: '0 ENDEAVOR 1 FOCUS_ENERGY 1 HEADBUTT 1 LEER 10 ROCK_SMASH 15 TAKE_DOWN 19 SCARY_FACE 24 ASSURANCE 28 SLAM 36 ANCIENT_POWER 43 ZEN_HEADBUTT 51 SCREECH 58 HEAD_SMASH' }, // scarlet-violet
+  BASTIODON: { name: "BASTIODON", dex: 411, types: ['ROCK', 'STEEL'], base: [60, 52, 168, 47, 138, 30], rate: 45, exp: 173, h: 13, learn: '0 BLOCK 1 METAL_SOUND 1 PROTECT 1 TACKLE 1 TAUNT 15 TAKE_DOWN 19 IRON_DEFENSE 24 SWAGGER 28 ANCIENT_POWER 36 ENDURE 43 METAL_BURST 51 IRON_HEAD 58 HEAVY_SLAM' }, // scarlet-violet
+  FLOATZEL: { name: "FLOATZEL", dex: 419, types: ['WATER'], base: [85, 105, 55, 85, 50, 115], rate: 75, exp: 173, h: 11, learn: '1 CRUNCH 1 GROWL 1 ICE_FANG 1 QUICK_ATTACK 1 SOAK 15 WATER_GUN 18 BITE 21 SWIFT 24 AQUA_JET 29 DOUBLE_HIT 35 WHIRLPOOL 41 LIQUIDATION 46 AQUA_TAIL 51 AGILITY 57 HYDRO_PUMP 62 WAVE_CRASH' }, // scarlet-violet
+  CHERRIM: { name: "CHERRIM", dex: 421, types: ['GRASS'], base: [70, 60, 70, 87, 78, 85], rate: 75, exp: 158, h: 5, learn: '1 ABSORB 5 TACKLE 9 STUN_SPORE 15 DRAINING_KISS 21 ENERGY_BALL 29 SLEEP_POWDER 37 DOUBLE_EDGE 47 PETAL_DANCE' }, // legends-arceus
+  GASTRODON: { name: "GASTRODON", dex: 423, types: ['WATER', 'GROUND'], base: [111, 83, 68, 92, 82, 39], rate: 75, exp: 166, h: 9, learn: '1 HARDEN 1 MUD_SLAP 1 RECOVER 1 WATER_GUN 15 WATER_PULSE 20 ANCIENT_POWER 25 BODY_SLAM 33 MUDDY_WATER 39 EARTH_POWER 46 RAIN_DANCE 53 MEMENTO' }, // scarlet-violet
+  DRIFBLIM: { name: "DRIFBLIM", dex: 426, types: ['GHOST', 'FLYING'], base: [150, 80, 44, 90, 54, 80], rate: 60, exp: 174, h: 12, learn: '0 PHANTOM_FORCE 1 ASTONISH 1 FOCUS_ENERGY 1 GUST 1 MINIMIZE 1 STRENGTH_SAP 12 PAYBACK 16 HEX 20 SHADOW_BALL 24 SPIT_UP 24 STOCKPILE 24 SWALLOW 31 SELF_DESTRUCT 36 DESTINY_BOND 42 BATON_PASS 48 TAILWIND 54 EXPLOSION' }, // scarlet-violet
+  PURUGLY: { name: "PURUGLY", dex: 432, types: ['NORMAL'], base: [71, 82, 64, 64, 59, 112], rate: 75, exp: 158, h: 10, learn: '1 TACKLE 5 HYPNOSIS 10 NASTY_PLOT 16 SLASH 23 NIGHT_SLASH 31 PLAY_ROUGH 40 DOUBLE_EDGE' }, // legends-arceus
+  SKUNTANK: { name: "SKUNTANK", dex: 435, types: ['POISON', 'DARK'], base: [103, 93, 67, 71, 61, 84], rate: 60, exp: 168, h: 10, learn: '0 FLAMETHROWER 1 FEINT 1 POISON_GAS 1 SCRATCH 1 SMOKESCREEN 12 FURY_SWIPES 15 FOCUS_ENERGY 18 BITE 21 VENOSHOCK 24 SCREECH 27 TOXIC 30 SUCKER_PUNCH 33 MEMENTO 38 NIGHT_SLASH 43 BELCH 48 EXPLOSION' }, // scarlet-violet
+  BRONZONG: { name: "BRONZONG", dex: 437, types: ['STEEL', 'PSYCHIC'], base: [67, 89, 116, 79, 116, 33], rate: 90, exp: 175, h: 13, learn: '0 BLOCK 1 CONFUSE_RAY 1 CONFUSION 1 PAYBACK 1 SUNNY_DAY 1 TACKLE 1 WEATHER_BALL 12 IMPRISON 16 GYRO_BALL 20 HYPNOSIS 24 SAFEGUARD 28 EXTRASENSORY 32 HEAVY_SLAM 38 IRON_DEFENSE 44 METAL_SOUND 50 FUTURE_SIGHT 56 RAIN_DANCE' }, // scarlet-violet
+  GABITE: { name: "GABITE", dex: 444, types: ['DRAGON', 'GROUND'], base: [68, 90, 65, 50, 55, 82], rate: 45, exp: 144, h: 14, learn: '1 DRAGON_BREATH 1 SAND_ATTACK 1 SAND_TOMB 1 TACKLE 18 BULLDOZE 27 BITE 34 SLASH 42 DRAGON_CLAW 50 DIG 58 SANDSTORM 66 TAKE_DOWN 74 DRAGON_RUSH' }, // scarlet-violet
+  GARCHOMP: { name: "GARCHOMP", dex: 445, types: ['DRAGON', 'GROUND'], base: [108, 130, 95, 80, 85, 102], rate: 45, exp: 270, h: 19, learn: '0 CRUNCH 1 DRAGON_BREATH 1 SAND_ATTACK 1 SAND_TOMB 1 TACKLE 18 BULLDOZE 27 BITE 34 SLASH 42 DRAGON_CLAW 52 DIG 62 SANDSTORM 72 TAKE_DOWN 82 DRAGON_RUSH' }, // scarlet-violet
+  HIPPOWDON: { name: "HIPPOWDON", dex: 450, types: ['GROUND'], base: [108, 112, 118, 68, 72, 47], rate: 60, exp: 184, h: 20, learn: '1 BITE 1 FIRE_FANG 1 ICE_FANG 1 SAND_ATTACK 1 TACKLE 1 THUNDER_FANG 1 YAWN 12 SAND_TOMB 16 DIG 20 CRUNCH 24 SANDSTORM 28 TAKE_DOWN 32 ROAR 38 REST 44 EARTHQUAKE 50 DOUBLE_EDGE 56 FISSURE 62 SLACK_OFF' }, // scarlet-violet
+  DRAPION: { name: "DRAPION", dex: 452, types: ['POISON', 'DARK'], base: [70, 90, 110, 60, 75, 95], rate: 45, exp: 175, h: 13, learn: '1 POISON_STING 6 BITE 11 VENOSHOCK 18 CROSS_POISON 25 SWORDS_DANCE 34 X_SCISSOR 43 CRUNCH' }, // legends-arceus
+  TOXICROAK: { name: "TOXICROAK", dex: 454, types: ['POISON', 'FIGHTING'], base: [83, 106, 65, 86, 65, 85], rate: 75, exp: 172, h: 13, learn: '1 ASTONISH 1 MUD_SLAP 1 POISON_STING 1 TAUNT 12 FLATTER 16 LOW_KICK 20 VENOSHOCK 24 SUCKER_PUNCH 28 SWAGGER 32 POISON_JAB 36 TOXIC 42 NASTY_PLOT 48 SLUDGE_BOMB 54 BELCH' }, // scarlet-violet
+  LUMINEON: { name: "LUMINEON", dex: 457, types: ['WATER'], base: [69, 69, 76, 69, 86, 91], rate: 75, exp: 161, h: 12, learn: '1 GUST 1 POUND 1 SOAK 1 WATER_GUN 13 RAIN_DANCE 22 WATER_PULSE 26 ATTRACT 29 SAFEGUARD 35 AQUA_RING 42 WHIRLPOOL 48 U_TURN 53 BOUNCE 59 TAILWIND' }, // scarlet-violet
+  ABOMASNOW: { name: "ABOMASNOW", dex: 460, types: ['GRASS', 'ICE'], base: [90, 92, 75, 92, 85, 60], rate: 60, exp: 173, h: 22, learn: '0 ICE_PUNCH 1 AURORA_VEIL 1 LEAFAGE 1 LEER 1 MIST 1 POWDER_SNOW 15 ICE_SHARD 20 RAZOR_LEAF 25 ICY_WIND 30 SWAGGER 35 INGRAIN 43 WOOD_HAMMER 49 BLIZZARD 56 SHEER_COLD' }, // scarlet-violet
+  SERVINE: { name: "SERVINE", dex: 496, types: ['GRASS'], base: [60, 60, 75, 60, 75, 83], rate: 45, exp: 145, h: 8, learn: '1 LEER 1 TACKLE 1 VINE_WHIP 1 WRAP 13 GROWTH 16 MAGICAL_LEAF 20 LEECH_SEED 24 MEGA_DRAIN 28 SLAM 32 LEAF_BLADE 36 COIL 40 GIGA_DRAIN 44 GASTRO_ACID 48 LEAF_STORM' }, // scarlet-violet
+  SERPERIOR: { name: "SERPERIOR", dex: 497, types: ['GRASS'], base: [75, 75, 95, 75, 95, 113], rate: 45, exp: 238, h: 33, learn: '1 LEER 1 TACKLE 1 VINE_WHIP 1 WRAP 13 GROWTH 16 MAGICAL_LEAF 20 LEECH_SEED 24 MEGA_DRAIN 28 SLAM 32 LEAF_BLADE 38 COIL 44 GIGA_DRAIN 50 GASTRO_ACID 56 LEAF_STORM' }, // scarlet-violet
+  PIGNITE: { name: "PIGNITE", dex: 499, types: ['FIRE', 'FIGHTING'], base: [90, 93, 55, 70, 55, 55], rate: 45, exp: 146, h: 10, learn: '0 ARM_THRUST 1 EMBER 1 ENDURE 1 TACKLE 1 TAIL_WHIP 13 DEFENSE_CURL 15 FLAME_CHARGE 20 SMOG 23 ROLLOUT 28 TAKE_DOWN 31 HEAT_CRASH 36 ASSURANCE 39 FLAMETHROWER 44 HEAD_SMASH 47 ROAR 52 FLARE_BLITZ' }, // scarlet-violet
+  EMBOAR: { name: "EMBOAR", dex: 500, types: ['FIRE', 'FIGHTING'], base: [110, 123, 65, 100, 65, 65], rate: 45, exp: 238, h: 16, learn: '1 ARM_THRUST 1 EMBER 1 TACKLE 1 TAIL_WHIP 13 DEFENSE_CURL 15 FLAME_CHARGE 20 SMOG 23 ROLLOUT 28 TAKE_DOWN 31 HEAT_CRASH 38 ASSURANCE 43 FLAMETHROWER 50 HEAD_SMASH 55 ROAR 62 FLARE_BLITZ' }, // scarlet-violet
+  DEWOTT: { name: "DEWOTT", dex: 502, types: ['WATER'], base: [75, 75, 60, 83, 60, 60], rate: 45, exp: 145, h: 8, learn: '1 SOAK 1 TACKLE 1 TAIL_WHIP 1 WATER_GUN 13 FOCUS_ENERGY 18 RAZOR_SHELL 21 FURY_CUTTER 26 WATER_PULSE 29 AERIAL_ACE 34 AQUA_JET 37 ENCORE 42 AQUA_TAIL 45 RETALIATE 50 SWORDS_DANCE 53 HYDRO_PUMP' }, // scarlet-violet
+  SAMUROTT: { name: "SAMUROTT", dex: 503, types: ['WATER'], base: [95, 100, 85, 108, 70, 70], rate: 45, exp: 238, h: 15, learn: '0 SLASH 1 MEGAHORN 1 SOAK 1 TACKLE 1 TAIL_WHIP 1 WATER_GUN 13 FOCUS_ENERGY 18 RAZOR_SHELL 21 FURY_CUTTER 25 WATER_PULSE 29 AERIAL_ACE 34 AQUA_JET 39 ENCORE 46 AQUA_TAIL 51 RETALIATE 58 SWORDS_DANCE 63 HYDRO_PUMP' }, // scarlet-violet
+  WATCHOG: { name: "WATCHOG", dex: 505, types: ['NORMAL'], base: [60, 85, 69, 60, 69, 77], rate: 255, exp: 147, h: 11, learn: '0 CONFUSE_RAY 1 BITE 1 CONFUSE_RAY 1 LEER 1 LOW_KICK 1 ROTOTILLER 1 TACKLE 3 LEER 6 BITE 8 BIDE 11 DETECT 13 SAND_ATTACK 16 CRUNCH 18 HYPNOSIS 22 SUPER_FANG 25 AFTER_YOU 29 FOCUS_ENERGY 32 PSYCH_UP 36 HYPER_FANG 39 NASTY_PLOT 43 MEAN_LOOK 46 BATON_PASS 50 SLAM' }, // ultra-sun-ultra-moon
+  HERDIER: { name: "HERDIER", dex: 507, types: ['NORMAL'], base: [65, 80, 65, 35, 65, 60], rate: 120, exp: 130, h: 9, learn: '1 BITE 1 LEER 1 TACKLE 1 WORK_UP 12 RETALIATE 19 BABY_DOLL_EYES 24 PLAY_ROUGH 30 CRUNCH 36 TAKE_DOWN 42 HELPING_HAND 48 REVERSAL 54 ROAR 60 LAST_RESORT 66 GIGA_IMPACT' }, // sword-shield
+  STOUTLAND: { name: "STOUTLAND", dex: 508, types: ['NORMAL'], base: [85, 110, 90, 45, 90, 80], rate: 45, exp: 225, h: 12, learn: '1 BITE 1 FIRE_FANG 1 ICE_FANG 1 LEER 1 TACKLE 1 THUNDER_FANG 1 WORK_UP 12 RETALIATE 19 BABY_DOLL_EYES 24 PLAY_ROUGH 30 CRUNCH 38 TAKE_DOWN 46 HELPING_HAND 54 REVERSAL 62 ROAR 70 LAST_RESORT 78 GIGA_IMPACT' }, // sword-shield
+  LIEPARD: { name: "LIEPARD", dex: 510, types: ['DARK'], base: [64, 88, 50, 88, 50, 106], rate: 90, exp: 156, h: 11, learn: '1 FAKE_OUT 1 GROWL 1 SAND_ATTACK 1 SCRATCH 12 FURY_SWIPES 16 TORMENT 23 ASSURANCE 28 HONE_CLAWS 34 SUCKER_PUNCH 40 NASTY_PLOT 46 NIGHT_SLASH 52 PLAY_ROUGH' }, // sword-shield
+  TRANQUILL: { name: "TRANQUILL", dex: 520, types: ['NORMAL', 'FLYING'], base: [62, 77, 62, 50, 42, 65], rate: 120, exp: 125, h: 6, learn: '1 GROWL 1 GUST 1 LEER 1 QUICK_ATTACK 12 TAUNT 16 AIR_CUTTER 20 SWAGGER 26 FEATHER_DANCE 34 DETECT 38 AIR_SLASH 44 ROOST 50 TAILWIND 56 SKY_ATTACK' }, // sword-shield
+  UNFEZANT: { name: "UNFEZANT", dex: 521, types: ['NORMAL', 'FLYING'], base: [80, 115, 80, 65, 55, 93], rate: 45, exp: 220, h: 12, learn: '1 GROWL 1 GUST 1 LEER 1 QUICK_ATTACK 12 TAUNT 16 AIR_CUTTER 20 SWAGGER 26 FEATHER_DANCE 36 DETECT 42 AIR_SLASH 50 ROOST 58 TAILWIND 66 SKY_ATTACK' }, // sword-shield
+  ZEBSTRIKA: { name: "ZEBSTRIKA", dex: 523, types: ['ELECTRIC'], base: [75, 100, 63, 80, 63, 116], rate: 75, exp: 174, h: 16, learn: '1 CHARGE 1 QUICK_ATTACK 1 TAIL_WHIP 1 THUNDER_WAVE 11 SHOCK_WAVE 18 FLAME_CHARGE 25 SPARK 31 STOMP 36 DISCHARGE 42 AGILITY 47 WILD_CHARGE 53 THRASH' }, // scarlet-violet
+  BOLDORE: { name: "BOLDORE", dex: 525, types: ['ROCK'], base: [70, 105, 105, 50, 40, 20], rate: 120, exp: 137, h: 9, learn: '0 POWER_GEM 1 HARDEN 1 POWER_GEM 1 SAND_ATTACK 1 STEALTH_ROCK 1 TACKLE 12 MUD_SLAP 16 SMACK_DOWN 20 IRON_DEFENSE 24 HEADBUTT 30 ROCK_SLIDE 36 ROCK_BLAST 42 SANDSTORM 48 STONE_EDGE 54 EXPLOSION' }, // sword-shield
+  EXCADRILL: { name: "EXCADRILL", dex: 530, types: ['GROUND', 'STEEL'], base: [110, 135, 60, 50, 65, 88], rate: 60, exp: 178, h: 7, learn: '0 HORN_DRILL 1 HONE_CLAWS 1 MUD_SLAP 1 RAPID_SPIN 1 SCRATCH 12 FURY_SWIPES 16 METAL_CLAW 20 SANDSTORM 24 CRUSH_CLAW 28 ROCK_SLIDE 34 DIG 40 SWORDS_DANCE 46 DRILL_RUN 52 EARTHQUAKE 58 FISSURE' }, // scarlet-violet
+  GURDURR: { name: "GURDURR", dex: 533, types: ['FIGHTING'], base: [85, 105, 85, 40, 50, 40], rate: 90, exp: 142, h: 12, learn: '1 LEER 1 LOW_KICK 1 POUND 1 ROCK_THROW 12 FOCUS_ENERGY 16 BULK_UP 20 ROCK_SLIDE 24 SLAM 30 SCARY_FACE 36 DYNAMIC_PUNCH 42 HAMMER_ARM 48 STONE_EDGE 54 SUPERPOWER 60 FOCUS_PUNCH' }, // scarlet-violet
+  PALPITOAD: { name: "PALPITOAD", dex: 536, types: ['WATER', 'GROUND'], base: [75, 65, 55, 65, 55, 69], rate: 120, exp: 134, h: 8, learn: '1 ACID 1 ECHOED_VOICE 1 GROWL 1 SUPERSONIC 12 MUD_SHOT 16 ROUND 20 BUBBLE_BEAM 24 FLAIL 30 UPROAR 37 AQUA_RING 42 HYPER_VOICE 48 MUDDY_WATER 54 RAIN_DANCE 60 HYDRO_PUMP' }, // sword-shield
+  SEISMITOAD: { name: "SEISMITOAD", dex: 537, types: ['WATER', 'GROUND'], base: [105, 95, 75, 85, 75, 74], rate: 45, exp: 229, h: 15, learn: '0 DRAIN_PUNCH 1 ACID 1 DRAIN_PUNCH 1 ECHOED_VOICE 1 GASTRO_ACID 1 GROWL 1 SUPERSONIC 12 MUD_SHOT 16 ROUND 20 BUBBLE_BEAM 24 FLAIL 30 UPROAR 39 AQUA_RING 46 HYPER_VOICE 54 MUDDY_WATER 62 RAIN_DANCE 70 HYDRO_PUMP' }, // sword-shield
+  SWADLOON: { name: "SWADLOON", dex: 541, types: ['BUG', 'GRASS'], base: [55, 63, 90, 50, 80, 42], rate: 120, exp: 133, h: 5, learn: '0 PROTECT 1 BUG_BITE 1 RAZOR_LEAF 1 STRING_SHOT 1 TACKLE 22 STRUGGLE_BUG 29 ENDURE 31 STICKY_WEB 36 BUG_BUZZ 43 FLAIL' }, // scarlet-violet
+  WHIRLIPEDE: { name: "WHIRLIPEDE", dex: 544, types: ['BUG', 'POISON'], base: [40, 55, 99, 40, 79, 47], rate: 120, exp: 126, h: 12, learn: '0 IRON_DEFENSE 1 DEFENSE_CURL 1 IRON_DEFENSE 1 POISON_STING 1 PROTECT 1 ROLLOUT 12 POISON_TAIL 16 SCREECH 20 BUG_BITE 26 VENOSHOCK 32 TAKE_DOWN 38 AGILITY 44 TOXIC 50 VENOM_DRENCH 56 DOUBLE_EDGE' }, // sword-shield
+  SCOLIPEDE: { name: "SCOLIPEDE", dex: 545, types: ['BUG', 'POISON'], base: [60, 100, 89, 55, 69, 112], rate: 45, exp: 218, h: 25, learn: '1 BATON_PASS 1 DEFENSE_CURL 1 IRON_DEFENSE 1 POISON_STING 1 PROTECT 1 ROLLOUT 12 POISON_TAIL 16 SCREECH 20 BUG_BITE 26 VENOSHOCK 34 TAKE_DOWN 42 AGILITY 50 TOXIC 58 VENOM_DRENCH 66 DOUBLE_EDGE 74 MEGAHORN' }, // sword-shield
+  KROKOROK: { name: "KROKOROK", dex: 552, types: ['GROUND', 'DARK'], base: [60, 82, 45, 45, 45, 74], rate: 90, exp: 123, h: 10, learn: '1 HONE_CLAWS 1 LEER 1 POWER_TRIP 1 SAND_ATTACK 9 SAND_TOMB 12 SCARY_FACE 15 BITE 18 TORMENT 21 DIG 24 SWAGGER 27 CRUNCH 32 SANDSTORM 35 FOUL_PLAY 42 EARTHQUAKE 47 THRASH' }, // scarlet-violet
+  KROOKODILE: { name: "KROOKODILE", dex: 553, types: ['GROUND', 'DARK'], base: [95, 117, 80, 65, 70, 92], rate: 45, exp: 234, h: 15, learn: '1 HONE_CLAWS 1 LEER 1 POWER_TRIP 1 SAND_ATTACK 9 SAND_TOMB 12 SCARY_FACE 15 BITE 18 TORMENT 21 DIG 24 SWAGGER 27 CRUNCH 32 SANDSTORM 35 FOUL_PLAY 44 EARTHQUAKE 51 THRASH 58 OUTRAGE' }, // scarlet-violet
+  DARMANITAN: { name: "DARMANITAN", dex: 555, types: ['FIRE'], base: [105, 140, 55, 30, 55, 95], rate: 60, exp: 168, h: 13, learn: '0 HAMMER_ARM 1 BITE 1 EMBER 1 HAMMER_ARM 1 TACKLE 1 TAUNT 12 INCINERATE 16 WORK_UP 20 FIRE_FANG 24 HEADBUTT 28 FIRE_PUNCH 32 UPROAR 38 BELLY_DRUM 44 FLARE_BLITZ 50 THRASH 56 SUPERPOWER' }, // sword-shield
+  CRUSTLE: { name: "CRUSTLE", dex: 558, types: ['BUG', 'ROCK'], base: [70, 105, 125, 65, 75, 45], rate: 75, exp: 170, h: 14, learn: '1 FURY_CUTTER 1 SAND_ATTACK 1 SMACK_DOWN 1 WITHDRAW 12 BUG_BITE 16 FLAIL 20 SLASH 24 ROCK_SLIDE 28 STEALTH_ROCK 32 ROCK_BLAST 38 X_SCISSOR 44 ROCK_POLISH 50 SHELL_SMASH 56 ROCK_WRECKER' }, // sword-shield
+  SCRAFTY: { name: "SCRAFTY", dex: 560, types: ['DARK', 'FIGHTING'], base: [65, 90, 115, 45, 115, 58], rate: 90, exp: 171, h: 11, learn: '1 HEADBUTT 1 LEER 1 LOW_KICK 1 PAYBACK 12 SAND_ATTACK 16 FACADE 20 TORMENT 24 BEAT_UP 28 SCARY_FACE 32 BRICK_BREAK 36 SWAGGER 42 CRUNCH 48 HIGH_JUMP_KICK 54 FOCUS_PUNCH 60 HEAD_SMASH' }, // scarlet-violet
+  COFAGRIGUS: { name: "COFAGRIGUS", dex: 563, types: ['GHOST'], base: [58, 50, 145, 95, 105, 30], rate: 90, exp: 169, h: 17, learn: '0 SHADOW_CLAW 1 ASTONISH 1 HAZE 1 NIGHT_SHADE 1 PROTECT 1 SCARY_FACE 1 SHADOW_CLAW 12 DISABLE 16 WILL_O_WISP 20 CRAFTY_SHIELD 24 HEX 28 MEAN_LOOK 32 GRUDGE 38 CURSE 44 SHADOW_BALL 50 DARK_PULSE 56 GUARD_SPLIT 56 POWER_SPLIT 62 DESTINY_BOND' }, // sword-shield
+  CARRACOSTA: { name: "CARRACOSTA", dex: 565, types: ['WATER', 'ROCK'], base: [74, 108, 133, 83, 65, 32], rate: 45, exp: 173, h: 12, learn: '1 AQUA_JET 1 PROTECT 1 WATER_GUN 1 WITHDRAW 9 SMACK_DOWN 12 ANCIENT_POWER 15 BITE 18 WIDE_GUARD 21 BRINE 24 ROCK_SLIDE 27 CRUNCH 30 CURSE 33 IRON_DEFENSE 36 AQUA_TAIL 41 RAIN_DANCE 46 HYDRO_PUMP 51 SHELL_SMASH' }, // sword-shield
+  ARCHEOPS: { name: "ARCHEOPS", dex: 567, types: ['ROCK', 'FLYING'], base: [75, 140, 65, 112, 65, 110], rate: 45, exp: 177, h: 14, learn: '1 LEER 1 QUICK_ATTACK 1 ROCK_THROW 1 WING_ATTACK 9 DRAGON_BREATH 12 ANCIENT_POWER 15 PLUCK 18 QUICK_GUARD 21 U_TURN 24 ROCK_SLIDE 27 SCARY_FACE 30 CRUNCH 33 AGILITY 36 TAILWIND 41 DRAGON_CLAW 46 THRASH 51 ENDEAVOR' }, // sword-shield
+  GARBODOR: { name: "GARBODOR", dex: 569, types: ['POISON'], base: [80, 95, 82, 60, 82, 75], rate: 60, exp: 166, h: 19, learn: '1 ACID_SPRAY 1 METAL_CLAW 1 POISON_GAS 1 POUND 1 RECYCLE 1 TAKE_DOWN 9 AMNESIA 12 CLEAR_SMOG 15 TOXIC_SPIKES 18 SLUDGE 21 STOCKPILE 21 SWALLOW 24 BODY_SLAM 27 SLUDGE_BOMB 30 TOXIC 33 BELCH 39 PAIN_SPLIT 43 GUNK_SHOT 48 EXPLOSION' }, // sword-shield
+  ZOROARK: { name: "ZOROARK", dex: 571, types: ['DARK'], base: [60, 105, 60, 120, 60, 105], rate: 45, exp: 179, h: 16, learn: '0 NIGHT_SLASH 1 HONE_CLAWS 1 LEER 1 SCRATCH 1 TORMENT 1 U_TURN 12 FURY_SWIPES 20 TAUNT 24 KNOCK_OFF 28 FAKE_TEARS 34 AGILITY 40 IMPRISON 46 NIGHT_DAZE 52 NASTY_PLOT 58 FOUL_PLAY' }, // scarlet-violet
+  GOTHORITA: { name: "GOTHORITA", dex: 575, types: ['PSYCHIC'], base: [60, 45, 70, 75, 85, 55], rate: 100, exp: 137, h: 7, learn: '1 CONFUSION 1 PLAY_NICE 1 POUND 1 TICKLE 12 PSYBEAM 16 CHARM 20 PSYSHOCK 24 HYPNOSIS 28 FAKE_TEARS 35 PSYCH_UP 46 FLATTER 52 FUTURE_SIGHT 58 MAGIC_ROOM' }, // scarlet-violet
+  GOTHITELLE: { name: "GOTHITELLE", dex: 576, types: ['PSYCHIC'], base: [70, 55, 95, 95, 110, 65], rate: 50, exp: 221, h: 15, learn: '1 CONFUSION 1 PLAY_NICE 1 POUND 1 TICKLE 12 PSYBEAM 16 CHARM 20 PSYSHOCK 24 HYPNOSIS 28 FAKE_TEARS 35 PSYCH_UP 40 PSYCHIC 48 FLATTER 56 FUTURE_SIGHT 64 MAGIC_ROOM' }, // scarlet-violet
+  DUOSION: { name: "DUOSION", dex: 578, types: ['PSYCHIC'], base: [65, 40, 50, 125, 60, 30], rate: 100, exp: 130, h: 6, learn: '1 CONFUSION 1 ENDEAVOR 1 PROTECT 1 RECOVER 12 PSYBEAM 16 CHARM 20 PSYSHOCK 24 LIGHT_SCREEN 24 REFLECT 28 ALLY_SWITCH 35 PAIN_SPLIT 40 PSYCHIC 46 SKILL_SWAP 52 FUTURE_SIGHT 58 WONDER_ROOM' }, // scarlet-violet
+  REUNICLUS: { name: "REUNICLUS", dex: 579, types: ['PSYCHIC'], base: [110, 65, 75, 125, 85, 30], rate: 50, exp: 221, h: 10, learn: '0 HAMMER_ARM 1 CONFUSION 1 ENDEAVOR 1 PROTECT 1 RECOVER 12 PSYBEAM 16 CHARM 20 PSYSHOCK 24 LIGHT_SCREEN 24 REFLECT 28 ALLY_SWITCH 35 PAIN_SPLIT 40 PSYCHIC 48 SKILL_SWAP 56 FUTURE_SIGHT 64 WONDER_ROOM' }, // scarlet-violet
+  SWANNA: { name: "SWANNA", dex: 581, types: ['WATER', 'FLYING'], base: [75, 87, 63, 87, 63, 98], rate: 45, exp: 166, h: 13, learn: '1 DEFOG 1 WATER_GUN 1 WING_ATTACK 13 WATER_PULSE 15 AERIAL_ACE 19 BUBBLE_BEAM 21 FEATHER_DANCE 24 AQUA_RING 27 AIR_SLASH 30 ROOST 34 RAIN_DANCE 40 TAILWIND 47 BRAVE_BIRD 55 HURRICANE' }, // scarlet-violet
+  VANILLISH: { name: "VANILLISH", dex: 583, types: ['ICE'], base: [51, 65, 65, 80, 75, 59], rate: 120, exp: 138, h: 11, learn: '1 ASTONISH 1 HARDEN 1 MIST 1 TAUNT 12 ICY_WIND 16 AVALANCHE 20 HAIL 24 ICICLE_SPEAR 28 UPROAR 32 ACID_ARMOR 38 MIRROR_COAT 44 ICE_BEAM 50 BLIZZARD 56 SHEER_COLD' }, // sword-shield
+  VANILLUXE: { name: "VANILLUXE", dex: 584, types: ['ICE'], base: [71, 95, 85, 110, 95, 79], rate: 45, exp: 241, h: 13, learn: '1 ASTONISH 1 FREEZE_DRY 1 HARDEN 1 ICICLE_CRASH 1 MIST 1 TAUNT 1 WEATHER_BALL 12 ICY_WIND 16 AVALANCHE 20 HAIL 24 ICICLE_SPEAR 28 UPROAR 32 ACID_ARMOR 38 MIRROR_COAT 44 ICE_BEAM 52 BLIZZARD 60 SHEER_COLD' }, // sword-shield
+  SAWSBUCK: { name: "SAWSBUCK", dex: 586, types: ['NORMAL', 'GRASS'], base: [80, 100, 70, 60, 70, 95], rate: 75, exp: 166, h: 19, learn: '0 HORN_LEECH 1 GROWL 1 MEGAHORN 1 SAND_ATTACK 1 TACKLE 10 DOUBLE_KICK 13 LEECH_SEED 16 BULLET_SEED 20 TAKE_DOWN 24 ZEN_HEADBUTT 28 ENERGY_BALL 36 CHARM 44 DOUBLE_EDGE 52 SOLAR_BEAM' }, // scarlet-violet
+  AMOONGUSS: { name: "AMOONGUSS", dex: 591, types: ['GRASS', 'POISON'], base: [114, 85, 70, 85, 80, 30], rate: 75, exp: 162, h: 6, learn: '1 ABSORB 1 ASTONISH 1 GROWTH 1 STUN_SPORE 12 MEGA_DRAIN 16 SYNTHESIS 20 CLEAR_SMOG 24 SWEET_SCENT 28 GIGA_DRAIN 32 INGRAIN 36 TOXIC 42 RAGE_POWDER 48 SOLAR_BEAM 54 SPORE' }, // scarlet-violet
+  JELLICENT: { name: "JELLICENT", dex: 593, types: ['WATER', 'GHOST'], base: [100, 60, 70, 85, 105, 60], rate: 60, exp: 168, h: 22, learn: '1 ABSORB 1 ACID_ARMOR 1 NIGHT_SHADE 1 POISON_STING 1 WATER_GUN 12 WATER_PULSE 16 RAIN_DANCE 20 HEX 24 BRINE 28 RECOVER 32 SHADOW_BALL 36 WHIRLPOOL 43 HYDRO_PUMP 48 DESTINY_BOND 54 WATER_SPOUT' }, // sword-shield
+  GALVANTULA: { name: "GALVANTULA", dex: 596, types: ['BUG', 'ELECTRIC'], base: [70, 77, 60, 97, 60, 108], rate: 75, exp: 165, h: 8, learn: '0 STICKY_WEB 1 ABSORB 1 BUG_BITE 1 ELECTROWEB 1 FURY_CUTTER 12 STRING_SHOT 16 THUNDER_WAVE 20 ELECTRO_BALL 24 AGILITY 28 SUCKER_PUNCH 32 SLASH 39 DISCHARGE 44 SCREECH 50 GASTRO_ACID 56 BUG_BUZZ' }, // scarlet-violet
+  FERROTHORN: { name: "FERROTHORN", dex: 598, types: ['GRASS', 'STEEL'], base: [74, 94, 131, 54, 116, 20], rate: 90, exp: 171, h: 10, learn: '0 POWER_WHIP 1 HARDEN 1 METAL_CLAW 1 PIN_MISSILE 1 POWER_WHIP 1 TACKLE 15 INGRAIN 20 FLASH_CANNON 25 IRON_HEAD 30 SELF_DESTRUCT 35 IRON_DEFENSE 43 CURSE 49 GYRO_BALL 56 EXPLOSION' }, // sword-shield
+  KLANG: { name: "KLANG", dex: 600, types: ['STEEL'], base: [60, 80, 95, 70, 85, 50], rate: 60, exp: 154, h: 6, learn: '1 BIND 1 CHARGE 1 THUNDER_SHOCK 1 VICE_GRIP 12 CHARGE_BEAM 16 METAL_SOUND 20 AUTOTOMIZE 24 DISCHARGE 28 SCREECH 32 GEAR_GRIND 36 LOCK_ON 42 SHIFT_GEAR 48 ZAP_CANNON 54 HYPER_BEAM' }, // sword-shield
+  KLINKLANG: { name: "KLINKLANG", dex: 601, types: ['STEEL'], base: [60, 100, 115, 70, 85, 90], rate: 30, exp: 234, h: 6, learn: '1 BIND 1 CHARGE 1 GEAR_UP 1 MAGNETIC_FLUX 1 THUNDER_SHOCK 1 VICE_GRIP 12 CHARGE_BEAM 16 METAL_SOUND 20 AUTOTOMIZE 24 DISCHARGE 28 SCREECH 32 GEAR_GRIND 36 LOCK_ON 42 SHIFT_GEAR 48 ZAP_CANNON 56 HYPER_BEAM 64 ELECTRIC_TERRAIN' }, // sword-shield
+  EELEKTRIK: { name: "EELEKTRIK", dex: 603, types: ['ELECTRIC'], base: [65, 85, 70, 75, 70, 40], rate: 60, exp: 142, h: 12, learn: '0 CRUNCH 1 CHARGE_BEAM 1 HEADBUTT 1 SPARK 1 THUNDER_WAVE 9 BIND 19 ACID 29 DISCHARGE 44 THUNDERBOLT 49 ACID_SPRAY 54 COIL 59 WILD_CHARGE 64 GASTRO_ACID 69 ZAP_CANNON 74 THRASH' }, // scarlet-violet
+  BEHEEYEM: { name: "BEHEEYEM", dex: 606, types: ['PSYCHIC'], base: [75, 75, 75, 125, 95, 40], rate: 90, exp: 170, h: 10, learn: '1 CONFUSION 1 GROWL 1 IMPRISON 1 PSYCHIC_TERRAIN 1 TELEPORT 18 PSYBEAM 24 GUARD_SPLIT 24 POWER_SPLIT 30 HEADBUTT 36 ZEN_HEADBUTT 45 RECOVER 52 CALM_MIND 60 WONDER_ROOM 68 PSYCHIC' }, // sword-shield
+  LAMPENT: { name: "LAMPENT", dex: 608, types: ['GHOST', 'FIRE'], base: [60, 40, 60, 95, 60, 55], rate: 90, exp: 130, h: 6, learn: '1 ASTONISH 1 EMBER 1 MINIMIZE 1 SMOG 12 CONFUSE_RAY 16 HEX 20 WILL_O_WISP 24 FIRE_SPIN 28 NIGHT_SHADE 32 CURSE 36 SHADOW_BALL 40 INFERNO 46 IMPRISON 52 PAIN_SPLIT 58 OVERHEAT 64 MEMENTO' }, // scarlet-violet
+  FRAXURE: { name: "FRAXURE", dex: 611, types: ['DRAGON'], base: [66, 117, 70, 40, 50, 67], rate: 60, exp: 144, h: 10, learn: '1 BITE 1 FALSE_SWIPE 1 LEER 1 SCRATCH 9 ASSURANCE 12 TAUNT 15 SLASH 18 DRAGON_CLAW 21 SCARY_FACE 24 CRUNCH 27 DRAGON_DANCE 30 BREAKING_SWIPE 33 FOCUS_ENERGY 36 DRAGON_PULSE 41 SWORDS_DANCE 46 OUTRAGE 51 GUILLOTINE 56 GIGA_IMPACT' }, // scarlet-violet
+  HAXORUS: { name: "HAXORUS", dex: 612, types: ['DRAGON'], base: [76, 147, 90, 60, 70, 97], rate: 45, exp: 243, h: 18, learn: '1 BITE 1 FALSE_SWIPE 1 LEER 1 SCRATCH 9 ASSURANCE 12 TAUNT 15 SLASH 18 DRAGON_CLAW 21 SCARY_FACE 24 CRUNCH 27 DRAGON_DANCE 30 BREAKING_SWIPE 33 FOCUS_ENERGY 36 DRAGON_PULSE 41 SWORDS_DANCE 46 OUTRAGE 53 GUILLOTINE 60 GIGA_IMPACT' }, // scarlet-violet
+  BEARTIC: { name: "BEARTIC", dex: 614, types: ['ICE'], base: [95, 130, 80, 70, 80, 50], rate: 60, exp: 177, h: 26, learn: '0 ICICLE_CRASH 1 AQUA_JET 1 CHARM 1 ENDURE 1 FURY_SWIPES 1 GROWL 1 POWDER_SNOW 9 ICY_WIND 12 PLAY_NICE 15 BRINE 18 FROST_BREATH 21 SLASH 24 FLAIL 27 SWAGGER 30 SNOWSCAPE 33 THRASH 36 REST 41 BLIZZARD 46 SHEER_COLD 51 SUPERPOWER' }, // scarlet-violet
+  MIENSHAO: { name: "MIENSHAO", dex: 620, types: ['FIGHTING'], base: [65, 125, 60, 95, 60, 105], rate: 45, exp: 179, h: 14, learn: '1 DETECT 1 FAKE_OUT 1 POUND 1 QUICK_GUARD 1 REVERSAL 15 FURY_SWIPES 20 WIDE_GUARD 25 FORCE_PALM 30 U_TURN 35 DRAIN_PUNCH 40 HONE_CLAWS 45 AURA_SPHERE 53 BOUNCE 59 CALM_MIND 66 HIGH_JUMP_KICK' }, // scarlet-violet
+  GOLURK: { name: "GOLURK", dex: 623, types: ['GROUND', 'GHOST'], base: [89, 124, 80, 55, 80, 55], rate: 90, exp: 169, h: 28, learn: '1 ASTONISH 1 DEFENSE_CURL 1 HIGH_HORSEPOWER 1 POUND 12 SHADOW_PUNCH 16 CURSE 20 NIGHT_SHADE 24 STOMPING_TANTRUM 28 IRON_DEFENSE 32 MEGA_PUNCH 36 SHADOW_BALL 40 HEAVY_SLAM 46 PHANTOM_FORCE 52 HAMMER_ARM 58 EARTHQUAKE 64 DYNAMIC_PUNCH' }, // scarlet-violet
+  BISHARP: { name: "BISHARP", dex: 625, types: ['DARK', 'STEEL'], base: [65, 125, 100, 60, 70, 70], rate: 45, exp: 172, h: 16, learn: '1 FURY_CUTTER 1 LEER 1 METAL_BURST 1 METAL_CLAW 1 SCRATCH 15 TORMENT 20 SCARY_FACE 25 ASSURANCE 30 METAL_SOUND 35 SLASH 40 NIGHT_SLASH 45 IRON_DEFENSE 50 RETALIATE 57 IRON_HEAD 64 SWORDS_DANCE 71 GUILLOTINE' }, // scarlet-violet
+  BRAVIARY: { name: "BRAVIARY", dex: 628, types: ['NORMAL', 'FLYING'], base: [100, 123, 75, 57, 75, 80], rate: 60, exp: 179, h: 15, learn: '0 SUPERPOWER 1 HONE_CLAWS 1 LEER 1 PECK 1 SKY_ATTACK 1 WING_ATTACK 18 TAILWIND 24 SCARY_FACE 30 AERIAL_ACE 36 SLASH 42 WHIRLWIND 48 CRUSH_CLAW 57 AIR_SLASH 64 DEFOG 72 THRASH' }, // scarlet-violet
+  MANDIBUZZ: { name: "MANDIBUZZ", dex: 630, types: ['DARK', 'FLYING'], base: [110, 65, 105, 55, 95, 80], rate: 60, exp: 179, h: 12, learn: '0 BONE_RUSH 1 FLATTER 1 GUST 1 LEER 1 PLUCK 1 SKY_ATTACK 1 TOXIC 18 TAILWIND 24 KNOCK_OFF 30 IRON_DEFENSE 36 WHIRLWIND 42 AIR_SLASH 48 DARK_PULSE 57 NASTY_PLOT 64 DEFOG 72 ATTRACT 80 BRAVE_BIRD' }, // scarlet-violet
+  ZWEILOUS: { name: "ZWEILOUS", dex: 634, types: ['DARK', 'DRAGON'], base: [72, 85, 70, 65, 70, 58], rate: 45, exp: 147, h: 14, learn: '1 BITE 1 DOUBLE_HIT 1 DRAGON_BREATH 1 FOCUS_ENERGY 1 TACKLE 12 ROAR 16 ASSURANCE 20 HEADBUTT 24 WORK_UP 28 SLAM 32 CRUNCH 36 SCARY_FACE 40 DRAGON_PULSE 44 BODY_SLAM 48 HYPER_VOICE 54 DRAGON_RUSH 60 NASTY_PLOT 66 OUTRAGE' }, // scarlet-violet
+  HYDREIGON: { name: "HYDREIGON", dex: 635, types: ['DARK', 'DRAGON'], base: [92, 105, 90, 125, 90, 98], rate: 45, exp: 270, h: 18, learn: '1 BITE 1 DOUBLE_HIT 1 DRAGON_BREATH 1 FOCUS_ENERGY 1 TACKLE 1 TRI_ATTACK 12 ROAR 16 ASSURANCE 20 HEADBUTT 24 WORK_UP 28 SLAM 32 CRUNCH 36 SCARY_FACE 40 DRAGON_PULSE 44 BODY_SLAM 48 HYPER_VOICE 54 DRAGON_RUSH 60 NASTY_PLOT 68 OUTRAGE 76 HYPER_BEAM' }, // scarlet-violet
+  VOLCARONA: { name: "VOLCARONA", dex: 637, types: ['BUG', 'FIRE'], base: [85, 60, 65, 135, 105, 100], rate: 15, exp: 248, h: 16, learn: '0 QUIVER_DANCE 1 DOUBLE_EDGE 1 EMBER 1 FIERY_DANCE 1 FIRE_SPIN 1 FLAME_CHARGE 1 FLARE_BLITZ 1 GUST 1 STRING_SHOT 1 STRUGGLE_BUG 1 TAKE_DOWN 1 WHIRLWIND 18 FLAME_WHEEL 24 BUG_BITE 30 SCREECH 36 LEECH_LIFE 42 BUG_BUZZ 48 HEAT_WAVE 54 AMNESIA 62 HURRICANE 70 FIRE_BLAST 78 RAGE_POWDER' }, // scarlet-violet
+  QUILLADIN: { name: "QUILLADIN", dex: 651, types: ['GRASS'], base: [61, 78, 95, 56, 58, 57], rate: 45, exp: 142, h: 7, learn: '1 GROWL 1 VINE_WHIP 8 ROLLOUT 11 BITE 15 LEECH_SEED 20 SEED_BOMB 24 PIN_MISSILE 29 TAKE_DOWN 34 MUD_SHOT 38 BULK_UP 43 BODY_SLAM 47 PAIN_SPLIT 53 WOOD_HAMMER' }, // scarlet-violet
+  CHESNAUGHT: { name: "CHESNAUGHT", dex: 652, types: ['GRASS', 'FIGHTING'], base: [88, 107, 122, 74, 75, 64], rate: 45, exp: 239, h: 16, learn: '0 SPIKY_SHIELD 1 FEINT 1 GROWL 1 HAMMER_ARM 1 ROLLOUT 1 TACKLE 1 VINE_WHIP 11 BITE 15 LEECH_SEED 19 PIN_MISSILE 29 TAKE_DOWN 35 SEED_BOMB 41 MUD_SHOT 48 BULK_UP 54 BODY_SLAM 60 PAIN_SPLIT 66 WOOD_HAMMER 78 GIGA_IMPACT' }, // scarlet-violet
+  BRAIXEN: { name: "BRAIXEN", dex: 654, types: ['FIRE'], base: [59, 59, 58, 90, 70, 73], rate: 45, exp: 143, h: 10, learn: '1 EMBER 1 SCRATCH 1 TAIL_WHIP 11 HOWL 14 FLAME_CHARGE 18 PSYBEAM 22 FIRE_SPIN 28 LIGHT_SCREEN 36 PSYSHOCK 41 FLAMETHROWER 45 WILL_O_WISP 49 PSYCHIC 52 SUNNY_DAY 56 MAGIC_ROOM 59 FIRE_BLAST' }, // scarlet-violet
+  DELPHOX: { name: "DELPHOX", dex: 655, types: ['FIRE', 'PSYCHIC'], base: [75, 69, 72, 114, 100, 104], rate: 45, exp: 240, h: 15, learn: '0 MYSTICAL_FIRE 1 EMBER 1 FUTURE_SIGHT 1 HOWL 1 ROLE_PLAY 1 SCRATCH 1 SHADOW_BALL 1 SWITCHEROO 1 TAIL_WHIP 14 FLAME_CHARGE 18 PSYBEAM 22 FIRE_SPIN 28 LIGHT_SCREEN 38 PSYSHOCK 45 FLAMETHROWER 51 WILL_O_WISP 57 PSYCHIC 62 SUNNY_DAY 68 MAGIC_ROOM 74 FIRE_BLAST' }, // scarlet-violet
+  FROGADIER: { name: "FROGADIER", dex: 657, types: ['WATER'], base: [54, 63, 52, 83, 56, 97], rate: 45, exp: 142, h: 6, learn: '1 GROWL 1 POUND 1 WATER_GUN 8 QUICK_ATTACK 10 LICK 14 WATER_PULSE 19 SMOKESCREEN 23 ROUND 28 FLING 33 SMACK_DOWN 40 SUBSTITUTE 45 BOUNCE 50 DOUBLE_TEAM 56 HYDRO_PUMP' }, // scarlet-violet
+  GRENINJA: { name: "GRENINJA", dex: 658, types: ['WATER', 'DARK'], base: [72, 95, 67, 103, 71, 122], rate: 45, exp: 239, h: 15, learn: '0 WATER_SHURIKEN 1 GROWL 1 HAZE 1 NIGHT_SLASH 1 POUND 1 QUICK_ATTACK 1 ROLE_PLAY 1 WATER_GUN 10 LICK 14 WATER_PULSE 19 SMOKESCREEN 23 SHADOW_SNEAK 28 SPIKES 33 AERIAL_ACE 42 SUBSTITUTE 49 EXTRASENSORY 56 DOUBLE_TEAM 68 HYDRO_PUMP' }, // scarlet-violet
+  DIGGERSBY: { name: "DIGGERSBY", dex: 660, types: ['NORMAL', 'GROUND'], base: [85, 56, 77, 50, 77, 78], rate: 127, exp: 148, h: 10, learn: '1 LASER_FOCUS 1 LEER 1 MUD_SLAP 1 TACKLE 9 QUICK_ATTACK 12 MUD_SHOT 15 FLAIL 18 DOUBLE_KICK 23 BULLDOZE 28 DIG 33 BOUNCE 38 TAKE_DOWN 43 SWORDS_DANCE 48 EARTHQUAKE 53 SUPER_FANG 58 HAMMER_ARM' }, // sword-shield
+  FLETCHINDER: { name: "FLETCHINDER", dex: 662, types: ['FIRE', 'FLYING'], base: [62, 73, 55, 56, 52, 84], rate: 120, exp: 134, h: 7, learn: '0 FLAME_CHARGE 1 EMBER 1 FEINT 1 GROWL 1 PECK 1 QUICK_ATTACK 15 FLAIL 22 ACROBATICS 29 AGILITY 36 AERIAL_ACE 43 TAILWIND 50 STEEL_WING 57 ROOST 64 FLY' }, // scarlet-violet
+  TALONFLAME: { name: "TALONFLAME", dex: 663, types: ['FIRE', 'FLYING'], base: [78, 81, 71, 74, 69, 126], rate: 45, exp: 175, h: 12, learn: '1 EMBER 1 FEINT 1 FLAME_CHARGE 1 FLARE_BLITZ 1 GROWL 1 PECK 1 QUICK_ATTACK 15 FLAIL 22 ACROBATICS 29 AGILITY 38 AERIAL_ACE 47 TAILWIND 56 STEEL_WING 65 ROOST 74 FLY 83 BRAVE_BIRD' }, // scarlet-violet
+  SPEWPA: { name: "SPEWPA", dex: 665, types: ['BUG'], base: [45, 22, 60, 27, 30, 29], rate: 120, exp: 75, h: 3, learn: '0 PROTECT 1 HARDEN' }, // scarlet-violet
+  VIVILLON: { name: "VIVILLON", dex: 666, types: ['BUG', 'FLYING'], base: [80, 52, 50, 90, 50, 89], rate: 45, exp: 185, h: 12, learn: '0 GUST 1 POISON_POWDER 1 SLEEP_POWDER 1 STRUGGLE_BUG 1 STUN_SPORE 12 LIGHT_SCREEN 17 PSYBEAM 21 SUPERSONIC 25 DRAINING_KISS 31 SAFEGUARD 35 BUG_BUZZ 45 QUIVER_DANCE 50 HURRICANE' }, // scarlet-violet
+  PYROAR: { name: "PYROAR", dex: 668, types: ['FIRE', 'NORMAL'], base: [86, 68, 72, 109, 66, 106], rate: 65, exp: 177, h: 15, learn: '1 EMBER 1 HYPER_BEAM 1 LEER 1 TACKLE 1 WORK_UP 11 HEADBUTT 15 NOBLE_ROAR 20 TAKE_DOWN 23 FIRE_FANG 28 ENDEAVOR 33 ECHOED_VOICE 38 FLAMETHROWER 42 CRUNCH 48 HYPER_VOICE 51 INCINERATE 57 OVERHEAT' }, // scarlet-violet
+  FLOETTE: { name: "FLOETTE", dex: 670, types: ['FAIRY'], base: [54, 45, 47, 75, 98, 52], rate: 120, exp: 130, h: 2, learn: '1 FAIRY_WIND 1 TACKLE 1 VINE_WHIP 10 SAFEGUARD 15 RAZOR_LEAF 20 WISH 25 MAGICAL_LEAF 27 GRASSY_TERRAIN 33 PETAL_BLIZZARD 38 SYNTHESIS 43 MISTY_TERRAIN 46 MOONBLAST 51 PETAL_DANCE 58 SOLAR_BEAM' }, // scarlet-violet
+  GOGOAT: { name: "GOGOAT", dex: 673, types: ['GRASS'], base: [123, 100, 62, 97, 81, 68], rate: 45, exp: 186, h: 17, learn: '0 AERIAL_ACE 1 EARTHQUAKE 1 GROWTH 1 TACKLE 1 TAIL_WHIP 1 VINE_WHIP 12 LEECH_SEED 13 RAZOR_LEAF 16 WORRY_SEED 20 SYNTHESIS 22 TAKE_DOWN 26 BULLDOZE 30 SEED_BOMB 34 BULK_UP 40 DOUBLE_EDGE 47 HORN_LEECH 55 LEAF_BLADE 58 MILK_DRINK' }, // scarlet-violet
+  DOUBLADE: { name: "DOUBLADE", dex: 680, types: ['STEEL', 'GHOST'], base: [59, 110, 150, 45, 49, 35], rate: 90, exp: 157, h: 8, learn: '1 AUTOTOMIZE 1 FURY_CUTTER 1 SHADOW_SNEAK 1 TACKLE 12 AERIAL_ACE 16 METAL_SOUND 20 SLASH 24 NIGHT_SLASH 28 RETALIATE 32 IRON_DEFENSE 38 IRON_HEAD 44 POWER_TRICK 50 SWORDS_DANCE 56 SACRED_SWORD' }, // sword-shield
+  BARBARACLE: { name: "BARBARACLE", dex: 689, types: ['ROCK', 'WATER'], base: [72, 105, 115, 54, 86, 68], rate: 45, exp: 175, h: 13, learn: '1 MUD_SLAP 1 SCRATCH 1 SKULL_BASH 1 WATER_GUN 1 WITHDRAW 12 FURY_CUTTER 16 FURY_SWIPES 20 ANCIENT_POWER 24 ROCK_POLISH 28 SLASH 32 HONE_CLAWS 36 RAZOR_SHELL 42 SHELL_SMASH 48 CROSS_CHOP 54 STONE_EDGE' }, // sword-shield
+  DRAGALGE: { name: "DRAGALGE", dex: 691, types: ['POISON', 'DRAGON'], base: [65, 75, 90, 97, 123, 44], rate: 55, exp: 173, h: 18, learn: '1 ACID 1 SMOKESCREEN 1 TACKLE 1 WATER_GUN 15 TAIL_WHIP 20 DOUBLE_TEAM 25 POISON_TAIL 30 WATER_PULSE 35 TOXIC 40 DRAGON_PULSE 45 AQUA_TAIL 52 SLUDGE_BOMB 59 HYDRO_PUMP 66 OUTRAGE' }, // scarlet-violet
+  CLAWITZER: { name: "CLAWITZER", dex: 693, types: ['WATER'], base: [71, 73, 88, 120, 89, 59], rate: 55, exp: 100, h: 13, learn: '1 DARK_PULSE 1 DRAGON_PULSE 1 FLAIL 1 HEAL_PULSE 1 SPLASH 1 WATER_GUN 15 AQUA_JET 20 SMACK_DOWN 25 HONE_CLAWS 30 WATER_PULSE 35 SWORDS_DANCE 42 AURA_SPHERE 49 BOUNCE 56 MUDDY_WATER 63 CRABHAMMER' }, // scarlet-violet
+  SLIGGOO: { name: "SLIGGOO", dex: 705, types: ['DRAGON'], base: [68, 75, 53, 83, 113, 60], rate: 45, exp: 158, h: 8, learn: '0 ACID_SPRAY 1 ABSORB 1 ACID_ARMOR 1 DRAGON_BREATH 1 TACKLE 1 WATER_GUN 15 PROTECT 20 FLAIL 25 WATER_PULSE 30 RAIN_DANCE 35 DRAGON_PULSE 43 CURSE 49 BODY_SLAM 56 MUDDY_WATER' }, // scarlet-violet
+  AVALUGG: { name: "AVALUGG", dex: 713, types: ['ICE'], base: [95, 117, 184, 44, 46, 28], rate: 55, exp: 180, h: 20, learn: '0 BODY_SLAM 1 HARDEN 1 POWDER_SNOW 1 RAPID_SPIN 1 TACKLE 1 WIDE_GUARD 9 CURSE 12 ICY_WIND 15 PROTECT 18 AVALANCHE 21 BITE 24 ICE_FANG 27 IRON_DEFENSE 30 RECOVER 33 CRUNCH 36 TAKE_DOWN 41 BLIZZARD 46 DOUBLE_EDGE 51 ICICLE_CRASH' }, // scarlet-violet
+  NOIVERN: { name: "NOIVERN", dex: 715, types: ['FLYING', 'DRAGON'], base: [85, 70, 80, 97, 80, 123], rate: 45, exp: 187, h: 15, learn: '0 DRAGON_PULSE 1 ABSORB 1 GUST 1 MOONLIGHT 1 SUPERSONIC 1 TACKLE 12 DOUBLE_TEAM 16 WING_ATTACK 20 BITE 24 AIR_CUTTER 28 WHIRLWIND 32 SUPER_FANG 36 AIR_SLASH 40 SCREECH 44 ROOST 51 TAILWIND 56 HURRICANE 62 BOOMBURST' }, // scarlet-violet
+  DARTRIX: { name: "DARTRIX", dex: 723, types: ['GRASS', 'FLYING'], base: [78, 75, 75, 70, 70, 52], rate: 45, exp: 147, h: 7, learn: '1 ASTONISH 1 GROWL 1 LEAFAGE 1 TACKLE 9 PECK 12 SHADOW_SNEAK 15 RAZOR_LEAF 20 SYNTHESIS 25 PLUCK 30 NASTY_PLOT 35 SUCKER_PUNCH 40 LEAF_BLADE 45 FEATHER_DANCE 50 BRAVE_BIRD' }, // scarlet-violet
+  DECIDUEYE: { name: "DECIDUEYE", dex: 724, types: ['GRASS', 'GHOST'], base: [78, 107, 75, 100, 100, 70], rate: 45, exp: 239, h: 16, learn: '0 SPIRIT_SHACKLE 1 ASTONISH 1 GROWL 1 LEAF_STORM 1 LEAFAGE 1 PHANTOM_FORCE 1 SPITE 1 TACKLE 1 U_TURN 9 PECK 12 SHADOW_SNEAK 15 RAZOR_LEAF 20 SYNTHESIS 25 PLUCK 30 NASTY_PLOT 37 SUCKER_PUNCH 44 LEAF_BLADE 51 FEATHER_DANCE 58 BRAVE_BIRD' }, // scarlet-violet
+  TORRACAT: { name: "TORRACAT", dex: 726, types: ['FIRE'], base: [65, 85, 50, 80, 50, 90], rate: 45, exp: 147, h: 7, learn: '1 EMBER 1 GROWL 1 LICK 1 SCRATCH 9 ROAR 12 FURY_SWIPES 15 BITE 20 DOUBLE_KICK 25 FIRE_FANG 30 SCARY_FACE 35 SWAGGER 40 FLAMETHROWER 45 THRASH 50 FLARE_BLITZ' }, // scarlet-violet
+  INCINEROAR: { name: "INCINEROAR", dex: 727, types: ['FIRE', 'DARK'], base: [95, 115, 90, 80, 90, 60], rate: 45, exp: 239, h: 18, learn: '0 DARKEST_LARIAT 1 BULK_UP 1 CROSS_CHOP 1 EMBER 1 LICK 9 ROAR 12 FURY_SWIPES 15 BITE 20 DOUBLE_KICK 25 FIRE_FANG 30 SCARY_FACE 32 SWAGGER 44 FLAMETHROWER 51 THRASH 58 FLARE_BLITZ' }, // scarlet-violet
+  BRIONNE: { name: "BRIONNE", dex: 729, types: ['WATER'], base: [60, 69, 69, 91, 81, 50], rate: 45, exp: 147, h: 6, learn: '1 DISARMING_VOICE 1 GROWL 1 POUND 1 WATER_GUN 9 AQUA_JET 12 BABY_DOLL_EYES 15 ICY_WIND 20 SING 25 BUBBLE_BEAM 30 ENCORE 35 MISTY_TERRAIN 40 HYPER_VOICE 45 MOONBLAST 50 HYDRO_PUMP' }, // scarlet-violet
+  PRIMARINA: { name: "PRIMARINA", dex: 730, types: ['WATER', 'FAIRY'], base: [80, 74, 74, 126, 116, 60], rate: 45, exp: 239, h: 18, learn: '0 SPARKLING_ARIA 1 DISARMING_VOICE 1 GROWL 1 POUND 1 WATER_GUN 9 AQUA_JET 12 BABY_DOLL_EYES 15 ICY_WIND 20 SING 25 BUBBLE_BEAM 30 ENCORE 37 MISTY_TERRAIN 44 HYPER_VOICE 51 MOONBLAST 58 HYDRO_PUMP' }, // scarlet-violet
+  TRUMBEAK: { name: "TRUMBEAK", dex: 732, types: ['NORMAL', 'FLYING'], base: [55, 85, 50, 40, 50, 75], rate: 120, exp: 124, h: 6, learn: '1 GROWL 1 PECK 1 ROCK_BLAST 1 ROCK_SMASH 13 SUPERSONIC 16 PLUCK 21 ROOST 24 FURY_ATTACK 29 SCREECH 32 DRILL_PECK 37 BULLET_SEED 40 FEATHER_DANCE 45 HYPER_VOICE' }, // scarlet-violet
+  TOUCANNON: { name: "TOUCANNON", dex: 733, types: ['NORMAL', 'FLYING'], base: [80, 120, 75, 75, 75, 60], rate: 45, exp: 218, h: 11, learn: '0 BEAK_BLAST 1 ECHOED_VOICE 1 GROWL 1 PECK 1 ROCK_BLAST 1 ROCK_SMASH 13 SUPERSONIC 16 PLUCK 21 ROOST 24 FURY_ATTACK 30 SCREECH 34 DRILL_PECK 40 BULLET_SEED 44 FEATHER_DANCE 50 HYPER_VOICE' }, // scarlet-violet
+  CHARJABUG: { name: "CHARJABUG", dex: 737, types: ['BUG', 'ELECTRIC'], base: [57, 82, 95, 55, 75, 36], rate: 120, exp: 140, h: 5, learn: '0 CHARGE 1 BUG_BITE 1 MUD_SLAP 1 STRING_SHOT 1 VICE_GRIP 15 BITE 23 SPARK 29 STICKY_WEB 36 X_SCISSOR 43 CRUNCH 50 DIG 57 IRON_DEFENSE 64 DISCHARGE' }, // scarlet-violet
+  RIBOMBEE: { name: "RIBOMBEE", dex: 743, types: ['BUG', 'FAIRY'], base: [60, 55, 60, 95, 70, 124], rate: 75, exp: 162, h: 2, learn: '0 POLLEN_PUFF 1 ABSORB 1 FAIRY_WIND 1 STUN_SPORE 1 SWEET_SCENT 18 DRAINING_KISS 24 STRUGGLE_BUG 32 COVET 40 SWITCHEROO 48 DAZZLING_GLEAM 56 BUG_BUZZ 64 QUIVER_DANCE' }, // scarlet-violet
+  TOXAPEX: { name: "TOXAPEX", dex: 748, types: ['POISON', 'WATER'], base: [50, 63, 152, 53, 142, 35], rate: 75, exp: 173, h: 7, learn: '0 BANEFUL_BUNKER 1 BITE 1 PECK 1 POISON_STING 1 WIDE_GUARD 15 VENOSHOCK 20 RECOVER 25 PIN_MISSILE 30 TOXIC_SPIKES 35 LIQUIDATION 42 ACID_SPRAY 49 POISON_JAB 56 TOXIC' }, // scarlet-violet
+  MUDSDALE: { name: "MUDSDALE", dex: 750, types: ['GROUND'], base: [100, 125, 100, 55, 85, 35], rate: 60, exp: 175, h: 25, learn: '1 DOUBLE_KICK 1 IRON_DEFENSE 1 MUD_SLAP 1 ROCK_SMASH 12 BULLDOZE 16 STOMP 20 STRENGTH 24 COUNTER 28 HIGH_HORSEPOWER 34 HEAVY_SLAM 40 EARTHQUAKE 46 MEGA_KICK 52 SUPERPOWER' }, // scarlet-violet
+  ARAQUANID: { name: "ARAQUANID", dex: 752, types: ['WATER', 'BUG'], base: [68, 70, 92, 50, 132, 42], rate: 100, exp: 159, h: 18, learn: '1 BITE 1 BUG_BITE 1 INFESTATION 1 WATER_GUN 1 WIDE_GUARD 12 BUBBLE_BEAM 16 AQUA_RING 20 HEADBUTT 26 CRUNCH 32 SOAK 38 ENTRAINMENT 44 LUNGE 50 LIQUIDATION 56 LEECH_LIFE 62 MIRROR_COAT' }, // scarlet-violet
+  SHIINOTIC: { name: "SHIINOTIC", dex: 756, types: ['GRASS', 'FAIRY'], base: [60, 45, 80, 90, 100, 30], rate: 75, exp: 142, h: 10, learn: '1 ABSORB 1 ASTONISH 1 CONFUSE_RAY 1 INGRAIN 12 MEGA_DRAIN 16 SLEEP_POWDER 20 MOONLIGHT 27 STRENGTH_SAP 32 GIGA_DRAIN 38 DAZZLING_GLEAM 44 SPORE 50 MOONBLAST 56 DREAM_EATER' }, // sword-shield
+  BEWEAR: { name: "BEWEAR", dex: 760, types: ['NORMAL', 'FIGHTING'], base: [120, 125, 80, 55, 60, 60], rate: 70, exp: 175, h: 21, learn: '0 BIND 1 BABY_DOLL_EYES 1 BIND 1 LEER 1 PAYBACK 1 TACKLE 12 BRUTAL_SWING 16 ENDURE 20 STRENGTH 24 TAKE_DOWN 30 FLAIL 36 HAMMER_ARM 42 THRASH 48 PAIN_SPLIT 54 DOUBLE_EDGE 60 SUPERPOWER' }, // sword-shield
+  STEENEE: { name: "STEENEE", dex: 762, types: ['GRASS'], base: [52, 40, 48, 40, 48, 62], rate: 120, exp: 102, h: 7, learn: '1 FLAIL 1 PLAY_NICE 1 RAPID_SPIN 1 RAZOR_LEAF 1 SPLASH 16 SWEET_SCENT 22 MAGICAL_LEAF 28 STOMP 34 TEETER_DANCE 40 AROMATIC_MIST 46 LEAF_STORM' }, // scarlet-violet
+  GOLISOPOD: { name: "GOLISOPOD", dex: 768, types: ['BUG', 'WATER'], base: [75, 125, 140, 60, 90, 40], rate: 45, exp: 186, h: 20, learn: '0 FIRST_IMPRESSION 1 DEFENSE_CURL 1 FIRST_IMPRESSION 1 SAND_ATTACK 1 SPITE 1 STRUGGLE_BUG 4 ROCK_SMASH 8 FURY_CUTTER 12 MUD_SHOT 16 BUG_BITE 20 IRON_DEFENSE 24 SUCKER_PUNCH 28 SLASH 32 RAZOR_SHELL 36 PIN_MISSILE 40 SWORDS_DANCE 44 LIQUIDATION' }, // sword-shield
+  PALOSSAND: { name: "PALOSSAND", dex: 770, types: ['GHOST', 'GROUND'], base: [85, 75, 110, 100, 75, 35], rate: 60, exp: 168, h: 13, learn: '1 ABSORB 1 ASTONISH 1 HARDEN 1 SAND_TOMB 15 MEGA_DRAIN 20 SAND_ATTACK 25 BULLDOZE 30 HYPNOSIS 35 GIGA_DRAIN 40 IRON_DEFENSE 47 SHADOW_BALL 54 EARTH_POWER 61 SHORE_UP 68 SANDSTORM' }, // scarlet-violet
+  HAKAMO_O: { name: "HAKAMO-O", dex: 783, types: ['DRAGON', 'FIGHTING'], base: [55, 75, 90, 65, 70, 65], rate: 45, exp: 147, h: 12, learn: '1 DRAGON_TAIL 1 LEER 1 PROTECT 1 TACKLE 12 SCARY_FACE 16 HEADBUTT 20 WORK_UP 24 SCREECH 28 IRON_DEFENSE 32 DRAGON_CLAW 38 NOBLE_ROAR 44 DRAGON_DANCE 50 OUTRAGE 56 CLOSE_COMBAT' }, // scarlet-violet
+  KOMMO_O: { name: "KOMMO-O", dex: 784, types: ['DRAGON', 'FIGHTING'], base: [75, 110, 125, 100, 105, 85], rate: 45, exp: 270, h: 16, learn: '0 CLANGING_SCALES 1 DRAGON_TAIL 1 LEER 1 PROTECT 1 TACKLE 12 SCARY_FACE 16 HEADBUTT 20 WORK_UP 24 SCREECH 28 IRON_DEFENSE 32 DRAGON_CLAW 38 NOBLE_ROAR 44 DRAGON_DANCE 52 OUTRAGE 60 CLOSE_COMBAT 68 CLANGOROUS_SOUL 76 BOOMBURST' }, // scarlet-violet
+  COSMOEM: { name: "COSMOEM", dex: 790, types: ['PSYCHIC'], base: [43, 29, 131, 29, 131, 37], rate: 45, exp: 140, h: 1, learn: '0 COSMIC_POWER 1 TELEPORT' }, // scarlet-violet
+  THWACKEY: { name: "THWACKEY", dex: 811, types: ['GRASS'], base: [70, 85, 70, 55, 60, 80], rate: 45, exp: 147, h: 7, learn: '0 DOUBLE_HIT 1 BRANCH_POKE 1 GROWL 1 SCRATCH 1 TAUNT 12 RAZOR_LEAF 19 SCREECH 24 KNOCK_OFF 30 SLAM 36 UPROAR 42 WOOD_HAMMER 48 ENDEAVOR' }, // scarlet-violet
+  RILLABOOM: { name: "RILLABOOM", dex: 812, types: ['GRASS'], base: [100, 125, 90, 60, 70, 85], rate: 45, exp: 265, h: 21, learn: '0 DRUM_BEATING 1 BRANCH_POKE 1 DOUBLE_HIT 1 GRASSY_TERRAIN 1 GROWL 1 NOBLE_ROAR 1 SCRATCH 1 TAUNT 12 RAZOR_LEAF 19 SCREECH 24 KNOCK_OFF 30 SLAM 38 UPROAR 46 WOOD_HAMMER 54 ENDEAVOR 62 BOOMBURST' }, // scarlet-violet
+  RABOOT: { name: "RABOOT", dex: 814, types: ['FIRE'], base: [65, 86, 60, 55, 60, 94], rate: 45, exp: 147, h: 6, learn: '1 EMBER 1 GROWL 1 QUICK_ATTACK 1 TACKLE 12 DOUBLE_KICK 19 FLAME_CHARGE 24 AGILITY 30 HEADBUTT 36 COUNTER 42 BOUNCE 48 DOUBLE_EDGE' }, // scarlet-violet
+  CINDERACE: { name: "CINDERACE", dex: 815, types: ['FIRE'], base: [80, 116, 75, 65, 75, 119], rate: 45, exp: 265, h: 14, learn: '0 PYRO_BALL 1 EMBER 1 FEINT 1 GROWL 1 QUICK_ATTACK 1 TACKLE 12 DOUBLE_KICK 19 FLAME_CHARGE 24 AGILITY 30 HEADBUTT 38 COUNTER 46 BOUNCE 54 DOUBLE_EDGE 62 COURT_CHANGE' }, // scarlet-violet
+  DRIZZILE: { name: "DRIZZILE", dex: 817, types: ['WATER'], base: [65, 60, 55, 95, 55, 90], rate: 45, exp: 147, h: 7, learn: '1 BIND 1 GROWL 1 POUND 1 WATER_GUN 12 WATER_PULSE 19 TEARFUL_LOOK 24 SUCKER_PUNCH 30 U_TURN 36 LIQUIDATION 42 SOAK 48 RAIN_DANCE' }, // scarlet-violet
+  INTELEON: { name: "INTELEON", dex: 818, types: ['WATER'], base: [70, 85, 65, 125, 65, 120], rate: 45, exp: 265, h: 19, learn: '0 SNIPE_SHOT 1 ACROBATICS 1 BIND 1 GROWL 1 POUND 1 WATER_GUN 12 WATER_PULSE 19 TEARFUL_LOOK 24 SUCKER_PUNCH 30 U_TURN 38 LIQUIDATION 46 SOAK 54 RAIN_DANCE 62 HYDRO_PUMP' }, // scarlet-violet
+  GREEDENT: { name: "GREEDENT", dex: 820, types: ['NORMAL'], base: [120, 95, 95, 55, 75, 20], rate: 90, exp: 161, h: 6, learn: '0 COVET 1 BITE 1 STUFF_CHEEKS 1 TACKLE 1 TAIL_WHIP 15 SPIT_UP 15 STOCKPILE 15 SWALLOW 20 BODY_SLAM 27 REST 34 COUNTER 41 BULLET_SEED 48 SUPER_FANG 55 BELCH' }, // scarlet-violet
+  CORVISQUIRE: { name: "CORVISQUIRE", dex: 822, types: ['FLYING'], base: [68, 67, 55, 43, 55, 77], rate: 120, exp: 128, h: 8, learn: '1 HONE_CLAWS 1 LEER 1 PECK 1 POWER_TRIP 12 FURY_ATTACK 16 PLUCK 22 TAUNT 28 SCARY_FACE 34 DRILL_PECK 40 SWAGGER 46 BRAVE_BIRD' }, // scarlet-violet
+  CORVIKNIGHT: { name: "CORVIKNIGHT", dex: 823, types: ['FLYING', 'STEEL'], base: [98, 87, 105, 53, 85, 67], rate: 45, exp: 248, h: 22, learn: '0 STEEL_WING 1 HONE_CLAWS 1 IRON_DEFENSE 1 LEER 1 METAL_SOUND 1 PECK 1 POWER_TRIP 1 SCREECH 12 FURY_ATTACK 16 PLUCK 22 TAUNT 28 SCARY_FACE 34 DRILL_PECK 42 SWAGGER 50 BRAVE_BIRD' }, // scarlet-violet
+  DOTTLER: { name: "DOTTLER", dex: 825, types: ['BUG', 'PSYCHIC'], base: [50, 35, 80, 50, 90, 30], rate: 120, exp: 117, h: 4, learn: '0 CONFUSION 0 LIGHT_SCREEN 0 REFLECT 1 CONFUSION 1 LIGHT_SCREEN 1 REFLECT 1 STRUGGLE_BUG' }, // sword-shield
+  ORBEETLE: { name: "ORBEETLE", dex: 826, types: ['BUG', 'PSYCHIC'], base: [60, 45, 110, 80, 120, 90], rate: 45, exp: 253, h: 4, learn: '1 CONFUSION 1 LIGHT_SCREEN 1 REFLECT 1 STRUGGLE_BUG 4 CONFUSE_RAY 8 MAGIC_COAT 12 AGILITY 16 PSYBEAM 20 HYPNOSIS 24 ALLY_SWITCH 28 BUG_BUZZ 32 MIRROR_COAT 36 PSYCHIC 40 AFTER_YOU 44 CALM_MIND 48 PSYCHIC_TERRAIN' }, // sword-shield
+  THIEVUL: { name: "THIEVUL", dex: 828, types: ['DARK'], base: [70, 58, 58, 87, 92, 90], rate: 127, exp: 159, h: 12, learn: '0 THIEF 1 BEAT_UP 1 HONE_CLAWS 1 QUICK_ATTACK 1 TAIL_WHIP 1 THIEF 12 SNARL 16 ASSURANCE 22 NASTY_PLOT 28 SUCKER_PUNCH 34 NIGHT_SLASH 40 TAIL_SLAP 46 FOUL_PLAY 52 PARTING_SHOT' }, // sword-shield
+  ELDEGOSS: { name: "ELDEGOSS", dex: 830, types: ['GRASS'], base: [60, 50, 90, 80, 120, 60], rate: 75, exp: 161, h: 5, learn: '0 COTTON_SPORE 1 COTTON_SPORE 1 LEAFAGE 1 RAPID_SPIN 1 SING 1 SWEET_SCENT 12 RAZOR_LEAF 16 ROUND 23 LEAF_TORNADO 28 SYNTHESIS 34 HYPER_VOICE 40 AROMATHERAPY 46 LEAF_STORM 52 COTTON_GUARD' }, // sword-shield
+  DUBWOOL: { name: "DUBWOOL", dex: 832, types: ['NORMAL'], base: [72, 80, 100, 60, 90, 88], rate: 127, exp: 172, h: 13, learn: '1 COPYCAT 1 DEFENSE_CURL 1 GROWL 1 TACKLE 12 GUARD_SPLIT 16 DOUBLE_KICK 21 HEADBUTT 27 TAKE_DOWN 32 GUARD_SWAP 38 REVERSAL 44 COTTON_GUARD 50 DOUBLE_EDGE 56 LAST_RESORT' }, // sword-shield
+  DREDNAW: { name: "DREDNAW", dex: 834, types: ['WATER', 'ROCK'], base: [90, 115, 90, 48, 68, 74], rate: 75, exp: 170, h: 10, learn: '0 ROCK_TOMB 1 BITE 1 CRUNCH 1 PROTECT 1 RAZOR_SHELL 1 ROCK_POLISH 1 TACKLE 1 WATER_GUN 21 HEADBUTT 30 COUNTER 39 JAW_LOCK 48 LIQUIDATION 57 BODY_SLAM 66 HEAD_SMASH' }, // scarlet-violet
+  BOLTUND: { name: "BOLTUND", dex: 836, types: ['ELECTRIC'], base: [69, 90, 60, 90, 60, 121], rate: 45, exp: 172, h: 10, learn: '1 BITE 1 ELECTRIFY 1 NUZZLE 1 TACKLE 1 TAIL_WHIP 15 ROAR 20 SPARK 28 CHARM 34 CRUNCH 41 CHARGE 48 WILD_CHARGE 55 PLAY_ROUGH 62 ELECTRIC_TERRAIN' }, // sword-shield
+  CARKOL: { name: "CARKOL", dex: 838, types: ['ROCK', 'FIRE'], base: [80, 60, 90, 60, 70, 50], rate: 120, exp: 144, h: 11, learn: '0 FLAME_CHARGE 1 RAPID_SPIN 1 SMACK_DOWN 1 SMOKESCREEN 1 TACKLE 15 ROCK_POLISH 20 ANCIENT_POWER 27 INCINERATE 35 STEALTH_ROCK 41 HEAT_CRASH 48 ROCK_BLAST 55 STONE_EDGE' }, // scarlet-violet
+  COALOSSAL: { name: "COALOSSAL", dex: 839, types: ['ROCK', 'FIRE'], base: [110, 80, 120, 80, 90, 30], rate: 45, exp: 255, h: 28, learn: '0 TAR_SHOT 1 FLAME_CHARGE 1 RAPID_SPIN 1 SMACK_DOWN 1 SMOKESCREEN 1 TACKLE 15 ROCK_POLISH 20 ANCIENT_POWER 27 INCINERATE 37 STEALTH_ROCK 45 HEAT_CRASH 54 ROCK_BLAST 63 STONE_EDGE' }, // scarlet-violet
+  SANDACONDA: { name: "SANDACONDA", dex: 844, types: ['GROUND'], base: [72, 107, 125, 65, 70, 71], rate: 120, exp: 179, h: 38, learn: '1 BRUTAL_SWING 1 MINIMIZE 1 SAND_ATTACK 1 WRAP 15 BULLDOZE 20 HEADBUTT 25 GLARE 30 DIG 35 SANDSTORM 42 SLAM 49 COIL 51 SAND_TOMB' }, // scarlet-violet
+  BARRASKEWDA: { name: "BARRASKEWDA", dex: 847, types: ['WATER'], base: [61, 123, 60, 60, 50, 136], rate: 60, exp: 172, h: 13, learn: '1 AQUA_JET 1 BITE 1 FURY_ATTACK 1 PECK 1 THROAT_CHOP 18 AGILITY 24 DIVE 32 FOCUS_ENERGY 40 CRUNCH 48 LIQUIDATION 56 DOUBLE_EDGE' }, // scarlet-violet
+  CENTISKORCH: { name: "CENTISKORCH", dex: 851, types: ['FIRE', 'BUG'], base: [100, 115, 65, 90, 90, 65], rate: 75, exp: 184, h: 30, learn: '1 BITE 1 EMBER 1 INFERNO 1 SMOKESCREEN 1 WRAP 15 FLAME_WHEEL 20 BUG_BITE 25 COIL 32 SLAM 39 FIRE_SPIN 46 CRUNCH 53 FIRE_LASH 60 LUNGE 67 BURN_UP' }, // sword-shield
+  HATTREM: { name: "HATTREM", dex: 857, types: ['PSYCHIC'], base: [57, 40, 65, 86, 73, 49], rate: 120, exp: 130, h: 6, learn: '0 BRUTAL_SWING 1 CONFUSION 1 DISARMING_VOICE 1 LIFE_DEW 1 PLAY_NICE 15 AROMATIC_MIST 20 PSYBEAM 25 HEAL_PULSE 30 DAZZLING_GLEAM 37 CALM_MIND 44 PSYCHIC 51 HEALING_WISH' }, // scarlet-violet
+  HATTERENE: { name: "HATTERENE", dex: 858, types: ['PSYCHIC', 'FAIRY'], base: [57, 90, 95, 136, 103, 29], rate: 45, exp: 255, h: 21, learn: '0 PSYCHO_CUT 1 BRUTAL_SWING 1 CONFUSION 1 DISARMING_VOICE 1 LIFE_DEW 1 PLAY_NICE 15 AROMATIC_MIST 20 PSYBEAM 25 HEAL_PULSE 30 DAZZLING_GLEAM 37 CALM_MIND 46 PSYCHIC 55 HEALING_WISH 64 MAGIC_POWDER' }, // scarlet-violet
+  MORGREM: { name: "MORGREM", dex: 860, types: ['DARK', 'FAIRY'], base: [65, 60, 45, 75, 55, 70], rate: 120, exp: 130, h: 8, learn: '0 FALSE_SURRENDER 1 BITE 1 CONFIDE 1 FAKE_OUT 1 FLATTER 12 FAKE_TEARS 16 ASSURANCE 20 SWAGGER 24 SUCKER_PUNCH 28 TORMENT 35 DARK_PULSE 40 NASTY_PLOT 46 PLAY_ROUGH 52 FOUL_PLAY' }, // scarlet-violet
+  GRIMMSNARL: { name: "GRIMMSNARL", dex: 861, types: ['DARK', 'FAIRY'], base: [95, 120, 65, 95, 75, 60], rate: 45, exp: 255, h: 15, learn: '0 SPIRIT_BREAK 1 BITE 1 BULK_UP 1 CONFIDE 1 FAKE_OUT 1 FALSE_SURRENDER 1 FLATTER 12 FAKE_TEARS 16 ASSURANCE 20 SWAGGER 24 SUCKER_PUNCH 28 TORMENT 35 DARK_PULSE 40 NASTY_PLOT 48 PLAY_ROUGH 56 FOUL_PLAY 64 HAMMER_ARM' }, // scarlet-violet
+  COPPERAJAH: { name: "COPPERAJAH", dex: 879, types: ['STEEL'], base: [122, 130, 69, 80, 69, 30], rate: 90, exp: 175, h: 30, learn: '0 HEAVY_SLAM 1 GROWL 1 ROCK_SMASH 1 ROLLOUT 1 TACKLE 15 BULLDOZE 20 STOMP 25 IRON_DEFENSE 30 DIG 37 STRENGTH 44 IRON_HEAD 51 PLAY_ROUGH 58 HIGH_HORSEPOWER 65 SUPERPOWER' }, // scarlet-violet
+  DRAKLOAK: { name: "DRAKLOAK", dex: 886, types: ['DRAGON', 'GHOST'], base: [68, 80, 50, 60, 50, 102], rate: 45, exp: 144, h: 14, learn: '0 DRAGON_PULSE 1 ASTONISH 1 BITE 1 INFESTATION 1 QUICK_ATTACK 6 LOCK_ON 12 ASSURANCE 18 HEX 24 AGILITY 30 DOUBLE_HIT 36 U_TURN 42 DRAGON_DANCE 48 PHANTOM_FORCE 54 TAKE_DOWN 61 DRAGON_RUSH 66 DOUBLE_EDGE 72 LAST_RESORT' }, // scarlet-violet
+  DRAGAPULT: { name: "DRAGAPULT", dex: 887, types: ['DRAGON', 'GHOST'], base: [88, 120, 75, 100, 75, 142], rate: 45, exp: 300, h: 30, learn: '0 DRAGON_DARTS 1 ASTONISH 1 BITE 1 DRAGON_BREATH 1 INFESTATION 1 QUICK_ATTACK 6 LOCK_ON 12 ASSURANCE 18 HEX 24 AGILITY 30 DOUBLE_HIT 36 U_TURN 42 DRAGON_DANCE 48 PHANTOM_FORCE 54 TAKE_DOWN 63 DRAGON_RUSH 70 DOUBLE_EDGE 78 LAST_RESORT' }, // scarlet-violet
+  FLORAGATO: { name: "FLORAGATO", dex: 907, types: ['GRASS'], base: [61, 80, 63, 60, 63, 83], rate: 45, exp: 144, h: 9, learn: '1 LEAFAGE 1 SCRATCH 1 TAIL_WHIP 7 BITE 10 HONE_CLAWS 13 MAGICAL_LEAF 15 QUICK_ATTACK 20 SEED_BOMB 24 U_TURN 28 WORRY_SEED 33 SLASH 38 ENERGY_BALL 42 PLAY_ROUGH 46 LEAF_STORM' }, // scarlet-violet
+  MEOWSCARADA: { name: "MEOWSCARADA", dex: 908, types: ['GRASS', 'DARK'], base: [76, 110, 70, 81, 70, 123], rate: 45, exp: 265, h: 15, learn: '0 FLOWER_TRICK 1 LEAFAGE 1 SCRATCH 1 TAIL_WHIP 7 BITE 10 HONE_CLAWS 13 MAGICAL_LEAF 15 QUICK_ATTACK 20 SEED_BOMB 24 U_TURN 29 WORRY_SEED 33 SLASH 38 NIGHT_SLASH 42 ENERGY_BALL 47 PLAY_ROUGH 52 KNOCK_OFF 58 GRASSY_TERRAIN 64 LEAF_STORM' }, // scarlet-violet
+  CROCALOR: { name: "CROCALOR", dex: 910, types: ['FIRE'], base: [81, 55, 78, 90, 58, 49], rate: 45, exp: 144, h: 10, learn: '1 EMBER 1 LEER 1 TACKLE 7 LICK 10 ROUND 12 BITE 15 YAWN 17 INCINERATE 24 SNARL 28 ROAR 32 FLAMETHROWER 38 HYPER_VOICE 42 WILL_O_WISP 47 FIRE_BLAST' }, // scarlet-violet
+  SKELEDIRGE: { name: "SKELEDIRGE", dex: 911, types: ['FIRE', 'GHOST'], base: [104, 75, 100, 110, 75, 66], rate: 45, exp: 265, h: 16, learn: '0 TORCH_SONG 1 EMBER 1 LEER 1 TACKLE 7 LICK 10 ROUND 12 SCARY_FACE 15 BITE 17 INCINERATE 24 SNARL 28 ROAR 32 FLAMETHROWER 38 SHADOW_BALL 42 HYPER_VOICE 47 HEX 47 WILL_O_WISP 58 FIRE_BLAST 64 OVERHEAT' }, // scarlet-violet
+  QUAXWELL: { name: "QUAXWELL", dex: 913, types: ['WATER'], base: [70, 85, 65, 65, 60, 65], rate: 45, exp: 144, h: 12, learn: '1 DOUBLE_HIT 1 GROWL 1 POUND 1 WATER_GUN 7 WORK_UP 10 WING_ATTACK 13 AQUA_JET 17 WATER_PULSE 19 LOW_SWEEP 23 AQUA_CUTTER 27 AIR_SLASH 32 FOCUS_ENERGY 38 ACROBATICS 43 LIQUIDATION 48 FEATHER_DANCE' }, // scarlet-violet
+  QUAQUAVAL: { name: "QUAQUAVAL", dex: 914, types: ['WATER', 'FIGHTING'], base: [85, 120, 80, 85, 75, 85], rate: 45, exp: 265, h: 18, learn: '0 AQUA_STEP 1 DOUBLE_HIT 1 GROWL 1 POUND 1 WATER_GUN 7 WORK_UP 10 WING_ATTACK 13 AQUA_JET 17 LOW_SWEEP 17 WATER_PULSE 21 AQUA_CUTTER 27 AIR_SLASH 32 FOCUS_ENERGY 38 MEGA_KICK 43 ACROBATICS 47 LIQUIDATION 52 FEATHER_DANCE 58 CLOSE_COMBAT 64 WAVE_CRASH' }, // scarlet-violet
+  SPIDOPS: { name: "SPIDOPS", dex: 918, types: ['BUG'], base: [60, 79, 92, 52, 86, 35], rate: 120, exp: 141, h: 10, learn: '0 SILK_TRAP 1 STRING_SHOT 1 TACKLE 5 STRUGGLE_BUG 8 ASSURANCE 11 FEINT 14 BUG_BITE 19 BLOCK 24 COUNTER 28 HEADBUTT 33 STICKY_WEB 37 GASTRO_ACID 41 CIRCLE_THROW 45 THROAT_CHOP 49 SKITTER_SMACK' }, // scarlet-violet
+  LOKIX: { name: "LOKIX", dex: 920, types: ['BUG', 'DARK'], base: [71, 102, 78, 52, 55, 92], rate: 30, exp: 158, h: 10, learn: '0 LUNGE 1 DETECT 1 LEER 1 LOW_KICK 1 TACKLE 4 STRUGGLE_BUG 6 ASTONISH 9 ASSURANCE 11 DOUBLE_KICK 14 SCREECH 18 ENDURE 22 BUG_BITE 28 FEINT 32 AGILITY 36 THROAT_CHOP 40 SUCKER_PUNCH 44 FIRST_IMPRESSION 48 BOUNCE 53 AXE_KICK' }, // scarlet-violet
+  PAWMO: { name: "PAWMO", dex: 922, types: ['ELECTRIC', 'FIGHTING'], base: [60, 75, 40, 50, 40, 85], rate: 80, exp: 123, h: 4, learn: '0 ARM_THRUST 1 GROWL 1 SCRATCH 3 THUNDER_SHOCK 6 QUICK_ATTACK 8 CHARGE 12 NUZZLE 15 DIG 19 BITE 23 SPARK 27 THUNDER_WAVE 32 SLAM 38 ENTRAINMENT 42 DISCHARGE 46 AGILITY 52 WILD_CHARGE' }, // scarlet-violet
+  DACHSBUN: { name: "DACHSBUN", dex: 927, types: ['FAIRY'], base: [57, 80, 115, 50, 80, 95], rate: 90, exp: 167, h: 5, learn: '1 GROWL 1 TACKLE 3 LICK 6 TAIL_WHIP 8 COVET 11 BITE 15 BABY_DOLL_EYES 18 PLAY_ROUGH 22 WORK_UP 29 BATON_PASS 33 ROAR 38 DOUBLE_EDGE 42 CHARM 47 CRUNCH 53 LAST_RESORT' }, // scarlet-violet
+  DOLLIV: { name: "DOLLIV", dex: 929, types: ['GRASS', 'NORMAL'], base: [52, 53, 60, 78, 78, 33], rate: 120, exp: 124, h: 6, learn: '1 SWEET_SCENT 1 TACKLE 5 ABSORB 7 GROWTH 10 RAZOR_LEAF 13 HELPING_HAND 16 FLAIL 20 MEGA_DRAIN 23 GRASSY_TERRAIN 29 SEED_BOMB 34 ENERGY_BALL 37 LEECH_SEED 42 TERRAIN_PULSE' }, // scarlet-violet
+  ARBOLIVA: { name: "ARBOLIVA", dex: 930, types: ['GRASS', 'NORMAL'], base: [78, 69, 90, 125, 109, 39], rate: 45, exp: 255, h: 14, learn: '1 MIRROR_COAT 1 SAFEGUARD 1 SWEET_SCENT 1 TACKLE 5 ABSORB 7 GROWTH 10 RAZOR_LEAF 13 HELPING_HAND 16 FLAIL 20 MEGA_DRAIN 23 GRASSY_TERRAIN 29 SEED_BOMB 34 ENERGY_BALL 39 LEECH_SEED 46 TERRAIN_PULSE 52 PETAL_BLIZZARD 58 PETAL_DANCE' }, // scarlet-violet
+  NACLSTACK: { name: "NACLSTACK", dex: 933, types: ['ROCK'], base: [60, 60, 100, 35, 65, 35], rate: 120, exp: 124, h: 6, learn: '0 SALT_CURE 1 HARDEN 1 TACKLE 5 ROCK_THROW 7 MUD_SHOT 10 SMACK_DOWN 13 ROCK_POLISH 16 HEADBUTT 20 IRON_DEFENSE 30 RECOVER 34 ROCK_SLIDE 38 STEALTH_ROCK 41 HEAVY_SLAM 45 EARTHQUAKE 51 STONE_EDGE' }, // scarlet-violet
+  GARGANACL: { name: "GARGANACL", dex: 934, types: ['ROCK'], base: [100, 100, 130, 45, 90, 35], rate: 45, exp: 250, h: 23, learn: '0 HAMMER_ARM 1 BLOCK 1 HARDEN 1 ROCK_BLAST 1 TACKLE 1 WIDE_GUARD 5 ROCK_THROW 7 MUD_SHOT 10 ROCK_TOMB 13 ROCK_POLISH 16 HEADBUTT 24 SALT_CURE 30 RECOVER 34 ROCK_SLIDE 40 STEALTH_ROCK 44 HEAVY_SLAM 49 EARTHQUAKE 54 STONE_EDGE 60 EXPLOSION' }, // scarlet-violet
+  KILOWATTREL: { name: "KILOWATTREL", dex: 941, types: ['ELECTRIC', 'FLYING'], base: [70, 70, 60, 105, 60, 125], rate: 90, exp: 172, h: 14, learn: '0 ELECTRO_BALL 1 GROWL 1 PECK 4 THUNDER_SHOCK 7 QUICK_ATTACK 11 PLUCK 15 SPARK 19 UPROAR 24 ROOST 30 DUAL_WINGBEAT 36 AGILITY 43 VOLT_SWITCH 48 DISCHARGE 55 HURRICANE' }, // scarlet-violet
+  MABOSSTIFF: { name: "MABOSSTIFF", dex: 943, types: ['DARK'], base: [80, 120, 90, 60, 70, 85], rate: 75, exp: 177, h: 11, learn: '0 COMEUPPANCE 1 LEER 1 SCARY_FACE 1 TACKLE 4 LICK 7 SNARL 10 HONE_CLAWS 14 BITE 18 ROAR 22 HEADBUTT 26 PAYBACK 34 CRUNCH 39 SWAGGER 43 REVERSAL 48 JAW_LOCK 55 DOUBLE_EDGE 60 OUTRAGE' }, // scarlet-violet
+  GRAFAIAI: { name: "GRAFAIAI", dex: 945, types: ['POISON', 'NORMAL'], base: [63, 95, 65, 80, 72, 110], rate: 90, exp: 170, h: 7, learn: '0 DOODLE 1 LEER 1 SCRATCH 5 ACID_SPRAY 8 FURY_SWIPES 11 SWITCHEROO 14 POISON_FANG 18 FLATTER 21 SLASH 25 U_TURN 33 POISON_JAB 37 TAUNT 40 SUBSTITUTE 45 KNOCK_OFF 51 GUNK_SHOT' }, // scarlet-violet
+  TOEDSCRUEL: { name: "TOEDSCRUEL", dex: 949, types: ['GROUND', 'GRASS'], base: [80, 70, 65, 80, 120, 100], rate: 90, exp: 180, h: 19, learn: '1 MUD_SLAP 1 REFLECT_TYPE 1 WRAP 4 ABSORB 8 POISON_POWDER 8 STUN_SPORE 12 SUPERSONIC 15 TACKLE 16 MEGA_DRAIN 20 SCREECH 24 MUD_SHOT 28 HEX 34 SEED_BOMB 40 SPORE 44 GROWTH 48 GIGA_DRAIN 54 EARTH_POWER 58 POWER_WHIP' }, // scarlet-violet
+  ESPATHRA: { name: "ESPATHRA", dex: 956, types: ['PSYCHIC'], base: [95, 60, 60, 101, 60, 105], rate: 60, exp: 168, h: 19, learn: '0 LUMINA_CRASH 1 DRILL_PECK 1 FEATHER_DANCE 1 GROWL 1 PECK 5 CONFUSION 8 BABY_DOLL_EYES 11 DISARMING_VOICE 15 QUICK_ATTACK 19 PSYBEAM 24 PLUCK 29 AGILITY 34 UPROAR 43 DAZZLING_GLEAM 49 PSYCHIC 54 LAST_RESORT' }, // scarlet-violet
+  TINKATUFF: { name: "TINKATUFF", dex: 958, types: ['FAIRY', 'STEEL'], base: [65, 55, 55, 45, 82, 78], rate: 90, exp: 133, h: 7, learn: '1 ASTONISH 1 FAIRY_WIND 5 BABY_DOLL_EYES 8 METAL_CLAW 11 COVET 14 ROCK_SMASH 17 DRAINING_KISS 21 SWEET_KISS 24 BRUTAL_SWING 27 SLAM 31 FLASH_CANNON 35 PLAY_ROUGH 39 FAKE_OUT 43 FLATTER 47 SKITTER_SMACK 52 KNOCK_OFF' }, // scarlet-violet
+  TINKATON: { name: "TINKATON", dex: 959, types: ['FAIRY', 'STEEL'], base: [85, 75, 77, 70, 105, 94], rate: 45, exp: 253, h: 7, learn: '0 GIGATON_HAMMER 1 ASTONISH 1 FAIRY_WIND 5 BABY_DOLL_EYES 8 METAL_CLAW 11 COVET 14 ROCK_SMASH 17 DRAINING_KISS 21 SWEET_KISS 24 BRUTAL_SWING 27 SLAM 31 FLASH_CANNON 35 PLAY_ROUGH 39 FAKE_OUT 43 FLATTER 47 SKITTER_SMACK 52 KNOCK_OFF' }, // scarlet-violet
+  WUGTRIO: { name: "WUGTRIO", dex: 961, types: ['WATER'], base: [35, 100, 50, 50, 70, 120], rate: 50, exp: 149, h: 12, learn: '1 MUD_SLAP 1 SAND_ATTACK 1 WATER_GUN 1 WRAP 12 AQUA_JET 16 SLAM 20 WATER_PULSE 24 HEADBUTT 30 TRIPLE_DIVE 36 DIG 42 SUCKER_PUNCH 48 THROAT_CHOP 54 LIQUIDATION' }, // scarlet-violet
+  REVAVROOM: { name: "REVAVROOM", dex: 966, types: ['STEEL', 'POISON'], base: [80, 119, 90, 54, 67, 90], rate: 75, exp: 175, h: 18, learn: '0 SHIFT_GEAR 1 LICK 1 MAGNET_RISE 1 POISON_GAS 4 SMOG 7 TAUNT 10 ASSURANCE 13 SLUDGE 17 GYRO_BALL 21 HEADBUTT 25 SCREECH 28 IRON_HEAD 32 SWAGGER 36 POISON_JAB 46 UPROAR 52 SPIN_OUT 58 GUNK_SHOT' }, // scarlet-violet
+  GLIMMORA: { name: "GLIMMORA", dex: 970, types: ['ROCK', 'POISON'], base: [83, 55, 90, 130, 81, 86], rate: 25, exp: 184, h: 15, learn: '0 MORTAL_SPIN 1 HARDEN 1 ROCK_THROW 1 SMACK_DOWN 1 SPIKY_SHIELD 1 TOXIC_SPIKES 7 ACID_SPRAY 11 ANCIENT_POWER 15 ROCK_POLISH 18 STEALTH_ROCK 22 VENOSHOCK 26 SANDSTORM 29 SELF_DESTRUCT 33 ROCK_SLIDE 39 POWER_GEM 44 ACID_ARMOR 50 SLUDGE_WAVE' }, // scarlet-violet
+  ARCTIBAX: { name: "ARCTIBAX", dex: 997, types: ['DRAGON', 'ICE'], base: [90, 95, 66, 45, 65, 62], rate: 25, exp: 148, h: 8, learn: '1 DRAGON_TAIL 1 LEER 1 TACKLE 6 ICY_WIND 12 DRAGON_BREATH 18 FOCUS_ENERGY 24 BITE 29 ICE_FANG 40 TAKE_DOWN 45 ICE_BEAM 50 CRUNCH 55 ICICLE_CRASH' }, // scarlet-violet
+  BAXCALIBUR: { name: "BAXCALIBUR", dex: 998, types: ['DRAGON', 'ICE'], base: [115, 145, 92, 75, 86, 87], rate: 10, exp: 300, h: 21, learn: '0 GLAIVE_RUSH 1 BREAKING_SWIPE 1 DRAGON_TAIL 1 ICE_SHARD 1 LEER 1 SNOWSCAPE 1 TACKLE 6 ICY_WIND 12 DRAGON_BREATH 18 FOCUS_ENERGY 24 BITE 29 ICE_FANG 35 DRAGON_CLAW 42 TAKE_DOWN 48 ICE_BEAM 55 CRUNCH 62 ICICLE_CRASH' }, // scarlet-violet
+};
+const EVO_CHECK = { // (mon, edge) => can it evolve now? Stubs stay false until their trigger is implemented
+  level: (m, e) => m.level >= e.minLevel,
+  item: () => false, friendship: () => false, trade: () => false, heldItem: () => false, time: () => false, move: () => false,
+  location: () => false, gender: () => false, stats: () => false, party: () => false, special: () => false,
+};
+const evoFor = m => EVOLUTIONS.find(e => e.from === m.key && EVO_CHECK[e.trigger](m, e));
+// evolved forms: an X/Y-style template from the Pokédex model (loaded on demand), or the Pokédex image until then
+const CHARM_H = (() => { const b = new THREE.Box3().setFromObject(rig('charmander').root); return b.max.y - b.min.y; })();
+for (const [key, d] of Object.entries(EVO_SPECIES)) if (!SPECIES[key]) {
+  const H = CHARM_H * Math.sqrt(d.h / 6); // ponytail: √ of the official height against Charmander's 6 dm, so a Charizard doesn't dwarf the arena; add per-species scale if one looks off
+  const learn = []; d.learn.split(' ').forEach((x, i, a) => i % 2 || learn.push([+x, a[i + 1]]));
+  SPECIES[key] = { ...d, learn, H, face: H * SPECIES.CHARMANDER.face / CHARM_H, scale: 1, auto: true, make: () => xy(key) || dexPlane(d.dex, H) };
+}
+function movesAt(sp, level) { // the last four distinct level-up moves known by `level` that the game has
+  const ids = [...new Set(sp.learn.filter(([l, id]) => l <= level && MOVES[id]).map(x => x[1]).reverse())].slice(0, 4).reverse();
+  return ids.length ? ids : ['TACKLE'];
+}
+function dexPlane(id, H) { // the Pokédex image on a camera-facing card: the stand-in while (or when) a species has no 3D model
+  const tex = new THREE.TextureLoader().load(dexArtwork(id)); tex.colorSpace = THREE.SRGBColorSpace;
+  const card = new THREE.Mesh(new THREE.PlaneGeometry(H, H).translate(0, H / 2, 0), new THREE.MeshStandardMaterial({ map: tex, alphaTest: 0.5, side: THREE.DoubleSide, roughness: 1 }));
+  card.onBeforeRender = (r, s, cam) => { card.parent.getWorldQuaternion(card.quaternion).invert().multiply(cam.quaternion); card.updateMatrixWorld(); };
+  const g = new THREE.Group(); g.add(card); return g;
+}
+const SPECIES_LOADS = {};
+function loadSpeciesModel(key) { // resolves true once XY[key] holds the prepared model, false if it can't be loaded
+  const sp = SPECIES[key];
+  if (!sp?.auto) return Promise.resolve(true);
+  return SPECIES_LOADS[key] ??= (async () => {
+    const path = DEX_MODELS[sp.dex]?.[0]?.[1]; if (!path) throw new Error('no 3D model for #' + sp.dex);
+    const mgr = new THREE.LoadingManager(), texDone = new Promise(r => (mgr.onLoad = r)); // same steps as the boot loader
+    const c = await new ColladaLoader(mgr).loadAsync((/^(p3d|sm|chars)\//.test(path) ? 'models/' : 'models/xy/') + path.split('/').map(encodeURIComponent).join('/'));
+    const names = {}; for (const d of Object.values(c.library.nodes)) if (d.type === 'JOINT' && d.sid) names[d.sid] = d.name;
+    c.scene.traverse(o => o.isBone && names[o.name] && (o.name = names[o.name]));
+    c.scene.animations?.forEach(cleanClip);
+    await Promise.race([texDone, new Promise(r => setTimeout(r, 15000))]);
+    XY[key] = prepXY(key, c.scene, c.scene.animations?.length > 0, sp.H);
+    delete portraitCache[key]; renderParty();
+    return true;
+  })().catch(e => (console.warn('Species model unavailable, using the Pokédex image:', key, e), false));
+}
 const WILD_TABLE = [['PIDGEY', 30], ['RATTATA', 30], ['CATERPIE', 15], ['WEEDLE', 15], ['ODDISH', 10]];
 const STAT_NAME = { atk: 'Attack', def: 'Defense', spa: 'Sp. Atk', spd: 'Sp. Def', spe: 'Speed', acc: 'accuracy' };
 function rollWild() { let r = rnd() * 100; for (const [k, w] of WILD_TABLE) if ((r -= w) < 0) return k; return 'PIDGEY'; }
@@ -2513,21 +3295,69 @@ function calcStats(m) {
   ['atk', 'def', 'spa', 'spd', 'spe'].forEach((s, i) => (m[s] = Math.floor((2 * b[i + 1] + 15) * m.level / 100) + 5));
 }
 function makeMon(key, level) {
-  const m = { key, level, exp: level ** 3, moves: SPECIES[key].moves.map(id => ({ id, pp: MOVES[id].pp })) };
+  const sp = SPECIES[key], m = { key, level, exp: level ** 3, moves: (sp.learn ? movesAt(sp, level) : sp.moves).map(id => ({ id, pp: MOVES[id].pp })) };
   calcStats(m); m.hp = m.maxHp;
+  loadSpeciesModel(key);
   return m;
 }
 const party = [makeMon('PIKACHU', 6), makeMon('BULBASAUR', 5), makeMon('CHARMANDER', 5)];
 const pcBox = [];
 const bag = { potion: 3, superPotion: 1, antidote: 2, ball: 5, greatBall: 2, oranBerry: 2, pechaBerry: 1, townMap: 1 }; // battle reads potion / ball
-const nm = m => SPECIES[m.key].name;
-function healParty() { for (const m of party) { m.hp = m.maxHp; m.moves.forEach(x => (x.pp = MOVES[x.id].pp)); } renderParty(); }
+const nm = m => m.nick || SPECIES[m.key].name;
+function healParty() { for (const m of party) { m.hp = m.maxHp; m.moves.forEach(x => (x.pp = MOVES[x.id].pp)); } renderParty(); saveGame(); }
+
+// ============================================================ Save (localStorage autosave: party, PC box, bag, position, story flags)
+// The autosave is the running game; the Game Menu's save files (verdant-slots-v1) hold copies of it.
+const SAVE_KEY = 'verdant-save-v1';
+const cleanNick = s => String(s).replace(/[^\p{L}\p{N} .'-]/gu, '').slice(0, 12); // nicknames end up in innerHTML
+const packMon = m => ({ key: m.key, level: m.level, exp: m.exp, hp: m.hp, nick: m.nick, moves: m.moves.map(x => ({ id: x.id, pp: x.pp })) });
+let playTime = 0, curSlot = null; // seconds played; id of the save file this game was loaded from / last saved to
+const snapshot = () => ({ party: party.map(packMon), pc: pcBox.map(packMon), bag, pos: [P.pos.x, P.pos.z, P.face].map(n => Math.round(n * 100) / 100),
+  flags: { bulbasaur: !bulba.visible }, loc: $('locName').textContent, time: Math.floor(playTime), slot: curSlot });
+function saveGame() { try { localStorage.setItem(SAVE_KEY, JSON.stringify(snapshot())); } catch (e) { console.warn('Save failed:', e); } }
+function unpackMon(s) { // saved data is untrusted: unknown species and moves are dropped, numbers are clamped
+  if (!Object.hasOwn(SPECIES, s?.key)) return null;
+  const level = clamp(Math.floor(+s.level) || 1, 1, 100), m = makeMon(s.key, level);
+  m.exp = clamp(Math.floor(+s.exp) || 0, level ** 3, level < 100 ? (level + 1) ** 3 - 1 : level ** 3);
+  const moves = (Array.isArray(s.moves) ? s.moves : []).filter(x => Object.hasOwn(MOVES, x?.id)).slice(0, 4).map(x => ({ id: x.id, pp: clamp(Math.floor(+x.pp) || 0, 0, MOVES[x.id].pp) }));
+  if (moves.length) m.moves = moves;
+  m.hp = clamp(Math.floor(+s.hp) || 0, 0, m.maxHp);
+  if (s.nick) m.nick = cleanNick(s.nick) || undefined;
+  return m;
+}
+function loadGame() {
+  let s; try { s = JSON.parse(localStorage.getItem(SAVE_KEY)); } catch { return; }
+  if (!s || typeof s !== 'object') return;
+  const mons = a => (Array.isArray(a) ? a : []).map(unpackMon).filter(Boolean);
+  const p = mons(s.party).slice(0, 6); if (p.length) party.splice(0, party.length, ...p);
+  pcBox.splice(0, pcBox.length, ...mons(s.pc));
+  if (s.bag && typeof s.bag === 'object') { for (const k in bag) delete bag[k]; for (const [k, v] of Object.entries(s.bag)) if (Object.hasOwn(ITEMS, k)) bag[k] = clamp(Math.floor(+v) || 0, 0, 999); }
+  if (Array.isArray(s.pos) && s.pos.length === 3 && s.pos.every(Number.isFinite) && !new URLSearchParams(location.search).has('map')) placePlayer(...s.pos);
+  if (s.flags?.bulbasaur === true) retireBulbasaur();
+  if (Number.isFinite(s.time)) playTime = Math.max(0, s.time);
+  if (typeof s.slot === 'string') curSlot = s.slot;
+}
+window.debug = { // testing hooks, from the console or the ` key: debug.give('CHARMANDER', 15, { potion: 5 }), debug.battle('CATERPIE', 2)
+  give(key, level = 5, items = {}, nick) {
+    key = String(key).toUpperCase().replace(/[- ]/g, '_'); level = Math.floor(+level);
+    if (!Object.hasOwn(SPECIES, key) || !(level >= 1 && level <= 100)) return console.warn(`debug.give: unknown species "${key}" or level ${level}`);
+    const m = makeMon(key, level);
+    if (level < 100) m.exp = (level + 1) ** 3 - 1; // one point short of the next level, so a single win levels it up
+    if (nick) m.nick = cleanNick(nick) || undefined;
+    party.unshift(m); if (party.length > 6) pcBox.push(party.pop());
+    for (const [k, n] of Object.entries(items)) if (Object.hasOwn(ITEMS, k)) bag[k] = (bag[k] || 0) + Math.max(0, Math.floor(+n) || 0);
+    renderParty(); saveGame();
+    return m;
+  },
+  battle: (key = 'PIDGEY', level = 3) => Object.hasOwn(SPECIES, key = String(key).toUpperCase()) && startBattle(key, Math.floor(+level) || 3),
+};
 
 // overworld party HUD (portraits rendered from the 3D models, cached per species)
 const portraitCache = {};
 let portraitKit = null;
 function portrait(key) {
   if (portraitCache[key]) return portraitCache[key];
+  if (SPECIES[key].auto && !XY[key]) return dexArtwork(SPECIES[key].dex); // Pokédex image until (unless) its model arrives
   if (!portraitKit) {
     const pr = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
     pr.setSize(180, 180); pr.toneMapping = THREE.ACESFilmicToneMapping; pr.toneMappingExposure = 1.15;
@@ -2586,7 +3416,7 @@ function renderBag() {
 }
 function bagPocket(p) { if (p === BP.pocket) return; BP.pocket = p; BP.idx = 0; renderBag(); $('bpSack').firstChild.classList.add('wiggle'); }
 function bagToast(text) { const t = $('bpToast'); t.textContent = text; t.classList.add('show'); clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove('show'), 1800); }
-function bagToss() { const k = BP.item; if (!k) return; bag[k]--; bagToast(`Threw away one ${ITEMS[k].name}.`); renderBag(); }
+function bagToss() { const k = BP.item; if (!k) return; bag[k]--; bagToast(`Threw away one ${ITEMS[k].name}.`); renderBag(); saveGame(); }
 function bagUse() {
   const k = BP.item, it = k && ITEMS[k]; if (!it) return;
   if (it.map) { bagToast('Verdant Town — a quiet town where the green never fades.'); return; }
@@ -2603,12 +3433,12 @@ function bagApply(k, i, btn) {
   const before = m.hp; m.hp = Math.min(m.maxHp, m.hp + it.heal); bag[k]--;
   const f = m.hp / m.maxHp, bar = btn.querySelector('b'); bar.className = f < 0.2 ? 'low' : f < 0.5 ? 'mid' : ''; bar.style.width = f * 100 + '%';
   btn.querySelector('small').textContent = `HP ${m.hp} / ${m.maxHp}`;
-  bagToast(`${nm(m)}'s HP was restored by ${m.hp - before} points.`); renderParty();
+  bagToast(`${nm(m)}'s HP was restored by ${m.hp - before} points.`); renderParty(); saveGame();
   setTimeout(() => { $('bpParty').classList.remove('show'); renderBag(); }, 900);
 }
 function openBag() {
   if (ui.battle || ui.dialog || ui.pokedex || ui.bag) return;
-  ui.bag = true; keys.clear(); moveTarget = null; $('menu').classList.remove('show');
+  ui.bag = true; keys.clear(); moveTarget = null;
   renderBag(); $('backpack').showModal(); $('bpList').querySelector('.bp-item')?.focus();
 }
 function closeBag() { if (!ui.bag) return; ui.bag = false; $('bpParty').classList.remove('show'); $('backpack').close(); $('bagBtn').focus(); }
@@ -3407,7 +4237,6 @@ async function selectDex(id, form = 0) {
 function openPokedex() {
   if (ui.battle || ui.dialog || ui.pokedex) return;
   DX.previousFocus = document.activeElement; keys.clear(); moveTarget = null;
-  $('menu').classList.remove('show');
   ui.pokedex = true; document.body.classList.add('in-pokedex'); $('pokedex').showModal();
   $('dexSummary').textContent = `${NATIONAL_DEX.length.toLocaleString()} SPECIES / ${Object.keys(DEX_MODELS).length} WITH 3D / ${Object.values(DEX_MODELS).reduce((count, forms) => count + forms.length, 0)} FORMS`;
   renderDexCatalog(); selectDex(DX.selected, DX.form); $('dexSearch').focus({ preventScroll: true });
@@ -3552,8 +4381,9 @@ function smoke(p, color, size, life) { // soft opaque puff (normal blending, so 
   const s = new THREE.Sprite(glowMat(color, 0.9, false)); s.position.copy(p); s.scale.setScalar(size * 0.4);
   return addFx(s, life, k => { s.scale.setScalar(size * (0.4 + 0.9 * easeOut(k))); s.material.opacity = 0.9 * (1 - k); s.position.y += 0.004; });
 }
-function shake(amount, dur = 0.3) { BT.shake = Math.max(BT.shake || 0, amount); BT.shakeLeft = dur; BT.shakeDur = dur; }
+function shake(amount, dur = 0.3) { if (SET.calm) return; BT.shake = Math.max(BT.shake || 0, amount); BT.shakeLeft = dur; BT.shakeDur = dur; }
 function screenFlash(color, dur = 0.3) {
+  if (SET.calm) return;
   let el = $('bflash'); if (!el) { el = document.createElement('div'); el.id = 'bflash'; el.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:5;opacity:0;mix-blend-mode:screen'; document.body.appendChild(el); }
   el.style.transition = 'none'; el.style.background = color; el.style.opacity = '0.75'; void el.offsetWidth;
   el.style.transition = `opacity ${dur}s ease-out`; el.style.opacity = '0';
@@ -4055,7 +4885,7 @@ function bset(text) { BM.text = text; BM.shown = text.length; BM.res = null; $('
 function bsay(text) { $('bmenu').innerHTML = ''; return new Promise(res => Object.assign(BM, { text, shown: 0, res, idle: 0 })); }
 function tickMsg(dt) {
   if (!BM.res) return;
-  if (BM.shown < BM.text.length) BM.shown = Math.min(BM.text.length, BM.shown + dt * 55);
+  if (BM.shown < BM.text.length) BM.shown = Math.min(BM.text.length, BM.shown + dt * 55 * TEXT_SPEED[SET.text]);
   else if ((BM.idle += dt) > 1.8) return bconfirm();
   $('bmsg').innerHTML = BM.text.slice(0, Math.floor(BM.shown)) + (BM.shown >= BM.text.length ? '<span class="more">▼</span>' : '');
 }
@@ -4085,6 +4915,7 @@ function menuPick(i) {
 function battleKey(e) {
   if (['Space', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.code)) e.preventDefault();
   if (e.repeat) return;
+  if (e.code === 'KeyB' && EVO.canCancel) { EVO.cancel = true; return; } // B stops an evolution
   const c = e.code, ok = ['KeyE', 'Space', 'Enter'].includes(c);
   if (MN.res) {
     const step = { ArrowLeft: -1, KeyA: -1, ArrowRight: 1, KeyD: 1, ArrowUp: -2, KeyW: -2, ArrowDown: 2, KeyS: 2 }[c];
@@ -4140,7 +4971,7 @@ function moveFx(mv, am, dm) {
 // Everything plays through a short outdoor reverb and a compressor. MOVE_FX calls SND on the beat each sound belongs to;
 // charge(), impact() and rocks() add theirs. Math.random, not rnd(): sounds must not shift the seeded battle rolls.
 const rf = (a, b) => a + Math.random() * (b - a);
-let AC = null, OUT = null, VERB = null, BUF = null;
+let AC = null, OUT = null, VERB = null, BUF = null, SFX_GAIN = null;
 const DRIVES = {}, DRIVE = k => (DRIVES[k] ??= Float32Array.from({ length: 1024 }, (_, i) => Math.tanh((i / 511.5 - 1) * k)));
 function noiseBuf(sec, ch = 1, { brown = false, decay = 0 } = {}) { // white or brown noise; with `decay` it is a reverb impulse response
   const b = AC.createBuffer(ch, Math.floor(AC.sampleRate * sec), AC.sampleRate);
@@ -4159,7 +4990,7 @@ function play(fn) {
   try {
     if (!AC) {
       AC = new AudioContext();
-      OUT = AC.createDynamicsCompressor(); OUT.threshold.value = -10; OUT.ratio.value = 12; const mk = AC.createGain(); mk.gain.value = 1.4; OUT.connect(mk).connect(AC.destination); // limiter + make-up gain
+      OUT = AC.createDynamicsCompressor(); OUT.threshold.value = -10; OUT.ratio.value = 12; SFX_GAIN = AC.createGain(); SFX_GAIN.gain.value = 1.4 * SET.sfx; OUT.connect(SFX_GAIN).connect(AC.destination); // limiter + make-up gain (scaled by the SFX volume setting)
       VERB = AC.createConvolver(); VERB.buffer = noiseBuf(1.6, 2, { decay: 3 }); VERB.connect(OUT);
       BUF = { white: noiseBuf(2), brown: noiseBuf(3, 1, { brown: true }) };
     }
@@ -4287,6 +5118,15 @@ const SND = {
   }); },
   buzz(dur = 1.2) { play(t => { for (const f of [170, 176, 340]) oscV(t, dur, 'sawtooth', f, 0, { vol: 0.1, atk: 0.05, hold: 0.7, filter: 'bandpass', f0: 1400, q: 1.2, roll: 0.025, wet: 0.2 }, 0.03); }); },
   stat(up) { play(t => [0, 1, 2].forEach(i => oscV(t + i * 0.09, 0.14, 'triangle', up ? 500 + i * 180 : 900 - i * 180, up ? 700 + i * 180 : 700 - i * 180, { vol: 0.12, atk: 0.005, wet: 0.3 }))); },
+  shimmer(dur = 5) { play(t => { // evolution: a glittering swell climbing in pitch under a rising hum
+    noiseV(t, dur, { vol: 0.22, atk: dur * 0.8, filter: 'bandpass', f0: 700, f1: 5000, q: 6, wet: 0.6 });
+    oscV(t, dur, 'sine', 220, 880, { vol: 0.07, atk: dur * 0.75, wet: 0.6 });
+    const n = Math.round(dur * 11); for (let i = 0; i < n; i++) bell(t + i / n * dur + rf(0, 0.04), rf(1100, 1500) * 2 ** (i / n * 1.6), 0.5, 0.035);
+  }); },
+  fanfare() { play(t => { // evolution done: a bright rising arpeggio landing on a held major chord
+    [523, 659, 784, 1047].forEach((f, i) => { oscV(t + i * 0.12, 0.2, 'square', f, 0, { vol: 0.06, atk: 0.005, filter: 'lowpass', f0: 3500, wet: 0.3 }); bell(t + i * 0.12, f * 2, 0.6, 0.05); });
+    for (const f of [523, 659, 784, 1047]) oscV(t + 0.5, 1.5, 'triangle', f, 0, { vol: 0.08, atk: 0.01, hold: 0.45, wet: 0.4 });
+  }); },
 };
 
 // ============================================================ battle: rules
@@ -4343,8 +5183,107 @@ async function gainExp(m, amt) {
     const old = m.maxHp; calcStats(m); m.hp += m.maxHp - old; m.disp = m.hp; m.expDisp = m.exp;
     burst(BT.meModel.position.clone().add(new V3(0, 0.8, 0)), '#ffe066', { n: 40, up: 2, grav: 1, speed: 1.6, life: 1 });
     await bsay(`${nm(m)} grew to Lv. ${m.level}!`);
+    const evo = evoFor(m); if (evo) { BT.evoQueue.add(m); loadSpeciesModel(evo.to); } // evolves once the battle is over
     if (m.exp >= target) break;
   }
+}
+async function learnMove(m, id) {
+  const mv = MOVES[id];
+  if (m.moves.length < 4) { m.moves.push({ id, pp: mv.pp }); SND.chime(); return bsay(`${nm(m)} learned ${mv.name}!`); }
+  await bsay(`${nm(m)} wants to learn ${mv.name}. But ${nm(m)} can't learn more than four moves.`);
+  bset(`Forget which move to learn ${mv.name}?`);
+  const i = await menu([...m.moves.map((x, k) => { const o = MOVES[x.id]; return { label: o.name, sub: `PP ${x.pp}/${o.pp}`, tag: o.type, color: TYPE_COL[o.type], value: k }; }),
+    { label: `Don't learn ${mv.name}`, color: '#2a3540', value: -1 }], { wide: true });
+  if (i === -1) return bsay(`${nm(m)} did not learn ${mv.name}.`);
+  const old = MOVES[m.moves[i].id].name; m.moves[i] = { id, pp: mv.pp }; SND.chime();
+  await bsay(`1, 2 and... Poof! ${nm(m)} forgot ${old}... and learned ${mv.name}!`);
+}
+
+// ============================================================ evolution scene
+// A dark stage far off in the battle arena (so burst() / glow() and the message box keep working) with its own camera.
+const EVO = { stage: null, cam: null, cancel: false, canCancel: false };
+function evoStage() {
+  const g = new THREE.Group(); g.position.set(300, 0, 0);
+  g.add(new THREE.Mesh(new THREE.SphereGeometry(14, 32, 16), new THREE.MeshBasicMaterial({ color: '#05060b', side: THREE.BackSide, fog: false })));
+  const disc = new THREE.Mesh(new THREE.CircleGeometry(1.6, 48).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ map: dotTex, color: '#3d6aa8', transparent: true, opacity: 0.7, depthWrite: false, fog: false }));
+  disc.position.y = 0.01; g.add(disc);
+  const key = new THREE.PointLight('#fff4e6', 8, 10, 1.5); key.position.set(1.2, 2.6, 2.6); g.add(key);
+  BT.scene.add(g);
+  return g;
+}
+function evoMats(model) { // private copies (templates share materials), so the model can turn white and back
+  const list = [];
+  model.traverse(o => {
+    if (!o.material) return;
+    const ms = [o.material].flat().map(x => { const c = x.clone(); Object.assign(c.userData, { col: c.color.clone(), vis: c.visible }); list.push(c); return c; });
+    o.material = ms.length === 1 ? ms[0] : ms;
+  });
+  return list;
+}
+function whiten(mats, k) { // 0 = full colour, 1 = glowing white silhouette (the bloom pass adds the halo)
+  for (const c of mats) {
+    if (c.blending === THREE.AdditiveBlending) { c.visible = c.userData.vis && k < 0.05; continue; } // overlays (cheek glow) would show through
+    c.color.copy(c.userData.col).multiplyScalar(1 - k);
+    if (c.emissive) { c.emissive.setScalar(1); c.emissiveIntensity = 2.6 * k; }
+  }
+}
+async function evolve(m, e) {
+  const from = nm(m), oldKey = m.key, to = SPECIES[e.to];
+  $('btrans').className = 'btrans fade'; await wait(0.45);
+  EVO.stage ??= evoStage();
+  EVO.cam ??= new THREE.PerspectiveCamera(34, 1, 0.1, 40);
+  dropModel(BT.meModel); dropModel(BT.foeModel); BT.meModel = BT.foeModel = null;
+  $('meBox').classList.add('hide'); $('foeBox').classList.add('hide');
+  bgm.want = null; // the music fades out; the shimmer and the fanfare carry the scene
+  const stage = EVO.stage, cam = EVO.cam, base = stage.position;
+  const place = key => { const o = SPECIES[key].make(), s = 1.35 * SPECIES[key].scale; o.scale.setScalar(s); o.rotation.y = 0.3; stage.add(o); return [o, s, evoMats(o)]; };
+  const aim = (...os) => { // frame the tallest of the models
+    const h = Math.max(0.6, ...os.map(o => bodyBounds(o).max.y));
+    cam.aspect = vw / vh; cam.fov = BT.cam.fov; cam.updateProjectionMatrix();
+    cam.position.set(base.x + 0.25 * h, base.y + h * 0.62, base.z + h * 2.3 + 0.9); cam.lookAt(base.x, base.y + h * 0.48, base.z);
+    return h;
+  };
+  const [a, sa, ma] = place(oldKey); aim(a);
+  renderPass.camera = cam; $('btrans').className = 'btrans out';
+  await bsay(`What? ${from} is evolving!`);
+  EVO.cancel = false; EVO.canCancel = true;
+  SND.shimmer(5);
+  await tween(1.2, t => whiten(ma, t));
+  await loadSpeciesModel(e.to); // started at the level-up; falls back to the Pokédex image if the model won't load
+  const [b, sb, mb] = place(e.to); whiten(mb, 1); b.visible = false;
+  const h = aim(a, b), size = new Map([[a, sa], [b, sb]]);
+  // the two silhouettes trade places with scale pulses, faster each time: the outgoing one shrinks, the other springs up
+  let cur = a, other = b;
+  const swap = async d => {
+    const s0 = size.get(cur), s1 = size.get(other);
+    await tween(d / 2, t => cur.scale.setScalar(s0 * (1 - 0.75 * easeIO(t))));
+    cur.visible = false; other.visible = true; other.scale.setScalar(s1 * 0.25);
+    await tween(d / 2, t => other.scale.setScalar(s1 * (0.25 + 0.75 * easeBack(t))));
+    [cur, other] = [other, cur];
+  };
+  const D = i => 0.62 * 0.8 ** i;
+  let i = 0;
+  for (; i < 9 && !EVO.cancel; i++) await swap(D(i)); // 9 swaps end on the new form
+  EVO.canCancel = false;
+  const done = !EVO.cancel;
+  if (!done) { // B: the swaps run backwards, slowing down, and settle on the old form
+    for (let j = i - 1; j >= 0; j--) await swap(D(j));
+    await tween(0.9, t => whiten(ma, 1 - t));
+    await bsay(`Huh? ${from} stopped evolving!`);
+  } else {
+    const p = base.clone().add(new V3(0, h * 0.5, 0));
+    glow(p, '#ffffff', h * 3, 0.9, 2.5); burst(p, '#ffffff', { n: 70, speed: 3.4, grav: 0, life: 0.9, size: 0.24 }); burst(p, '#bfe0ff', { n: 40, up: 1.5, grav: -1, speed: 1.6, life: 1.4 });
+    SND.fanfare();
+    await tween(1.1, t => whiten(mb, 1 - t)); // full colour; its idle clip is already running (XY_MIXERS)
+    const f = m.hp / m.maxHp; m.key = e.to; calcStats(m); m.hp = m.hp > 0 ? Math.max(1, Math.round(f * m.maxHp)) : 0; m.disp = m.hp;
+    await bsay(`Congratulations! Your ${from} evolved into ${to.name}!`);
+    const fresh = new Set((to.learn || []).filter(([l, id]) => (l === 0 || l === m.level) && MOVES[id] && !m.moves.some(x => x.id === id)).map(x => x[1]));
+    for (const id of fresh) await learnMove(m, id);
+  }
+  $('btrans').className = 'btrans fade'; await wait(0.45);
+  stage.remove(a, b); ma.concat(mb).forEach(c => c.dispose());
+  renderPass.camera = BT.cam;
+  return done;
 }
 async function sendOut(m) {
   BT.me = m; m.st = freshStages(); m.disp = m.hp; m.expDisp = m.exp;
@@ -4491,10 +5430,10 @@ async function doTurn(act) {
 }
 async function startBattle(key, level, opts = {}) {
   if (BT.active || !party.some(m => m.hp > 0)) return;
-  Object.assign(BT, { active: true, opts, tries: 0, zoom: 0, stop: 0 });
+  Object.assign(BT, { active: true, opts, tries: 0, zoom: 0, stop: 0, evoQueue: new Set() });
   music('battle');
   ui.battle = true; keys.clear(); moveTarget = null; P.v = 0;
-  $('btrans').className = 'btrans flash';
+  $('btrans').className = 'btrans ' + (SET.calm ? 'fade' : 'flash');
   await wait(1.1);
   if (!BT.scene) buildArena();
   resizeBattle();
@@ -4512,6 +5451,7 @@ async function startBattle(key, level, opts = {}) {
   await sendOut(BT.me);
   let result = null;
   while (!result) result = await doTurn(await chooseAction());
+  if (result !== 'blackout') for (const m of BT.evoQueue) { const e = evoFor(m); if (e) await evolve(m, e); } // a cancelled one tries again at its next level-up
   await finishBattle(result);
 }
 async function finishBattle(result) {
@@ -4528,7 +5468,7 @@ async function finishBattle(result) {
     player.root.position.copy(P.pos); firstFrame = true;
   }
   if (BT.opts.onWin && (result === 'won' || result === 'caught')) BT.opts.onWin();
-  renderParty();
+  renderParty(); saveGame();
   $('btrans').className = 'btrans out';
   if (result === 'blackout') say('Nurse', ['You blacked out, so we brought you to the Pokémon Center.', 'Your Pokémon are fully healed. Take care out there!']);
 }
@@ -4562,6 +5502,7 @@ function retireBulbasaur() {
   const i = interactables.findIndex(it => it.name === 'Bulbasaur'); if (i >= 0) interactables.splice(i, 1);
   const c = circles.findIndex(o => o.x === BU[0] && o.z === BU[1]); if (c >= 0) circles.splice(c, 1);
 }
+loadGame();
 renderParty();
 
 // ============================================================ loop
@@ -4654,7 +5595,7 @@ function update(dt, t) {
       if (l < 0.15 || moveTarget.t > 12) moveTarget = null; else { ix = dx / l; iz = dz / l; }
     }
   }
-  const run = keys.has('ShiftLeft') || keys.has('ShiftRight');
+  const run = (keys.has('ShiftLeft') || keys.has('ShiftRight')) !== SET.alwaysRun; // with Always run on, Shift walks
   const il = Math.hypot(ix, iz);
   // Speed ramps up and down, and the heading turns at a limited rate: a sharp turn brakes, pivots, then sets off again.
   let goal = 0, speed = 0;
@@ -4754,7 +5695,7 @@ function update(dt, t) {
 
   if (ui.dialog) {
     const full = ui.dialog.lines[ui.dialog.i];
-    if (typed < full.length) { typed = Math.min(full.length, typed + dt * 45); $('dtext').textContent = full.slice(0, Math.floor(typed)); }
+    if (typed < full.length) { typed = Math.min(full.length, typed + dt * 45 * TEXT_SPEED[SET.text]); $('dtext').textContent = full.slice(0, Math.floor(typed)); }
   }
 
   // camera keeps the hero framing: same pitch, follows the player with the same screen offset
@@ -4831,15 +5772,180 @@ function musicTick() { // wall-clock time, not the capped frame dt, so fades kee
   const now = performance.now() / 1000, step = (now - (bgm.last ?? now)) / MUSIC_FADE * MUSIC_VOL;
   bgm.last = now;
   for (const [k, a] of Object.entries(bgm.tracks)) {
-    a.volume = k === bgm.want ? Math.min(MUSIC_VOL, a.volume + step) : Math.max(0, a.volume - step);
+    a.volume = k === bgm.want ? Math.min(MUSIC_VOL * SET.music, a.volume + step) : Math.max(0, a.volume - step);
     if (k !== bgm.want && !a.volume && !a.paused) a.pause();
   }
 }
 for (const ev of ['keydown', 'pointerdown']) addEventListener(ev, () => { const a = bgm.tracks[bgm.want]; if (a?.paused) a.play().catch(() => {}); });
 
+// ============================================================ Settings (per browser, not per save file)
+const SET_KEY = 'verdant-settings-v1';
+const TEXT_SPEED = { slow: 0.5, normal: 1, fast: 2, instant: 1e4 }; // instant is a big rate, not Infinity: dt can be 0 and 0 * Infinity is NaN
+const QUALITY = { high: [1.75, 2048], medium: [1, 1024], low: [0.75, 0] }; // [max pixel ratio, shadow map size (0 = no shadows)]
+const SET_DEFAULT = { music: 1, sfx: 1, text: 'normal', quality: 'high', alwaysRun: false, calm: matchMedia('(prefers-reduced-motion: reduce)').matches };
+const SET = { ...SET_DEFAULT };
+try { // stored settings are untrusted: keep only known keys with valid values
+  const s = JSON.parse(localStorage.getItem(SET_KEY)) || {};
+  for (const k of ['music', 'sfx']) if (Number.isFinite(s[k])) SET[k] = clamp(s[k], 0, 1);
+  if (Object.hasOwn(TEXT_SPEED, s.text)) SET.text = s.text;
+  if (Object.hasOwn(QUALITY, s.quality)) SET.quality = s.quality;
+  for (const k of ['alwaysRun', 'calm']) if (typeof s[k] === 'boolean') SET[k] = s[k];
+} catch {}
+function applySettings() {
+  const [dpr, shadow] = QUALITY[SET.quality];
+  DPR = Math.min(devicePixelRatio, dpr); renderer.setPixelRatio(DPR); vw = 0; // frame() sees the size change and runs resize()
+  sun.castShadow = shadow > 0; // toggling the light (not renderer.shadowMap) makes three.js rebuild the lit shaders
+  if (shadow && sun.shadow.mapSize.x !== shadow) { sun.shadow.mapSize.set(shadow, shadow); sun.shadow.map?.dispose(); sun.shadow.map = null; }
+  bloom.enabled = SET.quality !== 'low';
+  if (SFX_GAIN) SFX_GAIN.gain.value = 1.4 * SET.sfx;
+}
+function saveSettings() { try { localStorage.setItem(SET_KEY, JSON.stringify(SET)); } catch { gmToast('Settings work now but can’t be remembered: browser storage is blocked.', true); } }
+applySettings();
+
+// ============================================================ Game Menu: save files, new game, settings, quit
+const SLOT_KEY = 'verdant-slots-v1', MAX_SLOTS = 10;
+const esc = s => String(s).replace(/[&<>"']/g, c => `&#${c.charCodeAt(0)};`); // save files are untrusted and end up in innerHTML
+let slotsBad = false;
+function readSlots() {
+  slotsBad = false;
+  try { const a = JSON.parse(localStorage.getItem(SLOT_KEY) ?? '[]'); if (Array.isArray(a)) return a.filter(s => typeof s?.id === 'string' && s.data && typeof s.data === 'object'); } catch {}
+  slotsBad = true; return [];
+}
+function writeSlots(a) {
+  try { localStorage.setItem(SLOT_KEY, JSON.stringify(a)); return true; } catch { gmToast('Couldn’t save: browser storage is full or blocked.', true); return false; }
+}
+const playable = s => Array.isArray(s.data.party) && s.data.party.some(m => Object.hasOwn(SPECIES, m?.key));
+const progress = d => JSON.stringify([d.party, d.pc, d.bag, d.flags ?? {}]); // what counts as progress: walking around alone doesn't
+const dirty = () => { const s = readSlots().find(x => x.id === curSlot); return !s || progress(s.data) !== progress(snapshot()); };
+const when = s => new Date(+s.at).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' });
+const hrs = sec => { sec = Math.floor(+sec || 0); return `${Math.floor(sec / 3600)}:${String(Math.floor(sec / 60) % 60).padStart(2, '0')}`; };
+function slotRow(s, buttons) {
+  const p = Array.isArray(s.data.party) ? s.data.party.filter(m => Object.hasOwn(SPECIES, m?.key)) : [], lead = p[0];
+  const team = lead ? `${esc(lead.nick ? cleanNick(lead.nick) : SPECIES[lead.key].name)} Lv ${clamp(Math.floor(+lead.level) || 1, 1, 100)}${p.length > 1 ? ` +${p.length - 1}` : ''}` : 'Damaged save';
+  return `<div class="gm-slot"><b>${esc(s.name)}${s.id === curSlot ? '<em>CURRENT</em>' : ''}</b>
+    <small>${esc(s.data.loc || 'Unknown place')} · ${team} · ${hrs(s.data.time)} played<br>Saved ${esc(when(s))}</small><div class="gm-row">${buttons}</div></div>`;
+}
+let gmView = 'save';
+function gmRender(view = gmView) {
+  gmView = view;
+  $('gmNav').querySelectorAll('[role=tab]').forEach(b => b.setAttribute('aria-selected', b.dataset.v === view));
+  const v = $('gmView');
+  if (view === 'save' || view === 'load') {
+    const slots = readSlots().sort((a, b) => b.at - a.at), cur = slots.find(s => s.id === curSlot), unsaved = dirty(), full = slots.length >= MAX_SLOTS;
+    const status = `<p class="gm-status${unsaved ? ' warn' : ''}">${cur ? `Current file: <b>${esc(cur.name)}</b> · ` : ''}${!unsaved ? 'All progress saved.' : cur ? 'You have unsaved progress since your last save.' : 'This game hasn’t been saved to a file yet.'}</p>`
+      + (slotsBad ? '<p class="gm-status err">Your save files couldn’t be read (storage is blocked or the data is damaged). Saving now will replace them.</p>' : '');
+    v.innerHTML = view === 'save'
+      ? `<h3>Save game</h3>${status}
+        ${cur ? `<div class="gm-row"><button class="gm-btn go" data-save="${esc(cur.id)}">Save to “${esc(cur.name)}”</button></div>` : ''}
+        <div class="gm-row"><input type="text" id="gmName" maxlength="24" value="Save ${slots.length + 1}" aria-label="Name for the new save file"${full ? ' disabled' : ''}><button class="gm-btn${cur ? '' : ' go'}" id="gmNew"${full ? ' disabled' : ''}>Save as new file</button></div>
+        ${full ? `<p class="gm-status err">All ${MAX_SLOTS} save slots are full. Overwrite or delete a save to make room.</p>` : ''}
+        ${slots.length ? '<p>Or overwrite an existing save:</p>' : ''}
+        <div class="gm-slots">${slots.map(s => slotRow(s, `<button class="gm-btn" data-save="${esc(s.id)}" aria-label="Overwrite ${esc(s.name)}">Overwrite</button>`)).join('')}</div>`
+      : `<h3>Load game</h3>${status}
+        <div class="gm-slots">${slots.length ? slots.map(s => slotRow(s, `<button class="gm-btn go" data-load="${esc(s.id)}" aria-label="Load ${esc(s.name)}">Load</button><button class="gm-btn danger" data-del="${esc(s.id)}" aria-label="Delete ${esc(s.name)}">Delete</button>`)).join('')
+          : '<p class="gm-empty">No saved games yet. Use Save to create one.</p>'}</div>`;
+  } else if (view === 'settings') {
+    const opts = (o, cur) => Object.keys(o).map(k => `<option value="${k}"${k === cur ? ' selected' : ''}>${k[0].toUpperCase() + k.slice(1)}</option>`).join('');
+    const check = k => `<input type="checkbox" data-set="${k}"${SET[k] ? ' checked' : ''}>`;
+    v.innerHTML = `<h3>Settings</h3>
+      <label class="gm-set">Music volume<input type="range" min="0" max="100" data-set="music" value="${Math.round(SET.music * 100)}"></label>
+      <label class="gm-set">Sound effects volume<input type="range" min="0" max="100" data-set="sfx" value="${Math.round(SET.sfx * 100)}"></label>
+      <label class="gm-set"><span>Text speed<small>How fast dialogue and battle text appear</small></span><select data-set="text">${opts(TEXT_SPEED, SET.text)}</select></label>
+      <label class="gm-set"><span>Graphics quality<small>Lower it if the game stutters (resolution, shadows, glow)</small></span><select data-set="quality">${opts(QUALITY, SET.quality)}</select></label>
+      <label class="gm-set"><span>Always run<small>Hold Shift to walk instead</small></span>${check('alwaysRun')}</label>
+      <label class="gm-set"><span>Reduce flashing &amp; screen shake<small>Calmer battle effects</small></span>${check('calm')}</label>
+      <div class="gm-row"><button class="gm-btn" id="gmDefaults">Restore defaults</button></div>`;
+  } else v.innerHTML = `<h3>Controls</h3><ul class="gm-keys"><li>Walk <span><kbd>WASD</kbd> / arrows</span></li><li>Run <span><kbd>Shift</kbd></span></li>
+    <li>Talk / read <span><kbd>E</kbd> / <kbd>Space</kbd></span></li><li>Walk to spot <span>click / tap</span></li><li>Zoom <span>scroll wheel</span></li>
+    <li>Bag <span><kbd>B</kbd></span></li><li>Game Menu <span><kbd>Esc</kbd></span></li><li>Travel to Fleurville / Verdant <span><kbd>T</kbd></span></li><li>Character gallery <span><kbd>G</kbd></span></li></ul>`;
+}
+function gmToast(text, err = false) { const t = $('gmToast'); t.textContent = text; t.classList.toggle('err', err); t.classList.add('show'); clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove('show'), err ? 4000 : 2200); }
+let askRes = null;
+function ask({ title, text, ok, danger = true }) { // in-menu confirm sheet; resolves true only on the confirm button
+  answer(false);
+  $('gmAskTitle').textContent = title; $('gmAskText').textContent = text;
+  const y = $('gmAskYes'); y.textContent = ok; y.className = 'gm-btn ' + (danger ? 'danger' : 'go');
+  $('gmAsk').classList.add('show'); $('gmBody').inert = true; $('gmAskNo').focus(); // Cancel is the safe default
+  return new Promise(res => (askRes = res));
+}
+function answer(v) { if (!askRes) return; const r = askRes; askRes = null; $('gmAsk').classList.remove('show'); $('gmBody').inert = false; r(v); }
+$('gmAskYes').onclick = () => answer(true);
+$('gmAskNo').onclick = () => answer(false);
+const newId = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+const restart = () => location.replace(location.pathname); // a reload rebuilds the world from the autosave (and drops ?map=)
+async function saveTo(id, name) {
+  const slots = readSlots(), old = id && slots.find(s => s.id === id);
+  if (id && !old) { gmToast('That save file no longer exists.', true); return gmRender(); }
+  if (!old && slots.length >= MAX_SLOTS) return gmToast(`All ${MAX_SLOTS} save slots are full.`, true);
+  if (old && !await ask({ title: `Overwrite “${old.name}”?`, text: `It was saved ${when(old)} in ${old.data.loc || 'an unknown place'}. Overwriting replaces it with your current game, and it can’t be recovered.`, ok: 'Overwrite' })) return;
+  const prev = curSlot; curSlot = old ? old.id : newId();
+  const slot = { id: curSlot, name: old ? old.name : String(name ?? '').trim().slice(0, 24) || `Save ${slots.length + 1}`, at: Date.now(), data: snapshot() };
+  if (old) slots[slots.indexOf(old)] = slot; else slots.push(slot);
+  if (!writeSlots(slots)) { curSlot = prev; return; }
+  saveGame(); gmToast(`Saved to “${slot.name}”.`); gmRender();
+}
+async function loadSlot(id) {
+  const s = readSlots().find(x => x.id === id);
+  if (!s) { gmToast('That save file no longer exists.', true); return gmRender(); }
+  if (!playable(s)) return gmToast('This save file is damaged and can’t be loaded.', true);
+  if (dirty() && !await ask({ title: `Load “${s.name}”?`, text: curSlot ? 'You have unsaved progress since your last save. Loading another file will lose it.' : 'This game hasn’t been saved to a file. Loading will replace your current progress.', ok: 'Load anyway' })) return;
+  try { localStorage.setItem(SAVE_KEY, JSON.stringify({ ...s.data, slot: s.id })); } catch { return gmToast('Couldn’t load: browser storage is blocked.', true); }
+  restart();
+}
+async function delSlot(id) {
+  const slots = readSlots(), s = slots.find(x => x.id === id);
+  if (!s) return gmRender();
+  if (!await ask({ title: `Delete “${s.name}”?`, text: 'This save file will be erased permanently. This can’t be undone.', ok: 'Delete' })) return;
+  if (!writeSlots(slots.filter(x => x !== s))) return;
+  if (id === curSlot) { curSlot = null; saveGame(); }
+  gmToast(`Deleted “${s.name}”.`); gmRender();
+}
+async function newGame() {
+  if (!await ask({ title: 'Start a new game?', text: (dirty() ? 'Your unsaved progress will be lost. ' : '') + 'You will restart in Verdant Town with the starting team and items. Your save files are kept.', ok: 'Start new game' })) return;
+  try { localStorage.removeItem(SAVE_KEY); } catch {}
+  restart();
+}
+async function quitGame() {
+  if (dirty() && !await ask({ title: 'Quit without saving?', text: curSlot ? 'You have progress since your last save that isn’t in a save file.' : 'This game hasn’t been saved to a file yet.', ok: 'Quit anyway' })) return;
+  closeMenu(); ui.quit = true; keys.clear();
+  for (const a of Object.values(bgm.tracks)) a.pause();
+  bgm.want = null; // update() picks the track again on return
+  window.close(); // only closes tabs a script opened; otherwise the quit screen stays up
+  $('quitScreen').classList.add('show'); $('quitBack').focus();
+}
+function openMenu(view = 'save') {
+  if (ui.menu || ui.quit || BT.active || ui.bag || ui.pokedex) return;
+  ui.menu = true; keys.clear(); moveTarget = null; P.v = 0; // P.v too: a coasting step in tall grass could still start a battle
+  $('gameMenu').showModal(); gmRender(view); $('gmNav').querySelector(`[data-v="${view}"]`).focus();
+}
+function closeMenu() { if (!ui.menu) return; answer(false); ui.menu = false; $('gameMenu').close(); $('menuBtn').focus(); }
+$('gmClose').onclick = closeMenu;
+$('gameMenu').addEventListener('cancel', e => { e.preventDefault(); if (askRes) answer(false); else closeMenu(); }); // Esc backs out of a confirm first
+$('gameMenu').addEventListener('close', () => { if (ui.menu) { answer(false); ui.menu = false; } }); // the browser may close it without a cancel (repeated Esc)
+$('gameMenu').addEventListener('click', e => { if (e.target === $('gameMenu') && !askRes) closeMenu(); }); // click on the dimmed backdrop
+$('gmNav').onclick = e => { const v = e.target.closest('button')?.dataset.v; if (v === 'new') newGame(); else if (v === 'quit') quitGame(); else if (v) gmRender(v); };
+$('gmView').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  if (b.id === 'gmNew') saveTo(null, $('gmName').value);
+  else if (b.dataset.save) saveTo(b.dataset.save);
+  else if (b.dataset.load) loadSlot(b.dataset.load);
+  else if (b.dataset.del) delSlot(b.dataset.del);
+  else if (b.id === 'gmDefaults') { Object.assign(SET, SET_DEFAULT); applySettings(); saveSettings(); gmRender(); gmToast('Settings restored to defaults.'); }
+});
+$('gmView').addEventListener('keydown', e => { if (e.target.id === 'gmName' && e.key === 'Enter') saveTo(null, e.target.value); });
+$('gmView').addEventListener('input', e => {
+  const el = e.target, k = el.dataset.set; if (!k) return;
+  SET[k] = el.type === 'range' ? el.value / 100 : el.type === 'checkbox' ? el.checked : el.value;
+  applySettings(); saveSettings();
+});
+$('gmView').addEventListener('change', e => { if (e.target.dataset.set === 'sfx') SND.chime(); }); // let the player hear the new level
+$('quitBack').onclick = () => { ui.quit = false; $('quitScreen').classList.remove('show'); $('menuBtn').focus(); };
+
 function frame() {
   if (innerWidth !== vw || innerHeight !== vh) resize();
   const dt = Math.min(clock.getDelta(), 0.05), t = clock.elapsedTime;
+  if (ui.quit) { requestAnimationFrame(frame); return; } // quit screen: the world stops
+  playTime += dt;
   musicTick();
   if (ui.pokedex) { tickDex(dt); requestAnimationFrame(frame); return; }
   tickTweens(dt); tickXYMixers(BT.active && BT.stop > 0 ? 0 : dt); // models freeze during a battle hit-stop
