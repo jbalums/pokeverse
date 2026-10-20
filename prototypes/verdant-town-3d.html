@@ -737,6 +737,7 @@ renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 0.8;
+renderer.info.autoReset = false; // reset once per frame in frame(), so debug.stats() sums all passes
 
 const scene = new THREE.Scene();
 const BG = new THREE.Color('#3f6b33');
@@ -3875,7 +3876,20 @@ window.debug = { // testing hooks, from the console or the ` key: debug.give('KI
   battle: (key = 'PIDGEY', level = 3) => Object.hasOwn(SPECIES, key = String(key).toUpperCase()) && startBattle(key, Math.floor(+level) || 3),
   shop: () => openShop(), // the Fleurville Poké Mart counter, without walking there
   follower: () => ({ key: followKey, at: pika.position.toArray().map(n => +n.toFixed(2)), size: +new THREE.Box3().setFromObject(pika).getSize(new V3()).y.toFixed(2), player: P.pos.toArray().map(n => +n.toFixed(2)) }),
+  stats: () => { const r = renderer.info; return { calls: r.render.calls, triangles: r.render.triangles, geometries: r.memory.geometries }; },
+  coreHash: () => { // fingerprint of the core world's placements: any reshuffle of the shared rnd() stream changes it
+    let s = 0; for (const a of [trees, circles, boxes]) for (const o of a) for (const v of Object.values(o)) s += +v || 0;
+    return `${trees.length}/${circles.length}/${boxes.length}/${s.toFixed(3)}`;
+  },
+  async check() { // open-world self-test: the names of failing CHECKS, [] when all pass
+    const fail = [];
+    for (const [name, fn] of CHECKS) { try { if (!(await fn())) fail.push(name); } catch (e) { fail.push(`${name}: ${e.message}`); } }
+    return fail;
+  },
 };
+// Recorded before the world moved into cells (START, zoom 1, 1024x768): the core must keep this hash; triangles must not exceed it
+const BASELINE_HASH = '421/487/50/159510.682', BASELINE_STATS = { calls: 615, triangles: 4083393, geometries: 213 };
+const CHECKS = [];
 
 // overworld party HUD (portraits rendered from the 3D models, cached per species)
 const portraitCache = {};
@@ -6590,7 +6604,7 @@ function frame() {
   if (!GAL.started && galleryD(P.pos.x, P.pos.z) < 14) loadGallery();
   if (!KAL.started) startKalos();
   if (renderPass.scene === BT.scene) battleTick(dt, t); else update(dt, t);
-  composer.render();
+  renderer.info.reset(); composer.render(); // one frame's totals across every pass (debug.stats)
   if (!BT.active) drawMinimap();
   requestAnimationFrame(frame);
 }

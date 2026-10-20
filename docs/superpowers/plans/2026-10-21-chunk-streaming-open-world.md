@@ -53,6 +53,8 @@ Today the Verdant ground is one 426k-triangle mesh, and each `scatter()` call cr
 
 - [ ] **Step 1: Add `debug.stats()`, `debug.coreHash()` and an empty `debug.check()`. Record the baseline**
 
+Recorded: `BASELINE_HASH = "421/487/50/159510.682"`, `BASELINE_STATS = { calls: 615, triangles: 4083393, geometries: 213 }` (START, zoom 1, 1024x768 preview).
+
 Reload the preview. Stand at `START` with the default zoom and wait 2 s. Run `debug.stats()` and `debug.coreHash()`. Write the values into this plan, and also into the code as `const BASELINE_HASH = '…', BASELINE_STATS = {…}` next to `window.debug`. Commit this step on its own.
 
 - [ ] **Step 2: Add the failing checks to `debug.check()`**
