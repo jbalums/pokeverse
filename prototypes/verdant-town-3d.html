@@ -325,24 +325,30 @@
   .ob-kicker { font-size: 12px; font-weight: 900; letter-spacing: .16em; text-transform: uppercase; color: #2c6fb3; margin-bottom: -8px; }
   .ob-h { display: block; font-size: 28px; font-weight: 900; line-height: 1.15; overflow-wrap: anywhere; }
   .ob-h span { color: #2c6fb3; }
-  .ob-chars { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  /* choice cards: equal-height rows, a coloured initial badge, a check on the pick */
+  .ob-chars { display: grid; grid-template-columns: 1fr 1fr; grid-auto-rows: 1fr; gap: 8px; }
   .ob-chars.ob-one { grid-template-columns: 1fr; }
-  .ob-chars:not(.ob-one) span { padding: 8px 12px; }
-  .ob-chars:not(.ob-one) b { font-size: 18px; }
-  .ob-chars:not(.ob-one) input:checked + span { transform: translateY(-3px); }
-  .ob-chars label { position: relative; cursor: pointer; }
+  .ob-chars label { position: relative; cursor: pointer; display: flex; }
   .ob-chars input { position: absolute; opacity: 0; }
-  .ob-chars span { display: flex; flex-direction: column; padding: 12px 16px; border: 4px solid #2a3540; border-radius: 16px; background: #fff; transition: background .2s, color .2s, transform .2s; }
-  .ob-chars b { font-size: 21px; font-weight: 900; }
-  .ob-chars small { font-size: 13px; font-weight: 700; opacity: .7; }
-  .ob-chars input:checked + span { background: linear-gradient(135deg, #2c6fb3, #4fa9e0); color: #fff; transform: translateX(8px); }
+  .ob-chars span { flex: 1; display: grid; grid-template-columns: auto 1fr; align-content: center; column-gap: 10px; padding: 10px 14px; border: 4px solid #2a3540; border-radius: 16px; background: #fff; transition: background .2s, color .2s, transform .15s, box-shadow .15s; }
+  .ob-chars span::before { content: attr(data-i); grid-row: 1 / 3; align-self: center; width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; background: var(--c); color: #fff; font-size: 17px; font-weight: 900; border: 3px solid #2a3540; box-shadow: inset 0 -3px 0 rgba(0,0,0,.18); }
+  .ob-chars span::after { content: '✓'; position: absolute; top: -9px; right: -7px; width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; background: #ffd84a; color: #2a3540; border: 3px solid #2a3540; font-size: 13px; font-weight: 900; transform: scale(0); transition: transform .2s cubic-bezier(.3, 1.6, .5, 1); }
+  .ob-chars b { font-size: 20px; font-weight: 900; line-height: 1.15; }
+  .ob-chars:not(.ob-one) b { font-size: 17px; }
+  .ob-chars small { font-size: 12.5px; font-weight: 700; line-height: 1.25; opacity: .7; }
+  .ob-chars label:hover span { transform: translateY(-2px); box-shadow: 0 4px 0 #2a3540; }
+  .ob-chars input:checked + span { background: linear-gradient(135deg, #2c6fb3, #4fa9e0); color: #fff; box-shadow: 0 4px 0 #1d4f84; }
+  .ob-chars input:checked + span::after { transform: scale(1); }
   .ob-chars input:checked + span small { opacity: .9; }
+  @media (prefers-reduced-motion: reduce) { .ob-chars span, .ob-chars span::after { transition: none; } .ob-chars label:hover span { transform: none; } }
   .ob-chars input:focus-visible + span, .ob input[type=text]:focus-visible, .ob button:focus-visible { outline: 3px solid #ffd84a; outline-offset: 2px; }
   .ob-field { display: flex; align-items: center; gap: 10px; }
   .ob-field small { font-size: 13px; opacity: .6; }
   .ob input[type=text] { flex: 1; min-width: 0; border: 3px solid #2a3540; border-radius: 12px; padding: 10px 12px; font: 800 18px Nunito, sans-serif; color: var(--ink); background: #fff; user-select: text; }
   .ob .gm-row { justify-content: flex-end; }
   .ob .gm-btn { font-size: 17px; padding: 10px 16px; }
+  .ob-spot { position: absolute; inset: 0; background: radial-gradient(circle at var(--x, 64%) var(--y, 56%), transparent 0 12vmin, rgba(4, 7, 12, .5) 22vmin, rgba(4, 7, 12, .82) 42vmin); opacity: 0; transition: opacity .7s; }
+  .ob.spot .ob-spot { opacity: 1; }
   .ob-flash { position: absolute; inset: 0; background: radial-gradient(circle at 64% 52%, rgba(255, 255, 255, .85), transparent 38%); opacity: 0; }
   @media (max-width: 760px) {
     .ob-bar { height: 6vh; } body.onboarding .dialog { bottom: calc(6vh + 20px); } .ob-skip { top: calc(6vh + 10px); }
@@ -424,6 +430,7 @@
   <div class="bp-toast" id="gmToast" role="status"></div>
 </dialog>
 <div class="ob" id="onboard" hidden>
+  <div class="ob-spot" id="obSpot"></div>
   <div class="ob-bar top"></div><div class="ob-bar bot"></div>
   <section class="ob-title" id="obTitleCard">
     <h1 class="ob-logo">Verdant<span>Town</span></h1>
@@ -436,14 +443,14 @@
       <p class="ob-kicker">Step 1 of <span class="ob-of">3</span></p>
       <h2 class="ob-h" id="obLookTitle">Choose your look</h2>
       <div class="ob-chars" role="radiogroup" aria-labelledby="obLookTitle">
-        <label><input type="radio" name="char" value="serena" checked><span><b>Serena</b><small>Graceful and determined</small></span></label>
-        <label><input type="radio" name="char" value="calem"><span><b>Calem</b><small>Calm and cool-headed</small></span></label>
-        <label><input type="radio" name="char" value="tierno"><span><b>Tierno</b><small>Easygoing dancer</small></span></label>
-        <label><input type="radio" name="char" value="viola"><span><b>Viola</b><small>Bug-loving photographer</small></span></label>
-        <label><input type="radio" name="char" value="grant"><span><b>Grant</b><small>Steady rock climber</small></span></label>
-        <label><input type="radio" name="char" value="korrina"><span><b>Korrina</b><small>Fearless and fast</small></span></label>
-        <label><input type="radio" name="char" value="valerie"><span><b>Valerie</b><small>Dreamy designer</small></span></label>
-        <label><input type="radio" name="char" value="emma"><span><b>Emma</b><small>Curious and kind</small></span></label>
+        <label><input type="radio" name="char" value="serena" checked><span data-i="S" style="--c:#e2473b"><b>Serena</b><small>Graceful and determined</small></span></label>
+        <label><input type="radio" name="char" value="calem"><span data-i="C" style="--c:#34507e"><b>Calem</b><small>Calm and cool-headed</small></span></label>
+        <label><input type="radio" name="char" value="tierno"><span data-i="T" style="--c:#f0962e"><b>Tierno</b><small>Easygoing dancer</small></span></label>
+        <label><input type="radio" name="char" value="viola"><span data-i="V" style="--c:#6fb946"><b>Viola</b><small>Bug-loving photographer</small></span></label>
+        <label><input type="radio" name="char" value="grant"><span data-i="G" style="--c:#9a6a42"><b>Grant</b><small>Steady rock climber</small></span></label>
+        <label><input type="radio" name="char" value="korrina"><span data-i="K" style="--c:#3a8fd8"><b>Korrina</b><small>Fearless and fast</small></span></label>
+        <label><input type="radio" name="char" value="valerie"><span data-i="V" style="--c:#c96fd0"><b>Valerie</b><small>Dreamy designer</small></span></label>
+        <label><input type="radio" name="char" value="emma"><span data-i="E" style="--c:#e0b52a"><b>Emma</b><small>Curious and kind</small></span></label>
       </div>
       <div class="gm-row"><button type="button" class="gm-btn go" id="obLookNext">This is me ▸</button></div>
     </div>
@@ -463,9 +470,9 @@
       <p class="ob-kicker">Step 3 of 3</p>
       <h2 class="ob-h" id="obStarterTitle">Choose your partner</h2>
       <div class="ob-chars ob-one" role="radiogroup" aria-labelledby="obStarterTitle">
-        <label><input type="radio" name="starter" value="BULBASAUR" checked><span><b>Bulbasaur</b><small>Grass · steady and patient</small></span></label>
-        <label><input type="radio" name="starter" value="CHARMANDER"><span><b>Charmander</b><small>Fire · bold and lively</small></span></label>
-        <label><input type="radio" name="starter" value="SQUIRTLE"><span><b>Squirtle</b><small>Water · cheerful and tough</small></span></label>
+        <label><input type="radio" name="starter" value="BULBASAUR" checked><span data-i="B" style="--c:#6fbf45"><b>Bulbasaur</b><small>Grass · steady and patient</small></span></label>
+        <label><input type="radio" name="starter" value="CHARMANDER"><span data-i="C" style="--c:#ee8130"><b>Charmander</b><small>Fire · bold and lively</small></span></label>
+        <label><input type="radio" name="starter" value="SQUIRTLE"><span data-i="S" style="--c:#4f8ef0"><b>Squirtle</b><small>Water · cheerful and tough</small></span></label>
       </div>
       <div class="gm-row"><button type="button" class="gm-btn go" id="obStarterGo">I choose you! ▸</button></div>
     </div>
@@ -727,7 +734,7 @@ const walkH = (x, z) => onBridge(x, z) ? bridgeH(bridgeLocal(x, z)[0]) + 0.05 : 
 // ============================================================ renderer / scene / post
 const canvas = document.getElementById('c');
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: false, powerPreference: 'high-performance' });
-let DPR = Math.min(devicePixelRatio, 1.75); // lowered by the Graphics quality setting
+let DPR = Math.min(devicePixelRatio, 1.5); // lowered by the Graphics quality setting
 renderer.setPixelRatio(DPR);
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -911,12 +918,54 @@ const instQueue = {};
 function placeAsset(name, x, y, z, ry = 0, sx = 1, sy = sx, sz = sx, rx = 0, rz = 0) {
   (instQueue[name] ||= []).push(new THREE.Matrix4().compose(new V3(x, y, z), new THREE.Quaternion().setFromEuler(new THREE.Euler(rx, ry, rz)), new V3(sx, sy, sz)));
 }
+function lodGeo(geo, cells = 16) { // low-detail copy by vertex clustering: snap vertices to a grid, merge each cell into one averaged vertex, drop collapsed triangles
+  geo.computeBoundingBox(); const b = geo.boundingBox, s = b.getSize(new V3()), cell = Math.max(s.x, s.y, s.z) / cells;
+  const P = geo.attributes.position, N = geo.attributes.normal, C = geo.attributes.color, src = geo.index.array;
+  const ids = new Map(), map = new Int32Array(P.count), acc = [];
+  for (let i = 0; i < P.count; i++) {
+    const k = Math.floor((P.getX(i) - b.min.x) / cell) + Math.floor((P.getY(i) - b.min.y) / cell) * 1024 + Math.floor((P.getZ(i) - b.min.z) / cell) * 1048576;
+    let c = ids.get(k); if (c === undefined) { c = acc.length / 10; ids.set(k, c); acc.push(0, 0, 0, 0, 0, 0, 0, 0, 0, 0); }
+    map[i] = c; const o = c * 10;
+    acc[o] += P.getX(i); acc[o + 1] += P.getY(i); acc[o + 2] += P.getZ(i); acc[o + 3] += N.getX(i); acc[o + 4] += N.getY(i); acc[o + 5] += N.getZ(i);
+    acc[o + 6] += C.getX(i); acc[o + 7] += C.getY(i); acc[o + 8] += C.getZ(i); acc[o + 9]++;
+  }
+  const n = acc.length / 10, pos = new Float32Array(n * 3), nrm = new Float32Array(n * 3), col = new Float32Array(n * 3), tri = [];
+  for (let c = 0; c < n; c++) {
+    const o = c * 10, w = acc[o + 9], l = Math.hypot(acc[o + 3], acc[o + 4], acc[o + 5]) || 1;
+    for (let j = 0; j < 3; j++) { pos[c * 3 + j] = acc[o + j] / w; nrm[c * 3 + j] = acc[o + 3 + j] / l; col[c * 3 + j] = acc[o + 6 + j] / w; }
+  }
+  for (let i = 0; i < src.length; i += 3) { const a = map[src[i]], bb = map[src[i + 1]], c = map[src[i + 2]]; if (a !== bb && bb !== c && a !== c) tri.push(a, bb, c); }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.BufferAttribute(pos, 3)); g.setAttribute('normal', new THREE.BufferAttribute(nrm, 3)); g.setAttribute('color', new THREE.BufferAttribute(col, 3));
+  g.setIndex(tri); return g;
+}
+// Instanced props (trees, bushes, rocks) go in per-cell instanced meshes, so the camera and the sun's shadow camera both cull what they can't see.
+// Big parts (tree crowns ~12-15k triangles) also get a vertex-clustered copy (~2-4k) that stands in beyond LOD_R from the player.
+const CHUNK = 16, LOD_R = 17, LOD_CHUNKS = [];
 function flushInstances() {
-  for (const [name, list] of Object.entries(instQueue)) for (const p of ASSETS[name]) {
-    const im = new THREE.InstancedMesh(p.geo, AMAT[p.mat] || AMAT.base, list.length);
-    list.forEach((m, i) => im.setMatrixAt(i, m));
-    im.castShadow = !NO_SHADOW.has(p.mat); im.receiveShadow = true; im.frustumCulled = false;
-    scene.add(im);
+  for (const [name, list] of Object.entries(instQueue)) {
+    const cells = new Map();
+    for (const m of list) { const k = Math.floor(m.elements[12] / CHUNK) + ',' + Math.floor(m.elements[14] / CHUNK); if (!cells.has(k)) cells.set(k, []); cells.get(k).push(m); }
+    for (const ms of cells.values()) {
+      const c = { pts: ms.map(m => [m.elements[12], m.elements[14]]), pairs: [], near: null };
+      for (const p of ASSETS[name]) {
+        if (p.lod === undefined) p.lod = p.geo.index.count > 12000 ? lodGeo(p.geo) : null;
+        const make = geo => {
+          const im = new THREE.InstancedMesh(geo, AMAT[p.mat] || AMAT.base, ms.length);
+          ms.forEach((m, i) => im.setMatrixAt(i, m));
+          im.castShadow = !NO_SHADOW.has(p.mat); im.receiveShadow = true; // frustumCulled stays on: InstancedMesh culls by its instances' bounds
+          scene.add(im); return im;
+        };
+        const hi = make(p.geo); if (p.lod) c.pairs.push([hi, make(p.lod)]);
+      }
+      if (c.pairs.length) LOD_CHUNKS.push(c);
+    }
+  }
+}
+function lodTick() { // swap each cell between full and low detail by its trees' distance from the player
+  for (const c of LOD_CHUNKS) {
+    const near = c.pts.some(([x, z]) => Math.hypot(x - P.pos.x, z - P.pos.z) < LOD_R); if (near === c.near) continue; // full detail while any of its trees is close
+    c.near = near; for (const [hi, lo] of c.pairs) { hi.visible = near; lo.visible = !near; }
   }
 }
 
@@ -1854,10 +1903,17 @@ seed = VERDANT_SEED;
 
 const plainMat = new THREE.MeshLambertMaterial({ vertexColors: true });
 const MATS = { leaf: leafMat, rock: leafMat, flower: new THREE.MeshLambertMaterial({ vertexColors: true, emissive: '#2a2a2a' }) };
-for (const k in batches) {
-  const m = new THREE.Mesh(mergeGeometries(batches[k]), MATS[k] || plainMat);
-  m.castShadow = k !== 'flower'; m.receiveShadow = true;
-  scene.add(m);
+for (const k in batches) { // merged per material and per CHUNK cell (not across the whole world), so off-screen cells are culled
+  const cells = new Map();
+  for (const g of batches[k]) {
+    g.computeBoundingSphere(); const c = g.boundingSphere.center, key = Math.floor(c.x / CHUNK) + ',' + Math.floor(c.z / CHUNK);
+    if (!cells.has(key)) cells.set(key, []); cells.get(key).push(g);
+  }
+  for (const list of cells.values()) {
+    const m = new THREE.Mesh(mergeGeometries(list), MATS[k] || plainMat);
+    m.castShadow = k !== 'flower'; m.receiveShadow = true;
+    scene.add(m);
+  }
 }
 if (ASSETS) flushInstances();
 
@@ -5037,7 +5093,7 @@ function tickFx(dt) {
 }
 function instancesInto(s, name, mats) {
   for (const p of ASSETS[name]) {
-    const im = new THREE.InstancedMesh(p.geo, AMAT[p.mat] || AMAT.base, mats.length);
+    const im = new THREE.InstancedMesh(p.lod ?? p.geo, AMAT[p.mat] || AMAT.base, mats.length); // the arena's backdrop trees stand 14-24 m off: low detail when there is one
     mats.forEach((m, i) => im.setMatrixAt(i, m));
     im.receiveShadow = true; im.frustumCulled = false;
     s.add(im);
@@ -5890,7 +5946,8 @@ function update(dt, t) {
   uPlayer.value.copy(P.pos);
 
   // the party lead trails behind and to the side
-  follow(pika, PK, P.pos.x - Math.sin(P.face) * 0.85 - Math.cos(P.face) * 0.3, P.pos.z - Math.cos(P.face) * 0.85 + Math.sin(P.face) * 0.3, P.face, dt, t);
+  if (OB.stage === 'starter') { const f = obFront(); follow(pika, PK, f.x, f.z, OB_FACE, dt, t); } // picking a partner: it steps out in front of the trainer, facing the camera
+  else follow(pika, PK, P.pos.x - Math.sin(P.face) * 0.85 - Math.cos(P.face) * 0.3, P.pos.z - Math.cos(P.face) * 0.85 + Math.sin(P.face) * 0.3, P.face, dt, t);
   pika.userData.flame?.scale.set(1 + Math.sin(t * 23) * 0.12, 1 + Math.sin(t * 17) * 0.2, 1);
 
   nearest = null; let best = 1e9;
@@ -5925,7 +5982,7 @@ function update(dt, t) {
   for (const c of CLUES) { c.mark.visible = clueOpen(c); if (c.mark.visible) { c.mark.position.set(c.at[0], walkH(...c.at) + 1.1 + Math.sin(t * 2.5) * 0.12, c.at[1]); c.mark.rotation.y = t * 1.5; } }
   faceTowards(bulba, Math.hypot(P.pos.x - BU[0], P.pos.z - BU[1]) < 4 ? Math.atan2(P.pos.x - BU[0], P.pos.z - BU[1]) : 0.5 + Math.sin(t * 0.5) * 0.5, dt, 3);
 
-  kalosTick(dt, t); portalTick(); streamTick(dt, t);
+  kalosTick(dt, t); portalTick(); streamTick(dt, t); lodTick();
   for (const b of butterflies) {
     const a = t * b.sp + b.ph;
     b.b.position.set(b.cx + Math.sin(a) * 1.3 + Math.sin(a * 2.3) * 0.35, terrainH(b.cx, b.cz) + 0.8 + Math.sin(a * 3.1) * 0.25, b.cz + Math.cos(a * 0.8) * 1.3);
@@ -5975,6 +6032,7 @@ function update(dt, t) {
   OB.swoop -= dt;
   camPos.lerp(want, k); camLook.lerp(look, k); firstFrame = false;
   camera.position.copy(camPos); camera.lookAt(camLook);
+  if (ui.onboard) obSpot();
 
   sun.target.position.set(Math.round(camLook.x), 0, Math.round(camLook.z));
   sun.position.copy(sun.target.position).addScaledVector(SUN_DIR, 30);
@@ -6052,7 +6110,7 @@ for (const ev of ['keydown', 'pointerdown']) addEventListener(ev, () => { const 
 // ============================================================ Settings (per browser, not per save file)
 const SET_KEY = 'verdant-settings-v1';
 const TEXT_SPEED = { slow: 0.5, normal: 1, fast: 2, instant: 1e4 }; // instant is a big rate, not Infinity: dt can be 0 and 0 * Infinity is NaN
-const QUALITY = { high: [1.75, 2048], medium: [1, 1024], low: [0.75, 0] }; // [max pixel ratio, shadow map size (0 = no shadows)]
+const QUALITY = { high: [1.5, 2048, 4], medium: [1, 1024, 2], low: [0.75, 0, 0] }; // [max pixel ratio, shadow map size (0 = no shadows), MSAA samples]
 const SET_DEFAULT = { music: 1, sfx: 1, text: 'normal', quality: 'high', alwaysRun: false, calm: matchMedia('(prefers-reduced-motion: reduce)').matches };
 const SET = { ...SET_DEFAULT };
 try { // stored settings are untrusted: keep only known keys with valid values
@@ -6063,11 +6121,13 @@ try { // stored settings are untrusted: keep only known keys with valid values
   for (const k of ['alwaysRun', 'calm']) if (typeof s[k] === 'boolean') SET[k] = s[k];
 } catch {}
 function applySettings() {
-  const [dpr, shadow] = QUALITY[SET.quality];
+  const [dpr, shadow, msaa] = QUALITY[SET.quality];
   DPR = Math.min(devicePixelRatio, dpr); renderer.setPixelRatio(DPR); vw = 0; // frame() sees the size change and runs resize()
   sun.castShadow = shadow > 0; // toggling the light (not renderer.shadowMap) makes three.js rebuild the lit shaders
   if (shadow && sun.shadow.mapSize.x !== shadow) { sun.shadow.mapSize.set(shadow, shadow); sun.shadow.map?.dispose(); sun.shadow.map = null; }
   bloom.enabled = SET.quality !== 'low';
+  const samples = DPR >= 1.5 ? 0 : msaa; // dense screens are sharp enough without MSAA, and the half-float target is the costliest one per pixel
+  for (const rt of [composer.renderTarget1, composer.renderTarget2]) if (rt.samples !== samples) { rt.samples = samples; rt.dispose(); }
   if (SFX_GAIN) SFX_GAIN.gain.value = 1.4 * SET.sfx;
 }
 function saveSettings() { try { localStorage.setItem(SET_KEY, JSON.stringify(SET)); } catch { gmToast('Settings work now but can’t be remembered: browser storage is blocked.', true); } }
@@ -6243,15 +6303,29 @@ function obShot(want, look, t) { // writes this stage's camera target into want 
     look.set(p.x - START[0], hi ? 0 : 0.5, p.z - START[1]);
     want.set(look.x + Math.sin(a) * r, hi ? 18 : 8, look.z + Math.cos(a) * r);
   } else { // close-up from the south, the side the play camera keeps clear; the trainer turns to face it (obStage)
-    const narrow = vw <= 760, a = OB_FACE + Math.sin(t * 0.3) * 0.08, d = narrow ? 7 : 5.5; // on wide screens the trainer sits right of the panel
-    want.set(p.x + Math.sin(a) * d, p.y + 2.8, p.z + Math.cos(a) * d);
-    const fx = p.x - want.x, fz = p.z - want.z, l = Math.hypot(fx, fz), s = narrow ? 0 : 1.1; // the camera's left is (fz, -fx)
-    look.set(p.x + fz / l * s, p.y + (narrow ? 0.1 : 0.8), p.z - fx / l * s);
+    const narrow = vw <= 760, a = OB_FACE + Math.sin(t * 0.3) * 0.08, st = OB.stage === 'starter', d = st ? (narrow ? 4.6 : 3.4) : narrow ? 7 : 5.5; // on wide screens the subject sits right of the panel
+    const c = st ? obFront() : p; // picking a partner: frame the Pokémon standing in front of the trainer
+    want.set(c.x + Math.sin(a) * d, c.y + (st ? 2.1 : 2.8), c.z + Math.cos(a) * d); // partner shot looks down a little, over the grass at its feet
+    const fx = c.x - want.x, fz = c.z - want.z, l = Math.hypot(fx, fz), s = narrow ? 0 : st ? 0.75 : 1.1; // the camera's left is (fz, -fx)
+    look.set(c.x + fz / l * s, c.y + (st ? 0.35 : narrow ? 0.1 : 0.8), c.z - fx / l * s);
   }
+}
+const _obFront = new V3();
+function obFront() { const p = P.pos; return _obFront.set(p.x + Math.sin(OB_FACE) * 1.3, 0, p.z + Math.cos(OB_FACE) * 1.3).setY(walkH(_obFront.x, _obFront.z)); } // where the partner stands
+const OB_GLOW = new THREE.Mesh(new THREE.CircleGeometry(0.9, 40).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ // the spotlight's pool of light on the grass
+  map: canvasTex(64, 64, c => { const g = c.createRadialGradient(32, 32, 0, 32, 32, 32); g.addColorStop(0, 'rgba(255,240,200,.9)'); g.addColorStop(1, 'rgba(255,240,200,0)'); c.fillStyle = g; c.fillRect(0, 0, 64, 64); }),
+  transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }));
+OB_GLOW.visible = false; scene.add(OB_GLOW);
+function obSpot() { // darken everything but the partner: the overlay's clear circle follows the Pokémon on screen
+  const on = OB.stage === 'starter'; OB_GLOW.visible = on; if (!on) return;
+  OB_GLOW.position.set(pika.position.x, pika.position.y + 0.03, pika.position.z);
+  const v = pika.position.clone().add(new V3(0, 0.35, 0)).project(camera), el = $('obSpot');
+  el.style.setProperty('--x', (v.x * 0.5 + 0.5) * vw + 'px'); el.style.setProperty('--y', (-v.y * 0.5 + 0.5) * vh + 'px');
 }
 function obStage(s) {
   OB.stage = s;
   $('obSkip').hidden = s !== 'intro';
+  $('onboard').classList.toggle('spot', s === 'starter'); // spotlight on the partner while it is being picked
   $('obForm').hidden = !['look', 'name', 'confirm', 'starter'].includes(s);
   for (const el of $('obForm').querySelectorAll('.ob-step')) el.hidden = el.dataset.step !== s;
   if (s === 'look') { P.face = OB_FACE;$('obForm').querySelector('input[name=char]:checked').focus(); }
