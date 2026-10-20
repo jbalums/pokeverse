@@ -633,7 +633,12 @@ for (let i = 0; i < rvPts.length; i++) { // horizontal slice -> perpendicular ha
 const RV = catmull(rvPts, 10);
 const RI = { d: 0, level: 0, hw: 0, s: 0 };
 const RV_S = [0]; for (let i = 1; i < RV.length; i++) RV_S.push(RV_S[i - 1] + Math.hypot(RV[i][0] - RV[i - 1][0], RV[i][1] - RV[i - 1][1]));
+const RV_BOX = RV.reduce((b, p) => [Math.min(b[0], p[0]), Math.min(b[1], p[1]), Math.max(b[2], p[0]), Math.max(b[3], p[1])], [1e9, 1e9, -1e9, -1e9]);
+const RV_FAR = 14; // past every use of the distance: banks, reeds, flowers, and the brook sound's 12 m fade
 function riverInfo(x, z) {
+  if (x < RV_BOX[0] - RV_FAR || x > RV_BOX[2] + RV_FAR || z < RV_BOX[1] - RV_FAR || z > RV_BOX[3] + RV_FAR) { // far from the river: skip the segment scan (streamed cells sample this a lot)
+    RI.d = 1e3; RI.level = -Infinity; RI.hw = 0; RI.s = 0; return RI;
+  }
   let best = 1e9, bi = 0, bt = 0;
   for (let i = 0; i < RV.length - 1; i++) {
     const a = RV[i], b = RV[i + 1], dx = b[0] - a[0], dz = b[1] - a[1];
@@ -1046,6 +1051,45 @@ function terrainCell(cx, cz, res) {
 for (let cz = cellOf(TZ0); cz <= cellOf(TZ1 - 1e-6); cz++) for (let cx = cellOf(TX0); cx <= cellOf(TX1 - 1e-6); cx++) {
   const m = terrainCell(cx, cz, TRES); scene.add(m); GROUND.push(m);
 }
+
+// ============================================================ streaming: Verdant cells outside the core are built near the camera, dropped far from it
+// A cell is wanted while it lies within the fog radius of the camera and the (slightly widened) view could show it. Wanted cells
+// are built nearest first, one a frame; on a snap frame (start-up, teleport, loaded save) all at once, and any cell nearer than the
+// fog's start at once too, so a fast turn never shows a hole. Every cell is rebuilt the same from its coordinates, so nothing is kept.
+const STREAM_RES = 0.25, VERDANT_CELLS = { cx0: -12, cx1: 11, cz0: -14, cz1: 3 }; // inclusive; x stays well inside +-240 (Fleurville, Test Grounds)
+const streamable = (cx, cz) => cx >= VERDANT_CELLS.cx0 && cx <= VERDANT_CELLS.cx1 && cz >= VERDANT_CELLS.cz0 && cz <= VERDANT_CELLS.cz1 && !isCoreCell(cx, cz);
+const CELLS = { cells: new Map(), built: 0, disposed: 0 };
+function buildCell(cx, cz) {
+  const group = new THREE.Group(), ground = terrainCell(cx, cz, STREAM_RES);
+  group.add(ground); scene.add(group); GROUND.push(ground);
+  const c = { cx, cz, group, ground, lod: [], trees: [] };
+  CELLS.cells.set(cellKey(cx, cz), c); CELLS.built++; return c;
+}
+function disposeCell(c) { // shared kit / flora geometries and materials stay; only what the cell made goes
+  scene.remove(c.group); GROUND.splice(GROUND.indexOf(c.ground), 1);
+  c.group.traverse(o => { if (o.geometry?.userData.owned) o.geometry.dispose(); if (o.isInstancedMesh) o.dispose(); });
+  CELLS.cells.delete(cellKey(c.cx, c.cz)); CELLS.disposed++;
+}
+const cellDistTo = (cx, cz, x, z) => Math.hypot(Math.max(cx * CHUNK - x, 0, x - (cx + 1) * CHUNK), Math.max(cz * CHUNK - z, 0, z - (cz + 1) * CHUNK));
+const cellDist = c => { const [cx, cz] = typeof c === 'string' ? c.split(',').map(Number) : [c.cx, c.cz]; return cellDistTo(cx, cz, camera.position.x, camera.position.z); }; // from the camera's ground point
+const _frustum = new THREE.Frustum(), _pv = new THREE.Matrix4(), _cellBox = new THREE.Box3();
+function wantedCells() {
+  camera.updateMatrixWorld(); _frustum.setFromProjectionMatrix(_pv.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse));
+  const R = scene.fog.far, x = camera.position.x, z = camera.position.z, m = CHUNK / 2, out = [];
+  for (let cz = cellOf(z - R); cz <= cellOf(z + R); cz++) for (let cx = cellOf(x - R); cx <= cellOf(x + R); cx++) {
+    if (!streamable(cx, cz) || cellDistTo(cx, cz, x, z) > R) continue;
+    _cellBox.min.set(cx * CHUNK - m, -2, cz * CHUNK - m); _cellBox.max.set((cx + 1) * CHUNK + m, 8, (cz + 1) * CHUNK + m);
+    if (_frustum.intersectsBox(_cellBox)) out.push(cellKey(cx, cz));
+  }
+  return out;
+}
+function cellTick(snap) {
+  for (const c of [...CELLS.cells.values()]) if (cellDist(c) > scene.fog.far + 2 * CHUNK) disposeCell(c);
+  const todo = wantedCells().filter(k => !CELLS.cells.has(k)).map(k => k.split(',').map(Number))
+    .sort((a, b) => cellDistTo(...a, camLook.x, camLook.z) - cellDistTo(...b, camLook.x, camLook.z));
+  todo.forEach(([cx, cz], i) => { if (snap || i === 0 || cellDistTo(cx, cz, camera.position.x, camera.position.z) < scene.fog.near) buildCell(cx, cz); });
+}
+const frames = async n => { while (n-- > 0) tick(); }; // debug checks: step the world n frames now (rAF stalls in a hidden pane)
 
 // retaining walls along the plaza edge (skipping the stairs) + stone steps
 function wallSeg(a, b) {
@@ -3897,6 +3941,8 @@ window.debug = { // testing hooks, from the console or the ` key: debug.give('KI
   battle: (key = 'PIDGEY', level = 3) => Object.hasOwn(SPECIES, key = String(key).toUpperCase()) && startBattle(key, Math.floor(+level) || 3),
   shop: () => openShop(), // the Fleurville Poké Mart counter, without walking there
   follower: () => ({ key: followKey, at: pika.position.toArray().map(n => +n.toFixed(2)), size: +new THREE.Box3().setFromObject(pika).getSize(new V3()).y.toFixed(2), player: P.pos.toArray().map(n => +n.toFixed(2)) }),
+  go: (x, z) => { placePlayer(+x, +z, 0); firstFrame = true; return frames(2); }, // warp and snap the camera and cells there (resolves once drawn)
+  stream: () => ({ loaded: [...CELLS.cells.keys()], built: CELLS.built, disposed: CELLS.disposed }),
   stats: () => { const r = renderer.info; return { calls: r.render.calls, triangles: r.render.triangles, geometries: r.memory.geometries }; },
   coreHash: () => { // fingerprint of the core world's placements: any reshuffle of the shared rnd() stream changes it
     let s = 0; for (const a of [trees, circles, boxes]) for (const o of a) for (const v of Object.values(o)) s += +v || 0;
@@ -3923,6 +3969,15 @@ const CHECKS = [
     const ims = scene.children.filter(o => o.isInstancedMesh && o.material.customProgramCacheKey?.().startsWith('verdant-flora'));
     return ims.length > 4 && ims.every(im => { const k = keyAt(im, 0); for (let i = 1; i < im.count; i++) if (keyAt(im, i) !== k) return false; return true; });
   }],
+  ['fogAtZoom1', () => viewFog(CAM_DIST, false).map(v => v.toFixed(1)) + '' === '34.0,70.0'],
+  ['fogFpv', () => viewFog(99, true) + '' === '34,70'],
+  ['farFollowsFog', () => Math.abs(camera.far - (scene.fog.far + 1)) < 1e-6],
+  ['zoomClamped', () => { const z0 = zoom; for (let i = 0; i < 60; i++) dispatchEvent(new WheelEvent('wheel', { deltaY: 1 })); const ok = zoom === ZOOM_MAX; zoom = z0; return ok; }],
+  ['snapLoadsAll', async () => { await debug.go(40, -60); const w = wantedCells(); return w.length > 0 && w.every(k => CELLS.cells.has(k)); }],
+  ['farCellsDisposed', async () => { await debug.go(40, -60); await debug.go(...START); return [...CELLS.cells.values()].every(c => cellDist(c) <= scene.fog.far + 2 * CHUNK); }],
+  ['nearCellsAlwaysLoaded', async () => { await debug.go(40, -60); VIEW.yaw += Math.PI; await frames(3); const ok = wantedCells().filter(k => cellDist(k) < scene.fog.near).every(k => CELLS.cells.has(k)); VIEW.yaw -= Math.PI; return ok; }],
+  ['noLeakAfterRoundTrips', async () => { await debug.go(...START); await frames(5); const g0 = renderer.info.memory.geometries; for (let i = 0; i < 5; i++) { await debug.go(40, -60); await debug.go(...START); } await frames(5); return renderer.info.memory.geometries === g0; }],
+  ['coreNeverStreamed', () => [...CELLS.cells.values()].every(c => !isCoreCell(c.cx, c.cz))],
 ];
 
 // overworld party HUD (portraits rendered from the 3D models, cached per species)
@@ -3935,10 +3990,6 @@ function portrait(key) {
     const pr = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
     pr.setSize(180, 180); pr.toneMapping = THREE.ACESFilmicToneMapping; pr.toneMappingExposure = 1.15;
     const ps = new THREE.Scene(); ps.add(new THREE.HemisphereLight('#ffffff', '#556070', 2));
-  ['fogAtZoom1', () => viewFog(CAM_DIST, false).map(v => v.toFixed(1)) + '' === '34.0,70.0'],
-  ['fogFpv', () => viewFog(99, true) + '' === '34,70'],
-  ['farFollowsFog', () => Math.abs(camera.far - (scene.fog.far + 1)) < 1e-6],
-  ['zoomClamped', () => { const z0 = zoom; for (let i = 0; i < 60; i++) dispatchEvent(new WheelEvent('wheel', { deltaY: 1 })); const ok = zoom === ZOOM_MAX; zoom = z0; return ok; }],
     const dl = new THREE.DirectionalLight('#fff', 2.2); dl.position.set(1, 2, 3); ps.add(dl);
     portraitKit = { pr, ps, cam: new THREE.PerspectiveCamera(30, 1, 0.1, 20) };
   }
@@ -6388,8 +6439,12 @@ function update(dt, t) {
   if (ui.onboard) obShot(want, look, t);
   const k = firstFrame || fpv ? 1 : 1 - Math.exp(-dt * (ui.onboard || OB.swoop > 0 ? 1.3 : 4)); // slow glides between shots and into play; first person never lags the head
   OB.swoop -= dt;
+  const snap = firstFrame; // a camera snap (start-up, teleport, loaded save) builds every wanted cell this frame
   camPos.lerp(want, k); camLook.lerp(look, k); firstFrame = false;
   camera.position.copy(camPos); camera.lookAt(camLook);
+  [scene.fog.near, scene.fog.far] = viewFog(CAM_DIST * zoom, fpv);
+  if (camera.far !== scene.fog.far + 1) { camera.far = scene.fog.far + 1; camera.updateProjectionMatrix(); } // nothing past solid fog is drawn
+  cellTick(snap);
   if (ui.onboard) obSpot();
 
   sun.target.position.set(Math.round(camLook.x), 0, Math.round(camLook.z));
@@ -6407,8 +6462,6 @@ function update(dt, t) {
   floor.position.set(GALLERY.x0 + w / 2, GALLERY.h - 0.04, GALLERY.z0 + d / 2); floor.receiveShadow = true; scene.add(floor);
 }
 function galleryLabel(text) {
-  [scene.fog.near, scene.fog.far] = viewFog(CAM_DIST * zoom, fpv);
-  if (camera.far !== scene.fog.far + 1) { camera.far = scene.fog.far + 1; camera.updateProjectionMatrix(); } // nothing past solid fog is drawn
   const c = document.createElement('canvas'), x = c.getContext('2d'); c.width = 256; c.height = 48;
   x.fillStyle = 'rgba(20,30,40,.72)'; x.beginPath(); x.roundRect(2, 4, 252, 40, 14); x.fill();
   x.fillStyle = '#fff'; x.font = 'bold 22px Nunito, sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText(text, 128, 25, 240);
@@ -6633,20 +6686,20 @@ $('gmView').addEventListener('input', e => {
 $('gmView').addEventListener('change', e => { if (e.target.dataset.set === 'sfx') SND.chime(); }); // let the player hear the new level
 $('quitBack').onclick = () => { ui.quit = false; $('quitScreen').classList.remove('show'); $('menuBtn').focus(); };
 
-function frame() {
+function frame() { tick(); requestAnimationFrame(frame); }
+function tick() { // one frame of the world; debug checks also step it directly, so they run while the pane is hidden (no rAF)
   if (innerWidth !== vw || innerHeight !== vh) resize();
   const dt = Math.min(clock.getDelta(), 0.05), t = clock.elapsedTime;
-  if (ui.quit) { requestAnimationFrame(frame); return; } // quit screen: the world stops
+  if (ui.quit) return; // quit screen: the world stops
   playTime += dt;
   musicTick(); ambientTick();
-  if (ui.pokedex) { tickDex(dt); requestAnimationFrame(frame); return; }
+  if (ui.pokedex) { tickDex(dt); return; }
   tickTweens(dt); tickXYMixers(BT.active && BT.stop > 0 ? 0 : dt); // models freeze during a battle hit-stop
   if (!GAL.started && galleryD(P.pos.x, P.pos.z) < 14) loadGallery();
   if (!KAL.started) startKalos();
   if (renderPass.scene === BT.scene) battleTick(dt, t); else update(dt, t);
   renderer.info.reset(); composer.render(); // one frame's totals across every pass (debug.stats)
   if (!BT.active) drawMinimap();
-  requestAnimationFrame(frame);
 }
 // ============================================================ Onboarding: a new game (or a save from before onboarding) picks a trainer and a nickname
 // Stages: title (card over a high orbit of the town) > intro (the Professor talks, lower orbit) > look > name > confirm (close-up of
