@@ -971,7 +971,9 @@ function lodGeo(geo, cells = 16) { // low-detail copy by vertex clustering: snap
   }
   const n = acc.length / 10, pos = new Float32Array(n * 3), nrm = new Float32Array(n * 3), col = new Float32Array(n * 3), tri = [];
   for (let c = 0; c < n; c++) {
-    const o = c * 10, w = acc[o + 9], l = Math.hypot(acc[o + 3], acc[o + 4], acc[o + 5]) || 1;
+    const o = c * 10, w = acc[o + 9];
+    let l = Math.hypot(acc[o + 3], acc[o + 4], acc[o + 5]);
+    if (l < 1e-4) { acc[o + 3] = acc[o + 5] = 0; acc[o + 4] = l = 1; } // two-sided faces cancelled out: face up (a zero normal is NaN in the shader)
     for (let j = 0; j < 3; j++) { pos[c * 3 + j] = acc[o + j] / w; nrm[c * 3 + j] = acc[o + 3 + j] / l; col[c * 3 + j] = acc[o + 6 + j] / w; }
   }
   for (let i = 0; i < src.length; i += 3) { const a = map[src[i]], bb = map[src[i + 1]], c = map[src[i + 2]]; if (a !== bb && bb !== c && a !== c) tri.push(a, bb, c); }
@@ -4118,6 +4120,9 @@ const CHECKS = [
   ['forestDensity', () => { const n = fillCell(-8, -8, cellRand(-8, -8), new THREE.Group()).trees.length; return n >= 30 && n <= 70; }],
   ['corridorFree', async () => { await debug.go(...ROUTE1[ROUTE1.length >> 1]); return CELLS.cells.size > 0 && [...CELLS.cells.values()].every(c => c.trees.every(([x, z]) => routeD(x, z) >= ROUTE_HALF + 1)); }],
   ['miniTilesForLoaded', () => CELLS.cells.size > 0 && [...CELLS.cells.keys()].every(k => MINI_TILES.has(k))],
+  ['farLodNormals', () => FAR_GEO.size > 0 && [...FAR_GEO.values()].every(g => { // a zero normal is NaN in the shader, and bloom smears one NaN pixel over the frame
+    const n = g.attributes.normal; for (let i = 0; i < n.count; i++) if (Math.hypot(n.getX(i), n.getY(i), n.getZ(i)) < 0.5) return false; return true;
+  })],
 ];
 
 // overworld party HUD (portraits rendered from the 3D models, cached per species)
