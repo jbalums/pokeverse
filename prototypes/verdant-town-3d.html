@@ -14,11 +14,29 @@
   #c { display: block; position: fixed; inset: 0; width: 100vw; height: 100vh; touch-action: none; }
 
   .loc { position: fixed; top: 2.4vh; left: 1.6vw; display: flex; align-items: center; gap: 12px; padding: 10px 34px 10px 16px; background: var(--panel); color: #fff; border-radius: 999px; font-weight: 800; font-size: 20px; border: 1.5px solid rgba(255,255,255,.22); box-shadow: 0 4px 14px rgba(0,0,0,.25); }
-  .obj { position: fixed; top: calc(2.4vh + 56px); left: 1.6vw; max-width: min(420px, calc(100vw - 32px)); padding: 6px 16px 6px 12px; background: var(--panel); color: #fff; border-radius: 999px; font-weight: 700; font-size: 15px; border: 1.5px solid rgba(255,255,255,.22); box-shadow: 0 4px 14px rgba(0,0,0,.25); }
-  .obj:empty { display: none; }
-  .obj.side { top: calc(2.4vh + 96px); white-space: pre-line; color: #cdeeff; border-color: rgba(94, 200, 255, .55); }
-  .obj.side::before { content: none; }
-  .obj::before { content: "▸ "; color: #ffd23f; }
+  /* quest tracker: one card per quest; click (or Q) tracks it, and the guide arrow on the ground points the way */
+  .quests { position: fixed; top: calc(2.4vh + 58px); left: 1.6vw; width: min(340px, calc(100vw - 32px)); display: flex; flex-direction: column; gap: 6px; z-index: 3; }
+  .quests button { font: inherit; color: inherit; text-align: left; cursor: pointer; }
+  .quests .qh { align-self: flex-start; display: flex; align-items: center; gap: 8px; padding: 4px 12px 4px 14px; background: var(--panel); color: #fff; border: 1.5px solid rgba(255,255,255,.18); border-radius: 999px; font-weight: 800; font-size: 13px; letter-spacing: .06em; text-transform: uppercase; }
+  .quests .qh .n { min-width: 20px; padding: 0 6px; border-radius: 999px; background: rgba(255,255,255,.16); text-align: center; font-size: 12px; }
+  .quests .qh .car { opacity: .7; }
+  .quests .q { --c: #ffc21a; --ink: #7a4a00; display: grid; grid-template-columns: 26px 1fr auto; align-items: center; gap: 10px; padding: 9px 12px 9px 10px; background: var(--panel); color: #fff;
+    border: 1.5px solid rgba(255,255,255,.12); border-left: 4px solid var(--c); border-radius: 14px; backdrop-filter: blur(4px); transition: transform .12s, border-color .12s, background .12s; }
+  .quests .q.side { --c: #5ec8ff; --ink: #0b4f7a; }
+  .quests .q:hover { background: rgba(44, 52, 62, .9); transform: translateX(2px); }
+  .quests .q:focus-visible, .quests .qh:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+  .quests .q.on { border-color: var(--c); box-shadow: 0 0 0 2px color-mix(in srgb, var(--c) 35%, transparent), 0 6px 18px rgba(0,0,0,.25); }
+  .quests .qi { width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; background: var(--c); color: var(--ink); font-weight: 900; font-size: 15px; box-shadow: 0 0 0 2px var(--ink); }
+  .quests .q:not(.on) .qi { opacity: .75; }
+  .quests .qx { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .quests .qt { font-size: 11px; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; color: var(--c); }
+  .quests .qo { font-size: 14px; font-weight: 700; line-height: 1.25; }
+  .quests .qo b { color: var(--c); font-weight: 900; }
+  .quests .qb { height: 4px; margin-top: 4px; border-radius: 4px; background: rgba(255,255,255,.15); overflow: hidden; }
+  .quests .qb i { display: block; height: 100%; background: var(--c); border-radius: 4px; transition: width .3s; }
+  .quests .qd { font-size: 12px; font-weight: 800; color: rgba(255,255,255,.75); white-space: nowrap; }
+  .quests .q.on .qd::before { content: "➤ "; color: var(--c); }
+  .quests.min .q:not(.on) { display: none; }
   .loc svg { width: 22px; height: 22px; }
 
   .mm { position: fixed; top: 2vh; right: 1.2vw; width: 206px; height: 206px; }
@@ -58,7 +76,7 @@
   /* battle */
   .battle { position: fixed; inset: 0; pointer-events: none; display: none; }
   body.in-battle .battle { display: block; }
-  body.in-battle .loc, body.in-battle .obj, body.in-battle .mm, body.in-battle .party, body.in-battle .btns, body.in-battle .hint, body.in-battle .prompt, body.in-battle .dialog { display: none !important; }
+  body.in-battle .loc, body.in-battle .quests, body.in-battle .mm, body.in-battle .party, body.in-battle .btns, body.in-battle .hint, body.in-battle .prompt, body.in-battle .dialog { display: none !important; }
   .bx { position: absolute; width: min(380px, 44vw); background: #fffdf6; border: 4px solid #2a3540; border-radius: 18px 18px 18px 6px; padding: 10px 18px 12px; box-shadow: 0 6px 18px rgba(0,0,0,.3); transition: opacity .3s, transform .3s; }
   .bx.hide { opacity: 0; transform: translateY(-10px); }
   .bx.foe { top: 5vh; left: 4vw; }
@@ -160,8 +178,7 @@
     .btn { width: 56px; height: 56px; } .btn svg { width: 28px; height: 28px; }
     .btns { right: 16px; gap: 10px; }
     .loc { font-size: 15px; top: 16px; left: 16px; padding: 8px 18px 8px 12px; }
-    .obj { font-size: 13px; top: 58px; left: 16px; }
-    .obj.side { top: 92px; }
+    .quests { top: 58px; left: 16px; } .quests .qo { font-size: 13px; }
     .hint { display: none; }
     .dialog { bottom: 110px; }
     .bx { width: 46vw; padding: 6px 10px; } .bx .nm { font-size: 15px; } .bx.me { bottom: 186px; }
@@ -275,7 +292,7 @@
   .shop .buy { font: 900 16px Nunito, sans-serif; color: var(--ink); background: #ffd23f; border: 3px solid #2a3540; border-radius: 999px; padding: 4px 16px; cursor: pointer; }
   .shop .buy:hover, .shop .buy:focus-visible { background: #ffe680; }
   /* ---------- Onboarding: title card over the town, the Professor's welcome, then look + nickname in a close-up of the trainer */
-  body.onboarding :is(.loc, .obj, .mm, .party, .btns, .hint, .prompt) { visibility: hidden; }
+  body.onboarding :is(.loc, .quests, .mm, .party, .btns, .hint, .prompt) { visibility: hidden; }
   body.onboarding .dialog { bottom: calc(9vh + 28px); }
   .ob { position: fixed; inset: 0; pointer-events: none; font-family: Nunito, sans-serif; }
   .ob[hidden] { display: none; }
@@ -376,10 +393,9 @@
 <canvas id="c"></canvas>
 
 <div class="loc"><svg viewBox="0 0 24 24" fill="#fff"><path d="M12 2a7 7 0 0 0-7 7c0 5.2 7 13 7 13s7-7.8 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg><span id="locName">Verdant Town</span></div>
-<div class="obj" id="obj" aria-live="polite"></div>
-<div class="obj side" id="sideObj" aria-live="polite"></div>
+<nav class="quests" id="quests" aria-label="Quests" aria-live="polite"></nav>
 <div class="mm"><canvas id="mm" width="412" height="412"></canvas><div class="n">N</div></div>
-<div class="hint" id="hint"><kbd>WASD</kbd> walk · <kbd>Shift</kbd> run · <kbd>E</kbd> talk · click to move · drag to look · <kbd>V</kbd> first person · scroll to zoom · <kbd>G</kbd> test grounds · <kbd>T</kbd> travel to Fleurville</div>
+<div class="hint" id="hint"><kbd>WASD</kbd> walk · <kbd>Shift</kbd> run · <kbd>E</kbd> talk · click to move · drag to look · <kbd>Q</kbd> track quest · <kbd>V</kbd> first person · scroll to zoom · <kbd>G</kbd> test grounds · <kbd>T</kbd> travel to Fleurville</div>
 
 <div class="party" id="party"></div>
 
@@ -2857,14 +2873,7 @@ for (const c of CLUES) {
   } });
 }
 function questChanged() { renderObjective(); placeStoryNpcs(); placeRival(); saveGame(); }
-function renderObjective() {
-  const n = story.clues.length;
-  $('obj').textContent = { 'meet-prof': 'Talk to Prof. Sycamore', 'investigate-stream': `Inspect the quiet stream (${n}/${CLUES.length})`,
-    'report-clues': 'Report to Prof. Sycamore', 'find-ranger': 'Find the apprentice ranger on Meadow Route', 'investigate-clearing': 'Investigate the woodland clearing off Meadow Route',
-    'shut-device': 'Shut down the strange device', 'report-device': 'Report to Prof. Sycamore', 'chapter-complete': 'Ask Prof. Sycamore about your next assignment',
-    'deliver-chip': 'Bring the signal chip to Clemont in Fleurville (press T to travel)', 'act1-complete': 'Act I complete! Follow the Halcyon signals (Act II)' }[story.step];
-  $('sideObj').textContent = sideObjectives().join('\n');
-}
+function renderObjective() { renderTracker(); } // the quest tracker card (see questList)
 function profTalk() { // [lines, after] for the current step; each grant happens only on its own step transition
   const left = CLUES.length - story.clues.length;
   return {
@@ -2900,6 +2909,7 @@ function chapterSave() { // the chapter-complete save point: a save file of its 
 }
 
 // Ranger Lea: posted on Meadow Route; after her battle she waits at the clearing's edge
+const PROF = 'Prof. Sycamore';
 const RANGER = 'Ranger Lea', RANGER_AT = I(1560, 330, 0), RANGER_CLEAR = [CLEAR.x - 3.4, CLEAR.z + 1.6];
 const RANGER_TEAM = [['PIDGEY', 3], ['ODDISH', 4]]; // beatable by a lone Lv5 starter without items
 function rangerTalk() { // [lines, after] for the current step
@@ -3062,27 +3072,87 @@ function rivalTalk() {
   return [['The League is waiting. See you in the Championship!']];
 }
 const QUEST_TALK = { 'Hiker Mia': notesTalk, Clemont: clemontTalk }; // NPC name -> () => [lines, after] | null; act() asks it before the everyday lines
-function sideObjectives() {
-  const out = [];
-  if (SIDE.rival === 1) out.push(reached('chapter-complete') ? `▸ A Rival's Promise: rematch ${RIVAL} in town` : `▸ A Rival's Promise: restore the stream, then meet ${RIVAL}`);
-  if (SIDE.notes === 1) out.push(SIDE.seen.length >= NOTES_GOAL ? '▸ Field Notes: report to Hiker Mia' : `▸ Field Notes: battle different wild Pokémon (${SIDE.seen.length}/${NOTES_GOAL})`);
-  if (SIDE.scraps === 1) out.push(SIDE.got.length >= SCRAPS.length ? '▸ Survey Scraps: bring the parts to Ranger Lea' : `▸ Survey Scraps: collect parts on Meadow Route (${SIDE.got.length}/${SCRAPS.length})`);
-  return out;
+// The quest log: one entry per quest under way, with what to do next and where ([x, z, marker height] targets; none when the goal
+// is "anywhere", like battling wild Pokémon). Markers, the tracker card and the guide arrow all read it.
+const MAIN_TEXT = { 'meet-prof': 'Talk to Prof. Sycamore', 'investigate-stream': 'Inspect the quiet stream', 'report-clues': 'Report to Prof. Sycamore',
+  'find-ranger': 'Find the apprentice ranger on Meadow Route', 'investigate-clearing': 'Investigate the woodland clearing', 'shut-device': 'Shut down the strange device',
+  'report-device': 'Report to Prof. Sycamore', 'chapter-complete': 'Ask Prof. Sycamore about your next assignment', 'deliver-chip': 'Bring the signal chip to Clemont in Fleurville',
+  'act1-complete': 'Act I complete! Follow the Halcyon signals in Act II' };
+const npcSpot = name => { const n = npcs.find(k => k.name === name && k.h.root.visible); return n ? [[n.x, n.z, 2.9]] : []; };
+function questList() {
+  const st = story.step, q = [];
+  const prof = () => npcSpot(PROF), main = { 'meet-prof': prof, 'report-clues': prof, 'report-device': prof, 'chapter-complete': prof, 'find-ranger': () => npcSpot(RANGER),
+    'investigate-stream': () => CLUES.filter(clueOpen).map(c => [c.at[0], c.at[1], 1.4]), 'investigate-clearing': () => [[GUARD_AT[0], GUARD_AT[1], 1.9]],
+    'shut-device': () => [[DEV_AT[0], DEV_AT[1], 2.9]], 'deliver-chip': () => npcSpot('Clemont') }[st]?.() ?? [];
+  q.push({ id: 'main', side: false, title: reached('chapter-complete') ? 'Act I · First Signs' : 'Chapter 1 · The Silent Stream', text: MAIN_TEXT[st],
+    prog: st === 'investigate-stream' ? [story.clues.length, CLUES.length] : null, targets: main });
+  if (SIDE.rival === 1) q.push({ id: 'rival', side: true, title: 'A Rival’s Promise', prog: null,
+    text: reached('chapter-complete') ? `Rematch ${RIVAL} in town` : `Restore the stream, then meet ${RIVAL} again`, targets: reached('chapter-complete') ? npcSpot(RIVAL) : [] });
+  if (SIDE.notes === 1) { const done = SIDE.seen.length >= NOTES_GOAL;
+    q.push({ id: 'notes', side: true, title: 'Field Notes', text: done ? 'Report to Hiker Mia' : 'Battle different wild Pokémon in tall grass',
+      prog: done ? null : [SIDE.seen.length, NOTES_GOAL], targets: done ? npcSpot('Hiker Mia') : [] }); }
+  if (SIDE.scraps === 1) { const done = SIDE.got.length >= SCRAPS.length;
+    q.push({ id: 'scraps', side: true, title: 'Survey Scraps', text: done ? 'Bring the parts to Ranger Lea' : 'Collect stamped parts on Meadow Route',
+      prog: done ? null : [SIDE.got.length, SCRAPS.length], targets: done ? npcSpot(RANGER) : SCRAPS.filter((c, i) => !SIDE.got.includes(i)).map(c => [c.at[0], c.at[1], 1.2]) }); }
+  return q;
 }
-function questMarks() { // everything that should wear a "!" right now: [x, z, height above the ground, side?]
-  const m = [], npcMark = (name, side) => { const n = npcs.find(k => k.name === name && k.h.root.visible); if (n) m.push([n.x, n.z, 2.9, side]); };
-  const st = story.step;
-  if (['meet-prof', 'report-clues', 'report-device', 'chapter-complete'].includes(st)) npcMark(PROF, false);
-  if (st === 'investigate-stream') for (const c of CLUES) if (clueOpen(c)) m.push([c.at[0], c.at[1], 1.4, false]);
-  if (st === 'find-ranger') npcMark(RANGER, false);
-  if (st === 'investigate-clearing') m.push([GUARD_AT[0], GUARD_AT[1], 1.9, false]);
-  if (st === 'shut-device') m.push([DEV_AT[0], DEV_AT[1], 2.9, false]);
-  if (st === 'deliver-chip') npcMark('Clemont', false);
-  if (reached('investigate-stream') && (SIDE.rival === 0 || SIDE.rival === 1 && reached('chapter-complete'))) npcMark(RIVAL, true);
-  if (reached('investigate-stream') && (SIDE.notes === 0 || SIDE.notes === 1 && SIDE.seen.length >= NOTES_GOAL)) npcMark('Hiker Mia', true);
-  if (restored() && (SIDE.scraps === 0 || SIDE.scraps === 1 && SIDE.got.length >= SCRAPS.length)) npcMark(RANGER, true);
-  if (SIDE.scraps === 1) SCRAPS.forEach((c, i) => { if (!SIDE.got.includes(i)) m.push([c.at[0], c.at[1], 1.2, true]); });
+function questMarks() { // everything that should wear a "!" right now: [x, z, height above the ground, side?, quest id]
+  const m = questList().flatMap(q => q.targets.map(t => [t[0], t[1], t[2], q.side, q.id]));
+  const offer = (name, id) => npcSpot(name).forEach(t => m.push([t[0], t[1], t[2], true, id])); // side quests waiting to be picked up
+  if (reached('investigate-stream') && SIDE.rival === 0) offer(RIVAL, 'rival');
+  if (reached('investigate-stream') && SIDE.notes === 0) offer('Hiker Mia', 'notes');
+  if (restored() && SIDE.scraps === 0) offer(RANGER, 'scraps');
   return m;
+}
+// ---- quest tracker: the card top-left. Click a quest (or press Q) to track it; the guide arrow then points the way.
+let tracked = 'main', trackerMin = false;
+const sameMap = (x, x2) => inKalos(x) === inKalos(x2);
+function nearestTarget(q) { // the closest target on this map, or null; [x, z, distance]
+  let best = null;
+  for (const [x, z] of q?.targets ?? []) { if (!sameMap(x, P.pos.x)) continue; const d = Math.hypot(x - P.pos.x, z - P.pos.z); if (!best || d < best[2]) best = [x, z, d]; }
+  return best;
+}
+function distLabel(q) {
+  if (!q.targets.length) return '';
+  const t = nearestTarget(q); if (t) return t[2] < 3 ? 'here' : `${Math.round(t[2])} m`;
+  return inKalos(q.targets[0][0]) ? 'Fleurville · T' : 'Verdant · T'; // the target is on the other map: T travels
+}
+function renderTracker() {
+  const list = questList(); if (!list.some(q => q.id === tracked)) tracked = 'main';
+  const el = $('quests'); el.classList.toggle('min', trackerMin);
+  el.innerHTML = `<button class="qh" data-act="min" aria-expanded="${!trackerMin}">Quests<span class="n">${list.length}</span><span class="car">${trackerMin ? '▸' : '▾'}</span></button>` +
+    list.map(q => `<button class="q ${q.side ? 'side' : 'main'}${q.id === tracked ? ' on' : ''}" data-q="${q.id}" aria-pressed="${q.id === tracked}" title="${q.id === tracked ? 'Tracking' : 'Click to track'}">
+      <span class="qi">!</span><span class="qx"><span class="qt">${q.side ? 'Side' : 'Main'} · ${q.title}</span><span class="qo">${q.text}${q.prog ? ` <b>${q.prog[0]}/${q.prog[1]}</b>` : ''}</span>
+      ${q.prog ? `<span class="qb"><i style="width:${q.prog[0] / q.prog[1] * 100}%"></i></span>` : ''}</span><span class="qd"></span></button>`).join('');
+  trackerTick(true);
+}
+function trackQuest(id) { tracked = id; renderTracker(); SND.chime?.(); }
+function trackNext() { const ids = questList().map(q => q.id); trackQuest(ids[(ids.indexOf(tracked) + 1) % ids.length]); }
+let trackerT = 0;
+function trackerTick(now) { // distances, a few times a second (DOM writes only when the text changes)
+  if (!now && (trackerT += 1) % 12) return;
+  const byId = Object.fromEntries(questList().map(q => [q.id, q]));
+  for (const b of $('quests').querySelectorAll('[data-q]')) { const q = byId[b.dataset.q], d = b.querySelector('.qd'), txt = q ? distLabel(q) : ''; if (d.textContent !== txt) d.textContent = txt; }
+}
+document.getElementById('quests').addEventListener('click', e => { // (`$` is defined further down)
+  const b = e.target.closest('button'); if (!b) return; b.blur(); // keep Space / E for talking, not for re-pressing the card
+  if (b.dataset.act === 'min') { trackerMin = !trackerMin; renderTracker(); } else if (b.dataset.q) trackQuest(b.dataset.q);
+});
+// ---- the guide arrow: a chevron on the ground just ahead of the trainer, pointing at the tracked quest's nearest target
+const GUIDE = new THREE.Mesh(new THREE.ShapeGeometry(new THREE.Shape([new THREE.Vector2(0, 0.62), new THREE.Vector2(0.5, -0.28), new THREE.Vector2(0, -0.04), new THREE.Vector2(-0.5, -0.28)])).rotateX(-Math.PI / 2),
+  new THREE.MeshBasicMaterial({ transparent: true, depthTest: false, fog: false, toneMapped: false, side: THREE.DoubleSide }));
+GUIDE.renderOrder = 11; GUIDE.scale.setScalar(1.35); scene.add(GUIDE);
+const GUIDE_EDGE = new THREE.Mesh(GUIDE.geometry, new THREE.MeshBasicMaterial({ depthTest: false, fog: false, toneMapped: false, transparent: true, opacity: 0.85, side: THREE.DoubleSide }));
+GUIDE_EDGE.scale.setScalar(1.22); GUIDE_EDGE.position.y = -0.01; GUIDE_EDGE.renderOrder = 10.5; GUIDE.add(GUIDE_EDGE); // a dark rim, so the arrow reads on sunlit grass too
+function guideTick(t) {
+  const q = questList().find(k => k.id === tracked), tg = nearestTarget(q);
+  GUIDE.visible = !!tg && tg[2] > 3 && !ui.onboard && !VIEW.fpv;
+  if (!GUIDE.visible) return;
+  const dx = (tg[0] - P.pos.x) / tg[2], dz = (tg[1] - P.pos.z) / tg[2], r = 1.5 + Math.sin(t * 4) * 0.12; // nudges forward, like a beckoning hand
+  GUIDE.position.set(P.pos.x + dx * r, walkH(P.pos.x + dx * r, P.pos.z + dz * r) + 0.12, P.pos.z + dz * r);
+  GUIDE.rotation.y = Math.atan2(-dx, -dz);
+  const [fill, ink] = MARK_COL[q.side ? 'side' : 'main'];
+  GUIDE.material.color.set(fill); GUIDE_EDGE.material.color.set(ink); GUIDE.material.opacity = 0.85 + Math.sin(t * 4) * 0.15;
 }
 const MARK_COL = { main: ['#ffc21a', '#7a4a00'], side: ['#5ec8ff', '#0b4f7a'] }; // [fill, ink]: gold for the main story, light blue for side quests
 const markMat = ([fill, ink]) => new THREE.SpriteMaterial({ depthTest: false, fog: false, toneMapped: false, map: canvasTex(64, 64, (c, w, h) => {
@@ -3094,7 +3164,9 @@ function markTick(t) { // drawn through walls and fog, so a quest is never lost 
   const list = questMarks();
   while (MARKS.length < list.length) { const sp = new THREE.Sprite(MARK_MATS.main); sp.scale.setScalar(0.75); sp.renderOrder = 10; scene.add(sp); MARKS.push(sp); }
   MARKS.forEach((sp, i) => { const q = list[i]; sp.visible = !!q; if (!q) return;
-    sp.material = MARK_MATS[q[3] ? 'side' : 'main']; sp.position.set(q[0], walkH(q[0], q[1]) + q[2] + Math.sin(t * 3 + i) * 0.08, q[1]); });
+    sp.material = MARK_MATS[q[3] ? 'side' : 'main']; sp.position.set(q[0], walkH(q[0], q[1]) + q[2] + Math.sin(t * 3 + i) * 0.08, q[1]);
+    sp.scale.setScalar(q[4] === tracked ? 0.95 : 0.7); }); // the tracked quest's markers stand out
+  guideTick(t); trackerTick();
 }
 
 // the stream: still and silent until the device is off; then it flows, splashes and burbles, and Magikarp leap from it
@@ -3260,10 +3332,11 @@ function drawMinimap() {
   const sp = (x, z) => [c + (x - P.pos.x) * k, c + (z - P.pos.z) * k];
   if (inKalos(P.pos.x)) { ballIcon(...sp(...K(705, 430)), 20); houseIcon(...sp(...K(532, 178))); }
   else { ballIcon(...sp(PC.cx, PC.cz), 20); ballIcon(...sp(VS(17), VS(-9)), 17); houseIcon(...sp(COT.door[0] - 3, COT.door[1] + 1.5)); }
-  for (const [x, z, , side] of questMarks()) { // quest markers; one out of range waits on the rim, pointing the way
+  for (const [x, z, , side, id] of questMarks()) { // quest markers; one out of range waits on the rim, pointing the way; the tracked quest's are ringed
     if (inKalos(x) !== inKalos(P.pos.x)) continue;
     let [a, b] = sp(x, z); const dx = a - c, dy = b - c, d = Math.hypot(dx, dy), R = c - 14; if (d > R) { a = c + dx / d * R; b = c + dy / d * R; }
     const [fill, ink] = MARK_COL[side ? 'side' : 'main'];
+    if (id === tracked) { mctx.fillStyle = '#fff'; mctx.beginPath(); mctx.arc(a, b, 16, 0, 7); mctx.fill(); }
     mctx.fillStyle = ink; mctx.beginPath(); mctx.arc(a, b, 12, 0, 7); mctx.fill(); mctx.fillStyle = fill; mctx.beginPath(); mctx.arc(a, b, 9.5, 0, 7); mctx.fill();
     mctx.fillStyle = ink; mctx.font = '900 16px Nunito, sans-serif'; mctx.textAlign = 'center'; mctx.textBaseline = 'middle'; mctx.fillText('!', a, b + 1);
   }
@@ -3458,6 +3531,7 @@ addEventListener('keydown', e => {
   if (e.code === 'KeyB' && !e.repeat) openBag();
   if (e.code === 'KeyX' && !e.repeat) portalKey();
   if (e.code === 'KeyV' && !e.repeat) toggleView();
+  if (e.code === 'KeyQ' && !e.repeat) trackNext(); // track the next quest in the list
   if (e.code === 'KeyT' && !e.repeat) travel(!inKalos(P.pos.x)); // travel between Verdant Town and Fleurville Town
   if (e.code === 'Backquote' && !e.repeat) { // testing shortcut: give a Pokémon at a level, plus items (see window.debug)
     keys.clear();
@@ -4286,6 +4360,18 @@ const CHECKS = [
   ['scrapsOnRoute', () => SCRAPS.every(c => routeD(...c.at) < ROUTE_HALF && !debug.blocked(...c.at))],
   ['rivalSpotWalkable', () => !blockedAt(...RIVAL_AT, walkH(...RIVAL_AT), rivalNpc) && !inTallGrass(...RIVAL_AT)],
   ['rivalHasTeam', () => !!SPECIES[rivalStarter()]],
+  ['trackerClickTracks', () => { // clicking a quest card tracks it
+    const s0 = { ...SIDE, got: [...SIDE.got] }, t0 = tracked; SIDE.scraps = 1; SIDE.got = []; renderTracker();
+    document.querySelector('#quests [data-q="scraps"]').click();
+    const ok = tracked === 'scraps' && document.querySelector('#quests [data-q="scraps"]').classList.contains('on');
+    Object.assign(SIDE, s0); tracked = t0; renderTracker(); return ok;
+  }],
+  ['guidePointsAtTarget', async () => { // the arrow lies between the trainer and the tracked quest's nearest target
+    const s0 = { ...SIDE, got: [...SIDE.got] }, t0 = tracked; SIDE.scraps = 1; SIDE.got = []; tracked = 'scraps';
+    await debug.go(...START); const tg = nearestTarget(questList().find(q => q.id === 'scraps'));
+    const gx = GUIDE.position.x - P.pos.x, gz = GUIDE.position.z - P.pos.z, ok = GUIDE.visible && (gx * (tg[0] - P.pos.x) + gz * (tg[1] - P.pos.z)) / Math.hypot(gx, gz) / tg[2] > 0.99;
+    Object.assign(SIDE, s0); tracked = t0; renderTracker(); return ok;
+  }],
 ];
 
 // overworld party HUD (portraits rendered from the 3D models, cached per species)
@@ -5308,8 +5394,7 @@ function makeBall(r = 0.16) {
 }
 
 // ============================================================ battle: tweens, effects, arena
-const BT = { active: false, scene: null, cam: null, foe: null, me: null, foeModel: null, meModel: null, opts: {}, tries: 0 };
-const B_ME = new V3(-2.9, 0.16, 2.5), B_FOE = new V3(3.7, 0.16, -4.0), B_CAM = new V3(-2.3, 3.1, 9.2), B_LOOK = new V3(0.0, 0.45, -1.6);
+const BT = { active: false, scene: null, cam: null, foe: null, me: null, foeModel: null, meModel: null, opts: {}, tries: 0 };const B_ME = new V3(-2.9, 0.16, 2.5), B_FOE = new V3(3.7, 0.16, -4.0), B_CAM = new V3(-2.3, 3.1, 9.2), B_LOOK = new V3(0.0, 0.45, -1.6);
 const tweens = [];
 const tween = (dur, fn) => new Promise(res => tweens.push({ t: 0, dur, fn, res }));
 const wait = s => tween(s, () => {});
@@ -7014,7 +7099,7 @@ function tick() { // one frame of the world; debug checks also step it directly,
 // Stages: title (card over a high orbit of the town) > intro (the Professor talks, lower orbit) > look > name > confirm (close-up of
 // the trainer, who swaps live) > outro (the Professor again), then the camera glides down into the normal framing.
 const OB = { stage: null, swoop: 0 };
-const PROF = 'Prof. Sycamore', OB_FACE = 0.55; // close-up camera heading from the trainer: south-east, down the dirt path and clear of the tall grass
+const OB_FACE = 0.55; // close-up camera heading from the trainer: south-east, down the dirt path and clear of the tall grass
 const OB_INTRO = ['Hello there! Welcome to the world of Pokémon!', 'My name is Sycamore. People call me the Pokémon Professor.',
   'This is Verdant Town: wide fields, a winding river, and Pokémon hiding in every patch of tall grass.',
   'Some people keep Pokémon as pets. Others battle with them. Me? I study them.', 'But enough about me. Let’s talk about you!'];
