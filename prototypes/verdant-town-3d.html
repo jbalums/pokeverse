@@ -653,11 +653,14 @@ function riverInfo(x, z) {
 
 // ============================================================ paths, raised plaza, stairs, tall grass
 const extend = (pts, dist) => { const a = pts[pts.length - 2], b = pts[pts.length - 1], l = Math.hypot(b[0] - a[0], b[1] - a[1]); return [...pts, [b[0] + (b[0] - a[0]) / l * dist, b[1] + (b[1] - a[1]) / l * dist]]; };
-const CLEAR = { x: 19, z: 3, r: 5.5 }; // the woodland clearing off Meadow Route: the forest fill leaves it open; the signal device stands in it
+// The old glade off the road, where the clearing first stood: the trail and the core forest fill still leave it open, so moving
+// the clearing up Route 1 doesn't reshuffle the core's shared random stream.
+const OLD_CLEAR = { x: 19, z: 3, r: 5.5 };
+const OLD_FILL = [-34, -28, 34, 18]; // where the core forest fill samples the ground: Route 1 may not reshape it (see terrainH)
 const PATHS = [
   catmull([I(560, 450), I(655, 420), I(755, 398), I(880, 478), I(1010, 530), I(1100, 576)], 6),
   catmull(extend([I(1425, 500), I(1500, 452), I(1565, 407), I(1650, 352)], 18), 6),
-  catmull([I(1607, 380), [15, 1.2], [CLEAR.x - 2.5, CLEAR.z]], 6), // trail from the road into the clearing
+  catmull([I(1607, 380), [15, 1.2], [OLD_CLEAR.x - 2.5, OLD_CLEAR.z]], 6), // trail from the road into the old glade
 ];
 const PATH_W = 1.0;
 function pathD(x, z) {
@@ -665,6 +668,28 @@ function pathD(x, z) {
   for (const p of PATHS) for (let i = 0; i < p.length - 1; i++) { const d = segD(x, z, p[i][0], p[i][1], p[i + 1][0], p[i + 1][1]); if (d < m) m = d; }
   return m;
 }
+// Route 1 (Meadow Route) carries on from the end of the road, north on the east side of the river, to the Woodland Clearing.
+// Walking, tall grass and the path are functions of routeD alone, so collision and encounters never wait for a streamed cell.
+const ROUTE_HALF = 5; // walkable half width of the route corridor; the forest starts just past it
+const ROUTE1_CTRL = (([x, z]) => [[x, z], [x + 4, z - 20], [x - 3, z - 45], [x + 6, z - 70], [x + 2, z - 95], [x + 10, z - 115]])(PATHS[1].at(-1));
+const ROUTE1 = catmull(ROUTE1_CTRL, 6);
+const ROUTE1_BOX = ROUTE1.reduce((b, p) => [Math.min(b[0], p[0]), Math.min(b[1], p[1]), Math.max(b[2], p[0]), Math.max(b[3], p[1])], [1e9, 1e9, -1e9, -1e9]);
+function routeD(x, z) {
+  const m = ROUTE_HALF + 2;
+  if (x < ROUTE1_BOX[0] - m || x > ROUTE1_BOX[2] + m || z < ROUTE1_BOX[1] - m || z > ROUTE1_BOX[3] + m) return 1e9;
+  let d = 1e9;
+  for (let i = 0; i < ROUTE1.length - 1; i++) d = Math.min(d, segD(x, z, ...ROUTE1[i], ...ROUTE1[i + 1]));
+  return d;
+}
+const CLEAR = { x: ROUTE1.at(-1)[0], z: ROUTE1.at(-1)[1] - 7, r: 6.5 }; // the Woodland Clearing at the end of Route 1: the signal device stands in it
+// three tall-grass patches beside the path, a quarter, half and three quarters of the way up (alternating sides)
+const ROUTE_GRASS = [0.25, 0.5, 0.75].map((f, i) => {
+  const k = Math.round(f * (ROUTE1.length - 1)), a = ROUTE1[k - 1], b = ROUTE1[k + 1], l = Math.hypot(b[0] - a[0], b[1] - a[1]), s = i % 2 ? -1 : 1;
+  return [ROUTE1[k][0] + s * (b[1] - a[1]) / l * 2.5, ROUTE1[k][1] - s * (b[0] - a[0]) / l * 2.5, 3.5];
+});
+const inRouteGrass = (x, z) => ROUTE_GRASS.some(([gx, gz, r]) => (x - gx) ** 2 + (z - gz) ** 2 < r * r) && routeD(x, z) > PATH_W + 0.3;
+const VERDANT_WALK = [-24, -20, 26, 14]; // the town and the meadow by the road
+const verdantWalkable = (x, z) => inRect(x, z, VERDANT_WALK) || routeD(x, z) < ROUTE_HALF || Math.hypot(x - CLEAR.x, z - CLEAR.z) < CLEAR.r;
 const PLAZA_H = 1.0;
 // Test Grounds (testing only): a flat lot far west of Verdant, beyond the camera's far plane like Fleurville, so the story maps carry
 // no test props. It holds the warp pads to every map and room, the Character Gallery and (east wing) the low-poly tree kit.
@@ -679,7 +704,7 @@ const EDGE = [I(150, 415, PLAZA_H), I(505, 450, PLAZA_H), STA, STB, I(812, 262, 
 EDGE.unshift([EDGE[0][0] - 40, EDGE[0][1] + 0.4]);
 const RAISE = [...EDGE];
 for (const p of RV) if (p[1] < EDGE[EDGE.length - 1][1] - 0.3) RAISE.push([p[0] - p[3] - 0.2, p[1]]);
-RAISE.push([RAISE[RAISE.length - 1][0], -80], [-80, -80]);
+RAISE.push([RAISE[RAISE.length - 1][0], -400], [-80, -400]); // far north, so the plaza level never ends in a cliff beside Route 1
 const raised = (x, z) => inPoly(x, z, RAISE);
 const STAIR = (() => {
   const ux = STB[0] - STA[0], uz = STB[1] - STA[1], len = Math.hypot(ux, uz);
@@ -695,7 +720,7 @@ function stairsH(x, z) {
 const COBBLE_X = I(830, 200, PLAZA_H)[0] - 0.4;
 const inCobble = (x, z) => x < COBBLE_X && z > -16 && x > -22 && raised(x, z);
 const TALL = [[170, 462], [500, 458], [630, 482], [900, 618], [865, 715], [700, 715], [560, 800], [330, 692], [250, 640], [160, 560]].map(p => I(p[0], p[1], 0));
-const inTallGrass = (x, z) => inKalos(x) ? inKField(x, z) : inPoly(x, z, TALL) && pathD(x, z) > PATH_W + 0.3;
+const inTallGrass = (x, z) => inKalos(x) ? inKField(x, z) : inPoly(x, z, TALL) && pathD(x, z) > PATH_W + 0.3 || inRouteGrass(x, z);
 const MOUND = I(1000, 372, 0.2);
 const HILL_A = I(1285, 300, 0), HILL_B = I(1672, 262, 0);
 function hillH(x, z) {
@@ -714,7 +739,8 @@ function terrainH(x, z) {
   if (st !== null) h = st;
   else if (raised(x, z)) h = PLAZA_H + (inCobble(x, z) ? 0 : noise(x, z) * 0.6);
   else {
-    const pd = pathD(x, z);
+    const pd0 = pathD(x, z), out = Math.max(OLD_FILL[0] - x, x - OLD_FILL[2], OLD_FILL[1] - z, z - OLD_FILL[3]);
+    const pd = out > 0 ? pd0 + (Math.min(pd0, routeD(x, z)) - pd0) * smooth(0, 3, out) : pd0; // Route 1 smooths the ground only outside the core fill (blended over 3 m), so the fill's draws never change
     h = noise(x, z) * (0.25 + 0.75 * smooth(PATH_W, PATH_W + 1.6, pd));
     h += 0.32 * smooth(1.9, 0.2, Math.hypot(x - MOUND[0], z - MOUND[1]));
     h += hillH(x, z);
@@ -1031,7 +1057,7 @@ function terrainCell(cx, cz, res) {
       c.copy(grassA).lerp(grassB, smooth(-0.5, 0.7, big)).lerp(grassC, smooth(0.2, 1, -big) * 0.55 + hv * 0.12);
       if (inTallGrass(x, z)) c.lerp(tallC, 0.55);
       if (!raised(x, z)) {
-        const pd = pathD(x, z) + (Math.sin(x * 4.1) * Math.cos(z * 3.7)) * 0.18 + (hv - 0.5) * 0.22;
+        const pd = Math.min(pathD(x, z), routeD(x, z)) + (Math.sin(x * 4.1) * Math.cos(z * 3.7)) * 0.18 + (hv - 0.5) * 0.22;
         if (pd < PATH_W + 0.45) c.lerp(t.copy(dirtA).lerp(dirtB, smooth(PATH_W, 0, pd) * 0.6 + hv * 0.2), 1 - smooth(PATH_W - 0.1, PATH_W + 0.45, pd));
       }
       if (r.d < r.hw + 1.1) c.lerp(grassD, (1 - smooth(r.hw + 0.3, r.hw + 1.1, r.d)) * 0.5);
@@ -1753,7 +1779,7 @@ for (let i = 0; i < RV.length; i += 1) {
 // forest fill outside the reference frame
 function inHeroView(x, z, h = 0) { const v = new V3(x, h, z).project(heroCam); return Math.abs(v.x) < 1.04 && Math.abs(v.y) < 1.06; }
 function freeSpot(x, z, r = 1) {
-  const ri = riverInfo(x, z); if (ri.d < ri.hw + 1.0 || Math.hypot(x - CLEAR.x, z - CLEAR.z) < CLEAR.r) return false; // the clearing
+  const ri = riverInfo(x, z); if (ri.d < ri.hw + 1.0 || Math.hypot(x - OLD_CLEAR.x, z - OLD_CLEAR.z) < OLD_CLEAR.r) return false; // the old glade
   if (pathD(x, z) < PATH_W + 0.9 || inTallGrass(x, z) || stairsH(x, z) !== null || inCobble(x, z) || onBridge(x, z)) return false;
   for (const b of boxes) if (x > b.x0 - 1 && x < b.x1 + 1 && z > b.z0 - 1 && z < b.z1 + 1) return false;
   for (const [tx, tz, tr] of trees) if (Math.hypot(tx - x, tz - z) < tr + r) return false;
@@ -1770,6 +1796,10 @@ for (let i = 0; i < 1500; i++) {
   fillTree(x, z, s, rnd() < 0.45);
 }
 for (let i = 0; i < 160; i++) { const x = rr(-26, 26), z = rr(-20, 14); if (!inHeroView(x, z) && freeSpot(x, z, 0.4)) bush(x, z, rr(0.6, 1.1), rnd() < 0.5); }
+// Route 1 cuts through the edge of the core forest: the fill above stays exactly as it was (its draws feed everything after it),
+// then the trees and shrubs standing in the corridor are taken out (their trunks stop blocking, the minimap drops them).
+for (const [name, list] of Object.entries(instQueue)) if (name.startsWith('kit_')) instQueue[name] = list.filter(m => routeD(m.elements[12], m.elements[14]) > ROUTE_HALF);
+for (const c of circles) if (routeD(c.x, c.z) < ROUTE_HALF) c.cleared = true;
 
 // ============================================================ Fleurville Town: ground, buildings, gardens, walls, trees
 // (built here so its trees, hedges and street furniture join the batched draw calls below; the random seed is restored
@@ -2834,7 +2864,7 @@ const DEV = new THREE.Group();
     const m = new THREE.Mesh(new THREE.RingGeometry(0.92, 1, 48).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ color: '#ff7a6a', transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }));
     m.position.set(DEV_AT[0], terrainH(...DEV_AT) + 0.08, DEV_AT[1]); m.userData.ph = i / 3; scene.add(m); return m;
   });
-  circles.push({ x: DEV_AT[0], z: DEV_AT[1], r: 0.6 });
+  circles.push({ x: DEV_AT[0], z: DEV_AT[1], r: 0.6, story: true }); // story: moves with the clearing, so debug.coreHash leaves it out
 }
 interactables.push({ x: DEV_AT[0], z: DEV_AT[1], r: 1.5, name: 'Strange device', top: 2.6,
   get lines() {
@@ -2943,16 +2973,16 @@ for (let i = 1; i < RV.length; i++) if (RV[i][2] - RV[i - 1][2] > 0.04 && RV[i -
 // ============================================================ collision
 const PR = 0.26;
 function blockedAt(x, z, fromH, ignore) {
-  if (x > ROOM_X - 40 ? !ROOMS.some(r => inRect(x, z, r.walk)) : inKalos(x) ? !inRect(x, z, K_WALK) : inTest(x) ? !inRect(x, z, T_WALK) : x < -24 || x > 26 || z < -20 || z > 14) return true;
+  if (x > ROOM_X - 40 ? !ROOMS.some(r => inRect(x, z, r.walk)) : inKalos(x) ? !inRect(x, z, K_WALK) : inTest(x) ? !inRect(x, z, T_WALK) : !verdantWalkable(x, z)) return true;
   const h = walkH(x, z);
   if (Math.abs(h - fromH) > 0.35) return true;
   for (const [dx, dz] of [[PR, 0], [-PR, 0], [0, PR], [0, -PR]]) {
     const xx = x + dx, zz = z + dz;
-    if (!inKalos(xx) && !inTest(xx) && !onBridge(xx, zz)) { const r = riverInfo(xx, zz); if (r.d < r.hw + 0.05 || terrainH(xx, zz) < r.level + 0.05) return true; }
+    if (!inKalos(xx) && !inTest(xx) && !onBridge(xx, zz)) { const r = riverInfo(xx, zz); if (r.d < r.hw + 0.05 || r.d < r.hw + 1.2 && terrainH(xx, zz) < r.level + 0.05) return true; } // below the water line only counts on the banks
     if (Math.abs(walkH(xx, zz) - h) > 0.35) return true;
   }
   for (const b of boxes) if (x > b.x0 - PR && x < b.x1 + PR && z > b.z0 - PR && z < b.z1 + PR) return true;
-  for (const c of circles) if ((x - c.x) ** 2 + (z - c.z) ** 2 < (c.r + PR) ** 2) return true;
+  for (const c of circles) if (!c.cleared && (x - c.x) ** 2 + (z - c.z) ** 2 < (c.r + PR) ** 2) return true;
   for (const s of segs) if (segD(x, z, ...s) < PR + 0.06) return true;
   for (const n of npcs) if (n !== ignore && (x - n.x) ** 2 + (z - n.z) ** 2 < 0.3) return true;
   return false;
@@ -2988,7 +3018,7 @@ const mapCanvas = document.createElement('canvas');
   const toM = (x, z) => [(x - MAP_X0) * MPU, (z - MAP_Z0) * MPU];
   ctx.strokeStyle = '#9c6a3f'; ctx.lineWidth = BRIDGE.w * MPU;
   ctx.beginPath(); ctx.moveTo(...toM(BRIDGE.ax, BRIDGE.az)); ctx.lineTo(...toM(BRIDGE.ax + BRIDGE.ux * BRIDGE.len, BRIDGE.az + BRIDGE.uz * BRIDGE.len)); ctx.stroke();
-  for (const [x, z, r] of trees) { const [a, b] = toM(x, z); ctx.fillStyle = '#3c7d33'; ctx.beginPath(); ctx.arc(a, b, r * MPU * 0.75, 0, 7); ctx.fill(); ctx.fillStyle = 'rgba(255,255,255,.12)'; ctx.beginPath(); ctx.arc(a - 1, b - 1, r * MPU * 0.4, 0, 7); ctx.fill(); }
+  for (const [x, z, r] of trees) { if (routeD(x, z) < ROUTE_HALF) continue; const [a, b] = toM(x, z); ctx.fillStyle = '#3c7d33'; ctx.beginPath(); ctx.arc(a, b, r * MPU * 0.75, 0, 7); ctx.fill(); ctx.fillStyle = 'rgba(255,255,255,.12)'; ctx.beginPath(); ctx.arc(a - 1, b - 1, r * MPU * 0.4, 0, 7); ctx.fill(); }
   ctx.fillStyle = '#e3a372'; for (const b of boxes) { const [a, c] = toM(b.x0, b.z0); ctx.fillRect(a, c, (b.x1 - b.x0) * MPU, (b.z1 - b.z0) * MPU); }
 }
 const mm = document.getElementById('mm'), mctx = mm.getContext('2d');
@@ -3913,7 +3943,9 @@ function loadGame() {
   pcBox.splice(0, pcBox.length, ...mons(s.pc));
   if (s.bag && typeof s.bag === 'object') { for (const k in bag) delete bag[k]; for (const [k, v] of Object.entries(s.bag)) if (Object.hasOwn(ITEMS, k)) bag[k] = clamp(Math.floor(+v) || 0, 0, 999); }
   if (Number.isFinite(s.money)) money = clamp(Math.floor(s.money), 0, 999999);
-  if (Array.isArray(s.pos) && s.pos.length === 3 && s.pos.every(Number.isFinite) && !new URLSearchParams(location.search).has('map')) placePlayer(...s.pos);
+  if (Array.isArray(s.pos) && s.pos.length === 3 && s.pos.every(Number.isFinite) && !new URLSearchParams(location.search).has('map')) { // a spot that is no longer walkable (the world changed since the save) starts at the town square
+    if (blockedAt(s.pos[0], s.pos[1], walkH(s.pos[0], s.pos[1]))) placePlayer(...START, Math.PI / 2 + 0.25); else placePlayer(...s.pos);
+  }
   if (s.flags?.bulbasaur === true) retireBulbasaur();
   if (QUEST_STEPS.includes(s.flags?.quest)) story.step = s.flags.quest;
   if (Array.isArray(s.flags?.clues)) story.clues = CLUES.map(c => c.id).filter(id => s.flags.clues.includes(id));
@@ -3943,10 +3975,24 @@ window.debug = { // testing hooks, from the console or the ` key: debug.give('KI
   follower: () => ({ key: followKey, at: pika.position.toArray().map(n => +n.toFixed(2)), size: +new THREE.Box3().setFromObject(pika).getSize(new V3()).y.toFixed(2), player: P.pos.toArray().map(n => +n.toFixed(2)) }),
   go: (x, z) => { placePlayer(+x, +z, 0); firstFrame = true; return frames(2); }, // warp and snap the camera and cells there (resolves once drawn)
   stream: () => ({ loaded: [...CELLS.cells.keys()], built: CELLS.built, disposed: CELLS.disposed }),
+  blocked: (x, z) => blockedAt(x, z, walkH(x, z)), at: (x, z) => ({ h: walkH(x, z), route: routeD(x, z), walk: verdantWalkable(x, z), river: { ...riverInfo(x, z) } }),
+  reach(ax, az, bx, bz) { // breadth-first walk over a 0.25 m grid (fine enough for one stair step at a time) with the player's own collision: can you get from a to b?
+    const S = 0.25, key = (i, j) => i + ',' + j, goal = [Math.round(bx / S), Math.round(bz / S)], seen = new Set(), q = [[Math.round(ax / S), Math.round(az / S)]];
+    seen.add(key(...q[0]));
+    for (let n = 0; n < q.length && n < 400000; n++) {
+      const [i, j] = q[n]; if (Math.abs(i - goal[0]) <= 1 && Math.abs(j - goal[1]) <= 1) return true;
+      for (const [di, dj] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+        const k = key(i + di, j + dj); if (seen.has(k)) continue; seen.add(k);
+        if (!blockedAt((i + di) * S, (j + dj) * S, walkH(i * S, j * S))) q.push([i + di, j + dj]);
+      }
+    }
+    return false;
+  },
   stats: () => { const r = renderer.info; return { calls: r.render.calls, triangles: r.render.triangles, geometries: r.memory.geometries }; },
   coreHash: () => { // fingerprint of the core world's placements: any reshuffle of the shared rnd() stream changes it
-    let s = 0; for (const a of [trees, circles, boxes]) for (const o of a) for (const v of Object.values(o)) s += +v || 0;
-    return `${trees.length}/${circles.length}/${boxes.length}/${s.toFixed(3)}`;
+    const core = circles.filter(c => !c.story); let s = 0;
+    for (const a of [trees, core, boxes]) for (const o of a) for (const v of Object.values(o)) if (typeof v === 'number') s += v;
+    return `${trees.length}/${core.length}/${boxes.length}/${s.toFixed(3)}`;
   },
   async check() { // open-world self-test: the names of failing CHECKS, [] when all pass
     const fail = [];
@@ -3955,7 +4001,7 @@ window.debug = { // testing hooks, from the console or the ` key: debug.give('KI
   },
 };
 // Recorded before the world moved into cells (START, zoom 1, 1024x768): the core must keep this hash; triangles must not exceed it
-const BASELINE_HASH = '421/487/50/159510.682', BASELINE_STATS = { calls: 615, triangles: 4083393, geometries: 213 };
+const BASELINE_HASH = '421/486/50/159487.282', BASELINE_STATS = { calls: 615, triangles: 4083393, geometries: 213 };
 const CHECKS = [
   ['coreHashUnchanged', () => debug.coreHash() === BASELINE_HASH],
   ['groundIsCells', () => GROUND.length >= 20 && GROUND.every(m => m.userData.cell)],
@@ -3978,6 +4024,17 @@ const CHECKS = [
   ['nearCellsAlwaysLoaded', async () => { await debug.go(40, -60); VIEW.yaw += Math.PI; await frames(3); const ok = wantedCells().filter(k => cellDist(k) < scene.fog.near).every(k => CELLS.cells.has(k)); VIEW.yaw -= Math.PI; return ok; }],
   ['noLeakAfterRoundTrips', async () => { await debug.go(...START); await frames(5); const g0 = renderer.info.memory.geometries; for (let i = 0; i < 5; i++) { await debug.go(40, -60); await debug.go(...START); } await frames(5); return renderer.info.memory.geometries === g0; }],
   ['coreNeverStreamed', () => [...CELLS.cells.values()].every(c => !isCoreCell(c.cx, c.cz))],
+  ['routeReachable', () => debug.reach(...START, CLEAR.x, CLEAR.z)],
+  ['routeClearOfRiver', () => ROUTE1.every(([x, z]) => { const r = riverInfo(x, z); return r.d > r.hw + 3; })],
+  ['routeInVerdantBand', () => ROUTE1.every(([x, z]) => streamable(cellOf(x), cellOf(z)) || isCoreCell(cellOf(x), cellOf(z)))],
+  ['routeGrassEncounters', () => ROUTE_GRASS.every(([x, z]) => inTallGrass(x + 1.5, z) || inTallGrass(x - 1.5, z))],
+  ['offRouteBlocked', () => { const [x, z] = ROUTE1[ROUTE1.length >> 1], ox = x + ROUTE_HALF + 2; return blockedAt(ox, z, walkH(ox, z)); }],
+  ['blockedSaveFallsBackToStart', () => {
+    const raw = localStorage.getItem(SAVE_KEY), s = JSON.parse(raw || '{}'), at = P.pos.clone(), face = P.face;
+    localStorage.setItem(SAVE_KEY, JSON.stringify({ ...s, pos: [150, -150, 0] })); loadGame();
+    const ok = Math.hypot(P.pos.x - START[0], P.pos.z - START[1]) < 0.01;
+    localStorage.setItem(SAVE_KEY, raw); placePlayer(at.x, at.z, face); return ok;
+  }],
 ];
 
 // overworld party HUD (portraits rendered from the 3D models, cached per species)
@@ -6239,7 +6296,7 @@ function faceTowards(obj, target, dt, k = 10) {
 // A Pokémon trailing its trainer: catches up smoothly, moves with a gait that fits its body (four-legged ones trot,
 // two-legged ones waddle, flyers hover), leans into turns and plays a short idle when it stops. Models with their own idle
 // clip keep it playing through the mixer; bone-level tail and ear motion is only added when a model has no clip.
-const STRIDE = { bound: 0.9, waddle: 0.22, hover: 0.6 }; // metres per gait cycle (bound, hover) or per step (waddle)
+const STRIDE = { bound: 0.45, waddle: 0.22, hover: 0.6 }; // metres per step (one footfall, or one footfall pair in a trot)
 const TOP_SPEED = { bound: 6.5, waddle: 2.4, hover: 5 };
 function follow(o, F, tx, tz, idleFace, dt, t) {
   const u = o.userData, gait = u.gait || (u.flies ? 'hover' : 'waddle');
@@ -6450,7 +6507,7 @@ function update(dt, t) {
   sun.target.position.set(Math.round(camLook.x), 0, Math.round(camLook.z));
   sun.position.copy(sun.target.position).addScaledVector(SUN_DIR, 30);
 
-  const loc = roomAt(P.pos.x, P.pos.z)?.name ?? (inTest(P.pos.x) ? 'Test Grounds' : inKalos(P.pos.x) ? 'Fleurville Town' : Math.hypot(P.pos.x - CLEAR.x, P.pos.z - CLEAR.z) < CLEAR.r + 1 ? 'Woodland Clearing' : P.pos.x > 8.5 ? 'Meadow Route' : 'Verdant Town');
+  const loc = roomAt(P.pos.x, P.pos.z)?.name ?? (inTest(P.pos.x) ? 'Test Grounds' : inKalos(P.pos.x) ? 'Fleurville Town' : Math.hypot(P.pos.x - CLEAR.x, P.pos.z - CLEAR.z) < CLEAR.r + 1 ? 'Woodland Clearing' : P.pos.x > 8.5 || !inRect(P.pos.x, P.pos.z, VERDANT_WALK) ? 'Meadow Route' : 'Verdant Town');
   if ($('locName').textContent !== loc) $('locName').textContent = loc;
   if (!BT.active) music(ui.onboard ? 'gallery' : locMusic(loc)); // the title theme plays through onboarding
 }
