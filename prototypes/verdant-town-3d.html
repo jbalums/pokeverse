@@ -565,6 +565,10 @@ function catmull(pts, n = 8) {
 // through this camera, so the opening frame lines up with the concept art.
 const REF_W = 1672, REF_H = 941, REF_ASPECT = REF_W / REF_H;
 const CAM_PITCH = 45 * Math.PI / 180, CAM_FOV = 35, CAM_DIST = 19.3;
+// Fog starts / turns solid this far past the focus point, so it moves with the zoom: at zoom 1 it is 34 -> 70, and zooming out
+// never shows the edge of the loaded world. FOG_FAR_PAST is the view-distance knob (smaller = fewer streamed cells, more haze).
+const ZOOM_MIN = 0.6, ZOOM_MAX = 2.2, FOG_NEAR_PAST = 14.7, FOG_FAR_PAST = 50.7, FPV_FOG = [34, 70];
+const viewFog = (d, fpv) => fpv ? FPV_FOG : [d + FOG_NEAR_PAST, d + FOG_FAR_PAST];
 const heroCam = new THREE.PerspectiveCamera(CAM_FOV, REF_ASPECT, 0.1, 500);
 heroCam.position.set(0, CAM_DIST * Math.sin(CAM_PITCH), CAM_DIST * Math.cos(CAM_PITCH));
 heroCam.lookAt(0, 0, 0); heroCam.updateMatrixWorld();
@@ -3175,7 +3179,7 @@ function toggleView() {
   if (VIEW.fpv) { VIEW.yaw = P.face + Math.PI; VIEW.look = -0.15; } // look the way the trainer faces; leaving keeps the camera behind that direction
   $('viewBtn').setAttribute('aria-pressed', VIEW.fpv);
 }
-addEventListener('wheel', e => { if (!ui.pokedex && !ui.menu && !ui.onboard) zoom = clamp(zoom * (e.deltaY > 0 ? 1.08 : 0.93), 0.6, 2.2); }, { passive: true });
+addEventListener('wheel', e => { if (!ui.pokedex && !ui.menu && !ui.onboard) zoom = clamp(zoom * (e.deltaY > 0 ? 1.08 : 0.93), ZOOM_MIN, ZOOM_MAX); }, { passive: true });
 const ray = new THREE.Raycaster(), ndc = new THREE.Vector2();
 canvas.addEventListener('pointerdown', e => {
   if (ui.onboard) { if (ui.dialog) act(); return; }
@@ -3931,6 +3935,10 @@ function portrait(key) {
     const pr = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
     pr.setSize(180, 180); pr.toneMapping = THREE.ACESFilmicToneMapping; pr.toneMappingExposure = 1.15;
     const ps = new THREE.Scene(); ps.add(new THREE.HemisphereLight('#ffffff', '#556070', 2));
+  ['fogAtZoom1', () => viewFog(CAM_DIST, false).map(v => v.toFixed(1)) + '' === '34.0,70.0'],
+  ['fogFpv', () => viewFog(99, true) + '' === '34,70'],
+  ['farFollowsFog', () => Math.abs(camera.far - (scene.fog.far + 1)) < 1e-6],
+  ['zoomClamped', () => { const z0 = zoom; for (let i = 0; i < 60; i++) dispatchEvent(new WheelEvent('wheel', { deltaY: 1 })); const ok = zoom === ZOOM_MAX; zoom = z0; return ok; }],
     const dl = new THREE.DirectionalLight('#fff', 2.2); dl.position.set(1, 2, 3); ps.add(dl);
     portraitKit = { pr, ps, cam: new THREE.PerspectiveCamera(30, 1, 0.1, 20) };
   }
@@ -6376,7 +6384,7 @@ function update(dt, t) {
     want.set(look.x + sy * c * d, look.y + Math.sin(VIEW.pitch) * d, look.z + cy * c * d);
   }
   player.root.visible = !fpv;
-  if (!KAL.dark) { scene.background = fpv ? SKY : BG; scene.fog.color.copy(fpv ? HAZE : FOG); } // rooms keep their own dark backdrop
+  if (!KAL.dark) { scene.background = fpv ? SKY : FOG; scene.fog.color.copy(fpv ? HAZE : FOG); } // rooms keep their own dark backdrop; outdoors the backdrop is the fog, so whatever lies past the far plane (or isn't loaded) melts into it
   if (ui.onboard) obShot(want, look, t);
   const k = firstFrame || fpv ? 1 : 1 - Math.exp(-dt * (ui.onboard || OB.swoop > 0 ? 1.3 : 4)); // slow glides between shots and into play; first person never lags the head
   OB.swoop -= dt;
@@ -6399,6 +6407,8 @@ function update(dt, t) {
   floor.position.set(GALLERY.x0 + w / 2, GALLERY.h - 0.04, GALLERY.z0 + d / 2); floor.receiveShadow = true; scene.add(floor);
 }
 function galleryLabel(text) {
+  [scene.fog.near, scene.fog.far] = viewFog(CAM_DIST * zoom, fpv);
+  if (camera.far !== scene.fog.far + 1) { camera.far = scene.fog.far + 1; camera.updateProjectionMatrix(); } // nothing past solid fog is drawn
   const c = document.createElement('canvas'), x = c.getContext('2d'); c.width = 256; c.height = 48;
   x.fillStyle = 'rgba(20,30,40,.72)'; x.beginPath(); x.roundRect(2, 4, 252, 40, 14); x.fill();
   x.fillStyle = '#fff'; x.font = 'bold 22px Nunito, sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText(text, 128, 25, 240);
