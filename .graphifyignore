@@ -25,3 +25,4 @@ assets/
 **/build/
 **/coverage/
 **/vendor/
+**/target/

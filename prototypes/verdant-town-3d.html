@@ -4,15 +4,19 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Verdant Town 3D</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
+<link rel="preload" href="vendor/fonts/nunito-latin.woff2" as="font" type="font/woff2" crossorigin>
 <style>
+  /* Nunito (OFL, vendor/fonts/OFL.txt): Google Fonts' latin variable file, bundled so the game runs offline */
+  @font-face { font-family: 'Nunito'; font-style: normal; font-weight: 200 1000; font-display: swap; src: url(vendor/fonts/nunito-latin.woff2) format('woff2'); }
   :root { --panel: rgba(30, 36, 44, .78); --ink: #1f2a33; }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body { height: 100%; overflow: hidden; background: #3f6b33; font-family: Nunito, system-ui, sans-serif; user-select: none; }
   #c { display: block; position: fixed; inset: 0; width: 100vw; height: 100vh; touch-action: none; }
 
   .loc { position: fixed; top: 2.4vh; left: 1.6vw; display: flex; align-items: center; gap: 12px; padding: 10px 34px 10px 16px; background: var(--panel); color: #fff; border-radius: 999px; font-weight: 800; font-size: 20px; border: 1.5px solid rgba(255,255,255,.22); box-shadow: 0 4px 14px rgba(0,0,0,.25); }
+  .obj { position: fixed; top: calc(2.4vh + 56px); left: 1.6vw; max-width: min(420px, calc(100vw - 32px)); padding: 6px 16px 6px 12px; background: var(--panel); color: #fff; border-radius: 999px; font-weight: 700; font-size: 15px; border: 1.5px solid rgba(255,255,255,.22); box-shadow: 0 4px 14px rgba(0,0,0,.25); }
+  .obj:empty { display: none; }
+  .obj::before { content: "▸ "; color: #ffd23f; }
   .loc svg { width: 22px; height: 22px; }
 
   .mm { position: fixed; top: 2vh; right: 1.2vw; width: 206px; height: 206px; }
@@ -53,7 +57,7 @@
   /* battle */
   .battle { position: fixed; inset: 0; pointer-events: none; display: none; }
   body.in-battle .battle { display: block; }
-  body.in-battle .loc, body.in-battle .mm, body.in-battle .party, body.in-battle .btns, body.in-battle .hint, body.in-battle .prompt, body.in-battle .dialog { display: none !important; }
+  body.in-battle .loc, body.in-battle .obj, body.in-battle .mm, body.in-battle .party, body.in-battle .btns, body.in-battle .hint, body.in-battle .prompt, body.in-battle .dialog { display: none !important; }
   .bx { position: absolute; width: min(380px, 44vw); background: #fffdf6; border: 4px solid #2a3540; border-radius: 18px 18px 18px 6px; padding: 10px 18px 12px; box-shadow: 0 6px 18px rgba(0,0,0,.3); transition: opacity .3s, transform .3s; }
   .bx.hide { opacity: 0; transform: translateY(-10px); }
   .bx.foe { top: 5vh; left: 4vw; }
@@ -154,7 +158,7 @@
   .dex-stat i { grid-column: 1 / -1; height: 3px; background: #1d3b4d; }
   .dex-stat b { display: block; height: 100%; background: #70ded8; }
   .dex-footer { display: flex; justify-content: space-between; gap: 12px; font: 10px ui-monospace, monospace; color: #7f9caa; }
-  body.in-pokedex .loc, body.in-pokedex .mm, body.in-pokedex .party, body.in-pokedex .btns, body.in-pokedex .hint, body.in-pokedex .prompt, body.in-pokedex .dialog { visibility: hidden; }
+  body.in-pokedex .loc, body.in-pokedex .obj, body.in-pokedex .mm, body.in-pokedex .party, body.in-pokedex .btns, body.in-pokedex .hint, body.in-pokedex .prompt, body.in-pokedex .dialog { visibility: hidden; }
   @media (max-width: 760px) {
     .dex[open] { gap: 10px; padding: 12px; }
     .dex-signal, .dex-lens { display: none; }
@@ -182,6 +186,7 @@
     .btn { width: 56px; height: 56px; } .btn svg { width: 28px; height: 28px; }
     .btns { right: 16px; gap: 10px; }
     .loc { font-size: 15px; top: 16px; left: 16px; padding: 8px 18px 8px 12px; }
+    .obj { font-size: 13px; top: 58px; left: 16px; }
     .hint { display: none; }
     .dialog { bottom: 110px; }
     .bx { width: 46vw; padding: 6px 10px; } .bx .nm { font-size: 15px; } .bx.me { bottom: 186px; }
@@ -294,6 +299,59 @@
   .shop .bp-item small { display: block; font-size: 13px; opacity: .6; }
   .shop .buy { font: 900 16px Nunito, sans-serif; color: var(--ink); background: #ffd23f; border: 3px solid #2a3540; border-radius: 999px; padding: 4px 16px; cursor: pointer; }
   .shop .buy:hover, .shop .buy:focus-visible { background: #ffe680; }
+  /* ---------- Onboarding: title card over the town, the Professor's welcome, then look + nickname in a close-up of the trainer */
+  body.onboarding :is(.loc, .obj, .mm, .party, .btns, .hint, .prompt) { visibility: hidden; }
+  body.onboarding .dialog { bottom: calc(9vh + 28px); }
+  .ob { position: fixed; inset: 0; pointer-events: none; font-family: Nunito, sans-serif; }
+  .ob[hidden] { display: none; }
+  .ob::before { content: ""; position: absolute; inset: 0; background: radial-gradient(ellipse at center, transparent 50%, rgba(8, 14, 20, .55)); transition: opacity 1s; }
+  .ob-bar { position: absolute; left: 0; right: 0; height: 9vh; background: #0b1218; transition: transform 1s cubic-bezier(.6, 0, .3, 1); }
+  .ob-bar.top { top: 0; } .ob-bar.bot { bottom: 0; }
+  .ob.end .ob-bar.top { transform: translateY(-100%); } .ob.end .ob-bar.bot { transform: translateY(100%); } .ob.end::before { opacity: 0; }
+  .ob-title { position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; text-align: center; pointer-events: auto; cursor: pointer; background: radial-gradient(ellipse at 50% 45%, rgba(10, 20, 30, .1), rgba(10, 20, 30, .55)); transition: opacity .9s, transform 1.2s; }
+  .ob-title.gone { opacity: 0; transform: scale(1.1); pointer-events: none; }
+  .ob-logo { font-weight: 900; line-height: .9; font-size: clamp(60px, 12vw, 140px); color: #ffd23f; -webkit-text-stroke: 5px #234e9a; paint-order: stroke fill; text-shadow: 0 7px 0 #16336a, 0 16px 34px rgba(0, 0, 0, .5); letter-spacing: 2px; animation: obFloat 4s ease-in-out infinite; }
+  .ob-logo span { display: block; font-size: .46em; color: #fff; letter-spacing: .45em; margin: .12em 0 0 .45em; }
+  .ob-sub { margin-top: 18px; color: #e8f4ff; font-weight: 800; font-size: clamp(14px, 2vw, 19px); letter-spacing: .3em; text-transform: uppercase; text-shadow: 0 2px 8px rgba(0, 0, 0, .7); }
+  .ob-press { margin-top: 8vh; background: none; border: 0; color: #fff; font: 900 clamp(16px, 2.2vw, 22px) Nunito, sans-serif; letter-spacing: .12em; text-shadow: 0 2px 10px rgba(0, 0, 0, .8); animation: obBlink 1.6s ease-in-out infinite; cursor: pointer; }
+  @keyframes obBlink { 50% { opacity: .3; } }
+  @keyframes obFloat { 50% { transform: translateY(-8px); } }
+  .ob-skip { position: absolute; top: calc(9vh + 14px); right: 18px; pointer-events: auto; background: rgba(20, 30, 40, .6); color: #fff; border: 2px solid rgba(255, 255, 255, .5); border-radius: 999px; padding: 6px 14px; font: 800 14px Nunito, sans-serif; cursor: pointer; }
+  .ob-skip[hidden] { display: none; }
+  .ob-panel { position: absolute; left: max(24px, 6vw); top: 50%; transform: translateY(-50%); width: min(400px, calc(100vw - 32px)); pointer-events: auto; }
+  .ob-step { background: #fffdf6; border: 5px solid #2a3540; border-radius: 26px; padding: 22px; box-shadow: 0 18px 50px rgba(0, 0, 0, .45); color: var(--ink); font-weight: 800; display: flex; flex-direction: column; gap: 14px; animation: obIn .55s cubic-bezier(.2, .8, .2, 1); }
+  .ob-step[hidden] { display: none; }
+  @keyframes obIn { from { opacity: 0; transform: translateX(-30px); } }
+  .ob-kicker { font-size: 12px; font-weight: 900; letter-spacing: .16em; text-transform: uppercase; color: #2c6fb3; margin-bottom: -8px; }
+  .ob-h { display: block; font-size: 28px; font-weight: 900; line-height: 1.15; overflow-wrap: anywhere; }
+  .ob-h span { color: #2c6fb3; }
+  .ob-chars { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .ob-chars.ob-one { grid-template-columns: 1fr; }
+  .ob-chars:not(.ob-one) span { padding: 8px 12px; }
+  .ob-chars:not(.ob-one) b { font-size: 18px; }
+  .ob-chars:not(.ob-one) input:checked + span { transform: translateY(-3px); }
+  .ob-chars label { position: relative; cursor: pointer; }
+  .ob-chars input { position: absolute; opacity: 0; }
+  .ob-chars span { display: flex; flex-direction: column; padding: 12px 16px; border: 4px solid #2a3540; border-radius: 16px; background: #fff; transition: background .2s, color .2s, transform .2s; }
+  .ob-chars b { font-size: 21px; font-weight: 900; }
+  .ob-chars small { font-size: 13px; font-weight: 700; opacity: .7; }
+  .ob-chars input:checked + span { background: linear-gradient(135deg, #2c6fb3, #4fa9e0); color: #fff; transform: translateX(8px); }
+  .ob-chars input:checked + span small { opacity: .9; }
+  .ob-chars input:focus-visible + span, .ob input[type=text]:focus-visible, .ob button:focus-visible { outline: 3px solid #ffd84a; outline-offset: 2px; }
+  .ob-field { display: flex; align-items: center; gap: 10px; }
+  .ob-field small { font-size: 13px; opacity: .6; }
+  .ob input[type=text] { flex: 1; min-width: 0; border: 3px solid #2a3540; border-radius: 12px; padding: 10px 12px; font: 800 18px Nunito, sans-serif; color: var(--ink); background: #fff; user-select: text; }
+  .ob .gm-row { justify-content: flex-end; }
+  .ob .gm-btn { font-size: 17px; padding: 10px 16px; }
+  .ob-flash { position: absolute; inset: 0; background: radial-gradient(circle at 64% 52%, rgba(255, 255, 255, .85), transparent 38%); opacity: 0; }
+  @media (max-width: 760px) {
+    .ob-bar { height: 6vh; } body.onboarding .dialog { bottom: calc(6vh + 20px); } .ob-skip { top: calc(6vh + 10px); }
+    .ob-panel { left: 16px; right: 16px; width: auto; top: auto; bottom: calc(6vh + 12px); transform: none; }
+    .ob-step { padding: 16px; gap: 10px; } .ob-h { font-size: 22px; }
+    .ob-chars { grid-template-columns: 1fr 1fr; } .ob-chars input:checked + span { transform: none; }
+    .ob-flash { background: radial-gradient(circle at 50% 35%, rgba(255, 255, 255, .85), transparent 40%); }
+  }
+  @media (prefers-reduced-motion: reduce) { .ob-logo, .ob-press { animation: none; } }
   .quit-screen { position: fixed; inset: 0; z-index: 20; display: none; place-items: center; text-align: center; padding: 16px; background: radial-gradient(circle at 50% 40%, #2c4a5e, #0d1620); color: #fff; }
   .quit-screen.show { display: grid; }
   .quit-screen h2 { font-size: 34px; font-weight: 900; }
@@ -309,10 +367,11 @@
 </style>
 <script src="verdant-assets.js"></script><!-- optional Blender assets; the demo falls back to code-built shapes -->
 <script src="verdant-chars.js"></script><!-- sculpted characters and Pokémon (prototypes/blender/build_characters.py) -->
+<!-- three@0.160.0, vendored from npm (core + the addons imported below and their imports) so the game runs offline -->
 <script type="importmap">
 { "imports": {
-  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
-  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+  "three": "./vendor/three/build/three.module.js",
+  "three/addons/": "./vendor/three/examples/jsm/"
 } }
 </script>
 </head>
@@ -320,6 +379,7 @@
 <canvas id="c"></canvas>
 
 <div class="loc"><svg viewBox="0 0 24 24" fill="#fff"><path d="M12 2a7 7 0 0 0-7 7c0 5.2 7 13 7 13s7-7.8 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg><span id="locName">Verdant Town</span></div>
+<div class="obj" id="obj" aria-live="polite"></div>
 <div class="mm"><canvas id="mm" width="412" height="412"></canvas><div class="n">N</div></div>
 <div class="hint" id="hint"><kbd>WASD</kbd> walk · <kbd>Shift</kbd> run · <kbd>E</kbd> talk · click to move · scroll to zoom · <kbd>G</kbd> character gallery · <kbd>T</kbd> travel to Fleurville</div>
 
@@ -363,6 +423,55 @@
   <div class="gm-ask" id="gmAsk"><div class="sheet" role="alertdialog" aria-modal="true" aria-labelledby="gmAskTitle" aria-describedby="gmAskText"><h3 id="gmAskTitle"></h3><p id="gmAskText"></p><div class="gm-row"><button class="gm-btn" id="gmAskNo">Cancel</button><button class="gm-btn" id="gmAskYes"></button></div></div></div>
   <div class="bp-toast" id="gmToast" role="status"></div>
 </dialog>
+<div class="ob" id="onboard" hidden>
+  <div class="ob-bar top"></div><div class="ob-bar bot"></div>
+  <section class="ob-title" id="obTitleCard">
+    <h1 class="ob-logo">Verdant<span>Town</span></h1>
+    <p class="ob-sub">A Pokémon adventure</p>
+    <button class="ob-press" id="obPress">Press any key to begin</button>
+  </section>
+  <button class="ob-skip" id="obSkip" hidden>Skip intro ▸▸</button>
+  <form class="ob-panel" id="obForm" novalidate hidden>
+    <div class="ob-step" data-step="look">
+      <p class="ob-kicker">Step 1 of <span class="ob-of">3</span></p>
+      <h2 class="ob-h" id="obLookTitle">Choose your look</h2>
+      <div class="ob-chars" role="radiogroup" aria-labelledby="obLookTitle">
+        <label><input type="radio" name="char" value="serena" checked><span><b>Serena</b><small>Graceful and determined</small></span></label>
+        <label><input type="radio" name="char" value="calem"><span><b>Calem</b><small>Calm and cool-headed</small></span></label>
+        <label><input type="radio" name="char" value="tierno"><span><b>Tierno</b><small>Easygoing dancer</small></span></label>
+        <label><input type="radio" name="char" value="viola"><span><b>Viola</b><small>Bug-loving photographer</small></span></label>
+        <label><input type="radio" name="char" value="grant"><span><b>Grant</b><small>Steady rock climber</small></span></label>
+        <label><input type="radio" name="char" value="korrina"><span><b>Korrina</b><small>Fearless and fast</small></span></label>
+        <label><input type="radio" name="char" value="valerie"><span><b>Valerie</b><small>Dreamy designer</small></span></label>
+        <label><input type="radio" name="char" value="emma"><span><b>Emma</b><small>Curious and kind</small></span></label>
+      </div>
+      <div class="gm-row"><button type="button" class="gm-btn go" id="obLookNext">This is me ▸</button></div>
+    </div>
+    <div class="ob-step" data-step="name" hidden>
+      <p class="ob-kicker">Step 2 of <span class="ob-of">3</span></p>
+      <label class="ob-h" for="obName">What’s your name?</label>
+      <div class="ob-field"><input type="text" id="obName" maxlength="24" autocomplete="off" spellcheck="false" aria-describedby="obCount obErr"><small id="obCount">0/24</small></div>
+      <p class="gm-status err" id="obErr" role="alert" hidden>Enter a nickname (letters, numbers, spaces, . ' -).</p>
+      <div class="gm-row"><button type="button" class="gm-btn" id="obBack">◂ Back</button><button class="gm-btn go">Confirm</button></div>
+    </div>
+    <div class="ob-step" data-step="confirm" hidden>
+      <p class="ob-kicker">Prof. Sycamore</p>
+      <h2 class="ob-h">So, you’re <span id="obConfirmName"></span>?</h2>
+      <div class="gm-row"><button type="button" class="gm-btn" id="obNo">No, change it</button><button type="button" class="gm-btn go" id="obYes">Yes, that’s me!</button></div>
+    </div>
+    <div class="ob-step" data-step="starter" hidden>
+      <p class="ob-kicker">Step 3 of 3</p>
+      <h2 class="ob-h" id="obStarterTitle">Choose your partner</h2>
+      <div class="ob-chars ob-one" role="radiogroup" aria-labelledby="obStarterTitle">
+        <label><input type="radio" name="starter" value="BULBASAUR" checked><span><b>Bulbasaur</b><small>Grass · steady and patient</small></span></label>
+        <label><input type="radio" name="starter" value="CHARMANDER"><span><b>Charmander</b><small>Fire · bold and lively</small></span></label>
+        <label><input type="radio" name="starter" value="SQUIRTLE"><span><b>Squirtle</b><small>Water · cheerful and tough</small></span></label>
+      </div>
+      <div class="gm-row"><button type="button" class="gm-btn go" id="obStarterGo">I choose you! ▸</button></div>
+    </div>
+  </form>
+  <div class="ob-flash" id="obFlash"></div>
+</div>
 <div class="quit-screen" id="quitScreen"><div><h2>Thanks for playing!</h2><p>You have quit Verdant Town. You can close this tab now.</p><button class="gm-btn go" id="quitBack">Return to game</button></div></div>
 
 <div class="prompt" id="prompt">E</div>
@@ -498,7 +607,13 @@ const FOLK = {
   alexa: ['Alexa/tr0168_00_fi.dae', 'nurse'], pokefan: ['Poke Fan Female Tourist/tr0102_00_fi.dae', 'nurse'], roller: ['Roller Skater Female/tr0108_00_fi.dae', 'girl', 0.8],
   grace: ['Grace/tr0007_00_fi.dae', 'nurse'], scientistF: ['Scientist Female/tr0129_00_fi.dae', 'nurse'], mable: ['Mable/tr0029_00_fi.dae', 'nurse'],
   hiker: ['Hiker/tr0145_00_fi.dae', 'nurse', 0.9], richboy: ['Rich Boy/tr0063_00_fi.dae', 'girl', 0.72], twins: ['Twins/tr0103_00_fi.dae', 'kid', 0.6],
+  // playable trainer (onboarding), loaded up front with the Verdant humans: the Calem/ player rip's upper arms are unskinned and can't walk
+  calem: ['Calem NPC/tr0161_00_fi.dae', 'player'],
+  // more playable trainers: loaded only when picked (onboarding) or restored from a save, never with the townsfolk
+  tierno: ['Tierno/tr0004_00_fi.dae', 'player'], viola: ['Viola/tr0015_00_fi.dae', 'player'], grant: ['Grant/tr0016_00_fi.dae', 'player'],
+  korrina: ['Korrina/tr0017_00_fi.dae', 'player'], valerie: ['Valerie/tr0020_00_fi.dae', 'player'], emma: ['Emma/tr0171_00_fi.dae', 'player'],
 };
+const PLAYABLE = new Set(['tierno', 'viola', 'grant', 'korrina', 'valerie', 'emma']);
 
 // ============================================================ river (traced cross-sections: y, left x, right x, water level)
 const RIVER_PX = [[941, 1150, 1650, -0.7], [760, 1150, 1520, -0.7], [640, 1165, 1390, -0.7], [540, 1185, 1330, -0.7], [430, 1205, 1300, -0.7], [335, 1215, 1285, -0.7],
@@ -2078,7 +2193,9 @@ function prepXY(name, scene, animated, height) { // runs after textures load, so
     o.material = mats.length === 1 ? mats[0] : mats;
     o.castShadow = o.receiveShadow = true; o.frustumCulled = false;
   });
+  let calm = null;
   if (animated) { // measure the idle pose, not the rest pose
+    calm = quietClip(scene, scene.animations[0]); // followers: no hops, so a walking Pokémon doesn't jump on the spot
     scene.animations[0] = quietClip(scene, scene.animations[0], true); // full idle (head, arms, tail, the odd hop) so they look alive; only orb intros and turn-arounds are cut
     const m = new THREE.AnimationMixer(scene); m.clipAction(scene.animations[0]).play(); m.update(0);
   }
@@ -2090,7 +2207,7 @@ function prepXY(name, scene, animated, height) { // runs after textures load, so
   if (nFire) g.userData.fire = fire.divideScalar(nFire).add(scene.position).multiplyScalar(k);
   // bone names in the rips are generic (Bone14, joint21), so tail and wing chains are found by position:
   // the tip furthest out, then its parents while they stay out there. Stored as traversal indices so clones can find them.
-  if (animated) { g.userData.clips = scene.animations; g.userData.chains = {}; return g; } // Pokédex 3D Pro idle clip moves tail and wings itself
+  if (animated) { g.userData.clips = scene.animations; g.userData.calm = calm; g.userData.chains = {}; return g; } // Pokédex 3D Pro idle clip moves tail and wings itself
   const bones = []; g.traverse(o => o.isBone && bones.push(o));
   for (const b of bones) if (XY_HIDE[name]?.includes(b.name)) b.scale.setScalar(1e-4);
   g.updateMatrixWorld(true);
@@ -2112,10 +2229,10 @@ function prepXY(name, scene, animated, height) { // runs after textures load, so
 { // the manager also tracks the textures, so party portraits are not drawn before they arrive
   const mgr = new THREE.LoadingManager(), texDone = new Promise(r => (mgr.onLoad = mgr.onError = r)), loader = new ColladaLoader(mgr);
   const files = { pikachu: 'Pikachu', bulbasaur: 'Bulbasaur', charmander: 'Charmander', pidgey: 'Pidgey', rattata: 'Rattata', caterpie: 'Caterpie', weedle: 'Weedle', oddish: 'Oddish',
-    player: 'Serena', girl: 'Shauna', kid: 'Trevor', elder: 'Gardener', nurse: 'Nurse' }; // humans: unzipped from models/xy-zips
-  const HUMANS = new Set(['player', 'girl', 'kid', 'elder', 'nurse']);
+    player: 'Serena', calem: FOLK.calem[0], girl:'Shauna', kid: 'Trevor', elder: 'Gardener', nurse: 'Nurse' }; // humans: unzipped from models/xy-zips
+  const HUMANS = new Set(['player', 'calem', 'girl', 'kid', 'elder', 'nurse']);
   // Pokémon prefer the Pokédex 3D Pro rips in models/p3d/<Name>/: anim.dae is the model plus its idle animation.
-  const fromXY = n => loader.loadAsync(`models/xy/${n}/model.dae`).then(c => {
+  const fromXY = n => loader.loadAsync(encodeURI(`models/xy/${n.includes('/') ? n : n + '/model.dae'}`)).then(c => {
     // ColladaLoader names joints by sid, which ColladaMax rips set to "BoneN"; restore the joint names (LThigh, Head...)
     const names = {}; for (const d of Object.values(c.library.nodes)) if (d.type === 'JOINT' && d.sid) names[d.sid] = d.name;
     c.scene.traverse(o => o.isBone && names[o.name] && (o.name = names[o.name]));
@@ -2135,14 +2252,15 @@ function tickXYMixers(dt) { // a mixer runs while its model is in a scene; it is
     else if (root.userData.placed || (root.userData.age = (root.userData.age || 0) + dt) > 5) XY_MIXERS.delete(m);
   }
 }
-function xy(name) {
+function xy(name, follower = false) {
   const t = XY[name]; if (!t) return null;
   const g = SkeletonUtils.clone(t), bones = []; g.traverse(o => o.isBone && bones.push(o));
   const live = c => c && { userData: { chain: c.idx.map((i, k) => ({ b: bones[i], rest: bones[i].quaternion.clone(), axis: new V3().fromArray(c.axis[k]) })) } };
   const { tail, wingL, wingR, ears } = t.userData.chains;
   g.userData = { fire: t.userData.fire, chains: { tail: live(tail), wingL: live(wingL), wingR: live(wingR), ears: live(ears) } };
   if (t.userData.clips?.length) { // Pokédex 3D Pro idle, started at a random point so a group doesn't move in sync
-    const m = new THREE.AnimationMixer(g); m.clipAction(t.userData.clips[0]).play(); m.setTime(Math.random() * t.userData.clips[0].duration); XY_MIXERS.add(m);
+    const clip = (follower && t.userData.calm) || t.userData.clips[0];
+    const m = new THREE.AnimationMixer(g); m.clipAction(clip).play(); m.setTime(Math.random() * clip.duration); XY_MIXERS.add(m);
   }
   return g;
 }
@@ -2152,10 +2270,10 @@ function swing(o, a) { // sculpt parts turn as one piece; X/Y bone chains bend a
   for (const c of ch) c.b.quaternion.copy(c.rest).multiply(_swingQ.setFromAxisAngle(c.axis, a / ch.length));
 }
 
-function makePikachu() { const x = xy('pikachu'); if (x) { x.userData.tail = x.userData.chains.tail || new THREE.Group(); return x; } const { root, parts } = rig('pikachu'); root.userData.tail = parts.tail; return root; }
+function makePikachu() { const x = xy('pikachu', true); if (x) { x.userData.tail = x.userData.chains.tail || new THREE.Group(); return x; } const { root, parts } = rig('pikachu'); root.userData.tail = parts.tail; return root; }
 function makeBulbasaur() { return xy('bulbasaur') || rig('bulbasaur').root; }
 function makeCharmander() {
-  const g = xy('charmander') || rig('charmander').root, flame = new THREE.Group(); flame.position.copy(g.userData.fire || new V3(0, 0.8, -0.68)); g.add(flame);
+  const g = xy('charmander', true) || rig('charmander').root, flame = new THREE.Group(); flame.position.copy(g.userData.fire || new V3(0, 0.8, -0.68)); g.add(flame);
   add(new THREE.ConeGeometry(0.1, 0.32, 10), '#ff9a2e', flame, 0, 0, 0, { mat: { emissive: '#ff6a00', emissiveIntensity: 3 }, shadow: false });
   add(new THREE.ConeGeometry(0.055, 0.2, 10), '#fff27a', flame, 0, -0.03, 0.02, { mat: { emissive: '#ffe24a', emissiveIntensity: 3 }, shadow: false });
   flame.add(new THREE.PointLight('#ff8a2a', 2.5, 3, 2));
@@ -2167,11 +2285,38 @@ function makeCharmander() {
 const player = makeHuman('player');
 const P = { pos: new V3(START[0], 0, START[1]), face: Math.PI / 2 + 0.25, speed: 0, v: 0 };
 player.root.position.copy(P.pos); player.root.rotation.y = P.face; scene.add(player.root);
-const pika = makePikachu(); pika.scale.setScalar(0.85); scene.add(pika);
+// the trainer picked at onboarding; null until then (new game, or a save from before onboarding existed)
+const TRAINERS = { serena: 'player', calem: 'calem', tierno: 'tierno', viola: 'viola', grant: 'grant', korrina: 'korrina', valerie: 'valerie', emma: 'emma' }; // character -> XY model key
+let trainer = null, shownChar = 'serena', wantChar = 'serena';
+async function setTrainer(char) { // swaps the player model in place; everything else only holds `player` and `player.root`
+  if (!Object.hasOwn(TRAINERS, char)) char = 'serena';
+  wantChar = char;
+  if (!XY[TRAINERS[char]] && FOLK[TRAINERS[char]]) await loadFolkModel(TRAINERS[char]); // the extra trainers load on first pick
+  if (char !== wantChar) return; // a later pick arrived while this one loaded
+  if (!XY[TRAINERS[char]]) char = 'serena';
+  if (char === shownChar) return; shownChar = char;
+  scene.remove(player.root);
+  Object.assign(player, makeHuman(TRAINERS[char]));
+  player.root.position.copy(P.pos); player.root.rotation.y = P.face; scene.add(player.root);
+}
+// the follower is the party lead (Pikachu until the party is known); setFollower swaps the model, PK keeps its place and motion
+const FOLLOW_STYLE = { PIKACHU: ['bound', 0.85], BULBASAUR: ['bound', 0.8], CHARMANDER: ['waddle', 0.72] }; // [gait, scale]; others waddle (or hover) at 0.75
+let pika = makePikachu(), followKey = 'PIKACHU'; scene.add(pika);
 const PIKA0 = I(795, 486, 0);
 const follower = (x, z, face) => ({ pos: new V3(x, 0, z), face, v: 0, ph: 0, amt: 0, roll: 0, look: 0, idleT: 2, act: null, actT: 0, dir: 1 });
 const PK = follower(PIKA0[0], PIKA0[1], P.face);
-Object.assign(pika.userData, { gait: 'bound', base: 0.85 }); pika.rotation.order = 'YXZ'; pika.rotation.y = P.face;
+function styleFollower(o, key) {
+  const [gait, base] = FOLLOW_STYLE[key] || [o.userData.flies ? 'hover' : 'waddle', 0.75];
+  Object.assign(o.userData, { gait, base }); o.scale.setScalar(base); o.rotation.order = 'YXZ'; o.rotation.y = PK.face;
+}
+styleFollower(pika, 'PIKACHU');
+function setFollower(key) {
+  if (!key || key === followKey || !SPECIES[key]) return;
+  if (SPECIES[key].auto && !XY[key]) return; // its model is still loading: loadSpeciesModel re-renders the party when it lands
+  const o = SPECIES[key].make(); if (!o) return;
+  scene.remove(pika); pika = o; followKey = key;
+  styleFollower(pika, key); pika.position.copy(PK.pos); scene.add(pika);
+}
 
 const npcs = [];
 function npc(h, x, z, face, name, lines, extra = {}) {
@@ -2206,6 +2351,58 @@ const interactables = [
     after: () => startBattle('BULBASAUR', 5, { intro: 'The wild BULBASAUR wants to battle!', onWin: retireBulbasaur }) },
   { x: COT.door[0], z: COT.door[1], r: 1.1, name: 'Door', lines: ["It's locked. Smells like fresh bread inside..."], top: 2.2 },
 ];
+
+// ============================================================ Story: Chapter 1 "The Silent Stream", first field assignment
+// Steps and clues use stable IDs (saved in flags); dialogue, markers and the objective pill all read this one state.
+const QUEST_STEPS = ['meet-prof', 'investigate-stream', 'report-clues', 'find-ranger'];
+const story = { step: 'meet-prof', clues: [] };
+function bankAt(px, py, side, gap = 0.9) { // the stream bank nearest a reference pixel: side 1 = east bank, -1 = west
+  const [x, z] = I(px, py, -0.4); let i = 0;
+  RV.forEach((p, j) => { if (Math.hypot(p[0] - x, p[1] - z) < Math.hypot(RV[i][0] - x, RV[i][1] - z)) i = j; });
+  const a = RV[Math.max(0, i - 1)], b = RV[Math.min(RV.length - 1, i + 1)], l = Math.hypot(b[0] - a[0], b[1] - a[1]), p = RV[i], d = p[3] + gap;
+  return [p[0] - side * (b[1] - a[1]) / l * d, p[1] + side * (b[0] - a[0]) / l * d];
+}
+const CLUES = [ // along the stream, downstream to upstream, so the last clue points toward Route 1
+  { id: 'still-water', at: bankAt(1150, 760, -1, -0.2), /* close in: a tree overhangs this bank */ lines: ['The stream is perfectly still here.', 'No Poliwag song, no Magikarp splashing... not a single ripple.'] },
+  { id: 'tracks', at: bankAt(1205, 430, 1), lines: ['Muddy footprints of many small Pokémon...', 'They all lead away from the water, as if something chased them off.'] },
+  { id: 'hum', at: bankAt(1330, 200, 1), lines: ['A faint, high-pitched hum drifts down from upstream.', 'It seems to come from past Route 1. The Pidgey here keep well away from it.'] },
+];
+const clueOpen = c => story.step === 'investigate-stream' && !story.clues.includes(c.id);
+for (const c of CLUES) {
+  c.mark = new THREE.Mesh(new THREE.OctahedronGeometry(0.22), mat('#ffd23f', { emissive: '#ffb000', emissiveIntensity: 1.2 }));
+  scene.add(c.mark);
+  interactables.push({ x: c.at[0], z: c.at[1], get r() { return clueOpen(c) ? 1.4 : 0; }, name: 'Stream', lines: c.lines, top: 1.2, after: () => {
+    story.clues.push(c.id); SND.chime();
+    if (CLUES.every(k => story.clues.includes(k.id))) story.step = 'report-clues';
+    questChanged();
+  } });
+}
+function questChanged() { renderObjective(); saveGame(); }
+function renderObjective() {
+  const n = story.clues.length;
+  $('obj').textContent = { 'meet-prof': 'Talk to Prof. Sycamore', 'investigate-stream': `Inspect the quiet stream (${n}/${CLUES.length})`,
+    'report-clues': 'Report to Prof. Sycamore', 'find-ranger': 'Find the apprentice ranger past Route 1' }[story.step];
+}
+function profTalk() { // [lines, after] for the current step; supplies are granted only on the meet-prof -> investigate-stream transition
+  const left = CLUES.length - story.clues.length;
+  return {
+    'meet-prof': [['Ah, there you are! I have a favour to ask: your first field assignment.', 'The stream east of town has gone silent, and the wild Pokémon are restless.',
+      'Follow the bank and inspect anything unusual. Here, these will help on the way.', 'You received 5 Poké Balls and 3 Potions!'],
+      () => { if (story.step !== 'meet-prof') return; bag.ball = (bag.ball || 0) + 5; bag.potion = (bag.potion || 0) + 3; story.step = 'investigate-stream'; SND.chime(); questChanged(); }],
+    'investigate-stream': [[`Follow the stream east of town. ${left === 1 ? 'One more spot' : `${left} spots`} still need a look.`]],
+    'report-clues': [['Still water, fleeing footprints and a strange hum from upstream...', 'Something past Route 1 is driving the Pokémon away from the water.',
+      'An apprentice ranger is posted out there. Find them: they know the woods better than anyone.'],
+      () => { if (story.step !== 'report-clues') return; story.step = 'find-ranger'; questChanged(); }],
+    'find-ranger': [['The ranger is posted past Route 1. Be careful out there!']],
+  }[story.step];
+}
+const PROF_AT = [START[0] - 2.2, START[1] - 1.6];
+function spawnProf() { // the professor waits by the spawn; the Verdant elder sculpt stands in if the X/Y model failed to load
+  const key = XY.sycamore ? 'sycamore' : 'elder';
+  const n = npc(makeHuman(key), ...PROF_AT, Math.atan2(START[0] - PROF_AT[0], START[1] - PROF_AT[1]), PROF, []);
+  n.h.root.scale.setScalar(key === 'sycamore' ? FOLK.sycamore[2] : 0.85);
+  interactables.push({ get x() { return n.x; }, get z() { return n.z; }, r: 1.6, name: PROF, get lines() { return profTalk()[0]; }, npc: n, get after() { return profTalk()[1]; }, top: 2.5 });
+}
 
 // butterflies & drifting pollen
 const butterflies = [];
@@ -2344,7 +2541,6 @@ const KNPC = [
   ['schoolgirl', 615, 356, 0, 'Schoolgirl', ['We learned about Mega Evolution in class today!', 'You need a Mega Ring AND a Mega Stone. So cool!'], { patrol: [[615, 356], [790, 356]] }],
   ['schoolboy', 236, 260, 0, 'Schoolboy', ['I run laps around town to train like a real Trainer.', 'Wild Pokémon jump out of the wheat fields up north!'], { patrol: [[236, 260], [236, 556]] }],
   ['preschooler', 603, 316, 0, 'Little girl', ['The fountain sparkles at night!', "Mommy says I'll get my own Pokémon when I'm bigger."]],
-  ['sycamore', 735, 160, 0, 'Prof. Sycamore', ['Bonjour! Welcome to my little greenhouse.', 'Pokémon and flowers have much in common: both bloom when they are loved.']],
   ['clemont', 628, 130, 0.5, 'Clemont', ['I rebuilt the windmill gearbox myself!', 'The future is now, thanks to science!']],
   ['bonnie', 606, 146, 0.3, 'Bonnie', ['My big brother can build anything!', 'Except a girlfriend... Will you keep him company?']],
   ['elder', 298, 140, 0, 'Gardener', ['These wheat fields are full of wild Pokémon.', 'Walk through the rows and you might meet one!']],
@@ -2361,9 +2557,9 @@ function spawnFolk() {
     } catch (e) { console.warn('Townsfolk failed:', key, e); }
   }
 }
-async function loadFolk() { // same path as the Verdant humans: ColladaLoader, joint names restored, prepXY once the textures are in
+async function loadFolk(keys = Object.keys(FOLK).filter(k => !PLAYABLE.has(k))) { // same path as the Verdant humans: ColladaLoader, joint names restored, prepXY once the textures are in
   const mgr = new THREE.LoadingManager(), texDone = new Promise(r => (mgr.onLoad = mgr.onError = r)), loader = new ColladaLoader(mgr);
-  const got = await Promise.all(Object.entries(FOLK).map(([k, [file]]) => loader.loadAsync('models/xy/' + file.split('/').map(encodeURIComponent).join('/')).then(c => {
+  const got = await Promise.all(keys.filter(k => !XY[k]).map(k => loader.loadAsync('models/xy/' + FOLK[k][0].split('/').map(encodeURIComponent).join('/')).then(c => {
     const names = {}; for (const d of Object.values(c.library.nodes)) if (d.type === 'JOINT' && d.sid) names[d.sid] = d.name;
     c.scene.traverse(o => o.isBone && names[o.name] && (o.name = names[o.name]));
     return [k, c.scene];
@@ -2371,6 +2567,8 @@ async function loadFolk() { // same path as the Verdant humans: ColladaLoader, j
   await Promise.race([texDone, new Promise(r => setTimeout(r, 15000))]);
   for (const [k, s] of got.filter(Boolean)) try { XY[k] = prepXY(k, s, false); } catch (e) { console.warn('Townsfolk prep failed:', k, e); }
 }
+const FOLK_LOADS = {};
+const loadFolkModel = k => (FOLK_LOADS[k] ??= loadFolk([k])); // one model, loaded once
 async function kProp(path, px, py, size, ry = 0, fade = null) { // a static X/Y prop, scaled so its footprint's long side is `size` metres; returns its height
   const holder = await loadDexModel({ models: [['', path]] }, 0, new AbortController().signal);
   holder.updateMatrixWorld(true);
@@ -2384,7 +2582,7 @@ async function kProp(path, px, py, size, ry = 0, fade = null) { // a static X/Y 
 }
 function startKalos() { // after the first frame: stream the townsfolk and the X/Y fountain and Pokémon Center in the background
   KAL.started = true;
-  loadFolk().then(spawnFolk);
+  loadFolk(['sycamore']).then(() => { try { spawnProf(); } catch (e) { console.warn('Professor failed:', e); } return loadFolk(); }).then(spawnFolk); // the professor first: the quest starts at him
   kProp('Roselia Fountain/c01_bm_hunsui.dae', 532, 357, 3.3).then(h => (KAL.spray.y = h * 0.92), e => console.warn('Fountain model failed:', e));
   kProp('Pokemon Center/com_bm_pokecen.dae', 705, 432, 4.7, 0, kRect(662, 386, 748, 474)).catch(e => {
     console.warn('Pokémon Center model failed, using a built one:', e);
@@ -2440,6 +2638,26 @@ function placePlayer(x, z, face) {
   P.pos.set(x, walkH(x, z), z); P.face = face; player.root.position.copy(P.pos); player.root.rotation.y = face;
   PK.pos.set(x - Math.sin(face) * 0.9, 0, z - Math.cos(face) * 0.9); pika.position.copy(PK.pos);
 }
+// test portals on the west side of Verdant's plaza: one glowing pad per map; on a pad, X asks to confirm, X again warps (T comes back)
+const PORTALS = [['FLEURVILLE', () => placePlayer(...K_SPAWN, Math.PI)], ...ROOMS.map(r => [r.name.toUpperCase(), () => placePlayer(r.cx, r.rect[3] - 0.9, Math.PI)])]
+  .map(([name, go], i) => {
+    const x = -20.4 + (i % 2) * 2.4, z = -13.6 + Math.floor(i / 2) * 1.9, y = walkH(x, z), flat = [-Math.PI / 2, 0, 0];
+    add(new THREE.RingGeometry(0.42, 0.58, 32), '#9fe2ff', scene, x, y + 0.03, z, { r: flat, shadow: false, mat: { emissive: '#3fb8ff', emissiveIntensity: 2 } });
+    add(new THREE.CircleGeometry(0.42, 32), '#2a6fb0', scene, x, y + 0.025, z, { r: flat, shadow: false, mat: { emissive: '#1f5f9f', emissiveIntensity: 0.8 } });
+    add(new THREE.PlaneGeometry(1.9, 0.36), 0, scene, x, y + 0.03, z + 0.82, { r: flat, shadow: false, material: new THREE.MeshBasicMaterial({ map: signTex(name, '#1b2a44', '#9fe2ff') }) });
+    return { name, x, z, go };
+  });
+function portalTick() { // the corner hint shows the X prompt while the player stands on a pad
+  const pad = PORTALS.find(p => Math.hypot(P.pos.x - p.x, P.pos.z - p.z) < 0.5) || null;
+  if (pad === (KAL.pad ?? null)) return; // ?? null: leave the start-up controls hint alone until a pad is touched
+  KAL.pad = pad; const h = $('hint');
+  if (pad) h.innerHTML = `<kbd>X</kbd> enter ${pad.name}`;
+  h.style.opacity = pad ? 1 : 0;
+}
+function portalKey() {
+  if (ui.dialog?.portal) { const go = ui.dialog.portal.go; ui.dialog = null; $('dialog').classList.remove('show'); fadeTo(go); }
+  else if (KAL.pad && !ui.dialog) { say('Portal', [`Warp to ${KAL.pad.name}? Press X to go, E to cancel.`]); ui.dialog.portal = KAL.pad; }
+}
 function travel(toKalos) { fadeTo(() => { const [x, z] = toKalos ? K_SPAWN : START; placePlayer(x, z, toKalos ? Math.PI : Math.PI / 2 + 0.25); }); }
 function fadeTo(move) { // fade to black, move the player, fade back in
   if (KAL.busy || ui.dialog || BT.active) return; KAL.busy = true;
@@ -2454,9 +2672,10 @@ if (new URLSearchParams(location.search).get('map') === 'kalos') placePlayer(...
 
 // ============================================================ input
 const keys = new Set();
-const ui = { dialog: null, battle: false, pokedex: false, bag: false, menu: false, quit: false, shop: false };
+const ui = { dialog: null, battle: false, pokedex: false, bag: false, menu: false, quit: false, shop: false, onboard: false };
 const $ = id => document.getElementById(id);
 addEventListener('keydown', e => {
+  if (ui.onboard) return obKey(e);
   if (ui.menu || ui.quit || ui.shop) return; // the Game Menu and shop dialogs handle their own keys (Esc closes them)
   if (ui.pokedex) { if (e.code === 'Escape') { e.preventDefault(); closePokedex(); } return; }
   if (ui.bag) return bagKey(e);
@@ -2469,6 +2688,7 @@ addEventListener('keydown', e => {
   }
   if (e.code === 'Escape' && !e.repeat) { e.preventDefault(); openMenu(); } // preventDefault: this Esc must not also close the dialog it opens
   if (e.code === 'KeyB' && !e.repeat) openBag();
+  if (e.code === 'KeyX' && !e.repeat) portalKey();
   if (e.code === 'KeyT' && !e.repeat) travel(!inKalos(P.pos.x)); // travel between Verdant Town (test map) and Fleurville Town
   if (e.code === 'Backquote' && !e.repeat) { // testing shortcut: give a Pokémon at a level, plus items (see window.debug)
     keys.clear();
@@ -2479,9 +2699,10 @@ addEventListener('keydown', e => {
 addEventListener('keyup', e => keys.delete(e.code));
 addEventListener('blur', () => keys.clear());
 let zoom = 1, moveTarget = null;
-addEventListener('wheel', e => { if (!ui.pokedex && !ui.menu) zoom = clamp(zoom * (e.deltaY > 0 ? 1.08 : 0.93), 0.6, 2.2); }, { passive: true });
+addEventListener('wheel', e => { if (!ui.pokedex && !ui.menu && !ui.onboard) zoom = clamp(zoom * (e.deltaY > 0 ? 1.08 : 0.93), 0.6, 2.2); }, { passive: true });
 const ray = new THREE.Raycaster(), ndc = new THREE.Vector2();
 canvas.addEventListener('pointerdown', e => {
+  if (ui.onboard) { if (ui.dialog) act(); return; }
   if (ui.pokedex) return;
   if (BT.active) return bconfirm();
   if (ui.dialog) return act();
@@ -3080,14 +3301,16 @@ function dexPlane(id, H) { // the Pokédex image on a camera-facing card: the st
   card.onBeforeRender = (r, s, cam) => { card.parent.getWorldQuaternion(card.quaternion).invert().multiply(cam.quaternion); card.updateMatrixWorld(); };
   const g = new THREE.Group(); g.add(card); return g;
 }
-const SPECIES_LOADS = {};
+const SPECIES_LOADS = {}, P3D_FIRST = new Set(['SQUIRTLE']);
 function loadSpeciesModel(key) { // resolves true once XY[key] holds the prepared model, false if it can't be loaded
   const sp = SPECIES[key];
   if (!sp?.auto) return Promise.resolve(true);
   return SPECIES_LOADS[key] ??= (async () => {
     const path = DEX_MODELS[sp.dex]?.[0]?.[1]; if (!path) throw new Error('no 3D model for #' + sp.dex);
-    const mgr = new THREE.LoadingManager(), texDone = new Promise(r => (mgr.onLoad = r)); // same steps as the boot loader
-    const c = await new ColladaLoader(mgr).loadAsync((/^(p3d|sm|chars)\//.test(path) ? 'models/' : 'models/xy/') + path.split('/').map(encodeURIComponent).join('/'));
+    const mgr = new THREE.LoadingManager(), texDone = new Promise(r => (mgr.onLoad = r)), loader = new ColladaLoader(mgr); // same steps as the boot loader
+    const url = (/^(p3d|sm|chars)\//.test(path) ? 'models/' : 'models/xy/') + path.split('/').map(encodeURIComponent).join('/');
+    // starters prefer the animated Pokédex 3D Pro rip, like the boot Pokémon (its idle clip also gives the follower its calm loop)
+    const c = await (P3D_FIRST.has(key) ? loader.loadAsync(`models/p3d/${String(sp.dex).padStart(4, '0')}/anim.dae`).catch(() => loader.loadAsync(url)) : loader.loadAsync(url));
     const names = {}; for (const d of Object.values(c.library.nodes)) if (d.type === 'JOINT' && d.sid) names[d.sid] = d.name;
     c.scene.traverse(o => o.isBone && names[o.name] && (o.name = names[o.name]));
     c.scene.animations?.forEach(cleanClip);
@@ -3112,7 +3335,8 @@ function makeMon(key, level) {
   loadSpeciesModel(key);
   return m;
 }
-const party = [makeMon('PIKACHU', 6), makeMon('BULBASAUR', 5), makeMon('CHARMANDER', 5)];
+const party = [makeMon('PIKACHU', 6), makeMon('BULBASAUR', 5), makeMon('CHARMANDER', 5)]; // placeholder: a new game swaps it for the starter picked at onboarding
+let freshGame = true; // false once a save supplies the party; only a fresh game picks a starter
 const pcBox = [];
 const bag = { potion: 3, superPotion: 1, antidote: 2, ball: 5, greatBall: 2, oranBerry: 2, pechaBerry: 1, townMap: 1 }; // battle reads potion / ball
 let money = 3000; // ₽, saved with the bag
@@ -3122,11 +3346,11 @@ function healParty() { for (const m of party) { m.hp = m.maxHp; m.moves.forEach(
 // ============================================================ Save (localStorage autosave: party, PC box, bag, position, story flags)
 // The autosave is the running game; the Game Menu's save files (verdant-slots-v1) hold copies of it.
 const SAVE_KEY = 'verdant-save-v1';
-const cleanNick = s => String(s).replace(/[^\p{L}\p{N} .'-]/gu, '').slice(0, 12); // nicknames end up in innerHTML
+const cleanNick = (s, max = 12) => String(s).replace(/[^\p{L}\p{N} .'-]/gu, '').slice(0, max); // nicknames end up in innerHTML
 const packMon = m => ({ key: m.key, level: m.level, exp: m.exp, hp: m.hp, nick: m.nick, gender: m.gender, moves: m.moves.map(x => ({ id: x.id, pp: x.pp })) });
 let playTime = 0, curSlot = null; // seconds played; id of the save file this game was loaded from / last saved to
-const snapshot = () => ({ party: party.map(packMon), pc: pcBox.map(packMon), bag, money, pos: [P.pos.x, P.pos.z, P.face].map(n => Math.round(n * 100) / 100),
-  flags: { bulbasaur: !bulba.visible }, loc: $('locName').textContent, time: Math.floor(playTime), slot: curSlot });
+const snapshot = () => ({ trainer, party:party.map(packMon), pc: pcBox.map(packMon), bag, money, pos: [P.pos.x, P.pos.z, P.face].map(n => Math.round(n * 100) / 100),
+  flags: { bulbasaur: !bulba.visible, quest: story.step, clues: story.clues }, loc: $('locName').textContent, time: Math.floor(playTime), slot: curSlot });
 function saveGame() { try { localStorage.setItem(SAVE_KEY, JSON.stringify(snapshot())); } catch (e) { console.warn('Save failed:', e); } }
 function unpackMon(s) { // saved data is untrusted: unknown species and moves are dropped, numbers are clamped
   if (!Object.hasOwn(SPECIES, s?.key)) return null;
@@ -3142,13 +3366,17 @@ function unpackMon(s) { // saved data is untrusted: unknown species and moves ar
 function loadGame() {
   let s; try { s = JSON.parse(localStorage.getItem(SAVE_KEY)); } catch { return; }
   if (!s || typeof s !== 'object') return;
-  const mons = a => (Array.isArray(a) ? a : []).map(unpackMon).filter(Boolean);
-  const p = mons(s.party).slice(0, 6); if (p.length) party.splice(0, party.length, ...p);
+  const tname = cleanNick(s.trainer?.name ?? '', 24).trim();
+  if (tname && Object.hasOwn(TRAINERS, s.trainer.char)) { trainer = { char: s.trainer.char, name: tname }; setTrainer(trainer.char); }
+  const mons =a => (Array.isArray(a) ? a : []).map(unpackMon).filter(Boolean);
+  const p = mons(s.party).slice(0, 6); if (p.length) { party.splice(0, party.length, ...p); freshGame = false; }
   pcBox.splice(0, pcBox.length, ...mons(s.pc));
   if (s.bag && typeof s.bag === 'object') { for (const k in bag) delete bag[k]; for (const [k, v] of Object.entries(s.bag)) if (Object.hasOwn(ITEMS, k)) bag[k] = clamp(Math.floor(+v) || 0, 0, 999); }
   if (Number.isFinite(s.money)) money = clamp(Math.floor(s.money), 0, 999999);
   if (Array.isArray(s.pos) && s.pos.length === 3 && s.pos.every(Number.isFinite) && !new URLSearchParams(location.search).has('map')) placePlayer(...s.pos);
   if (s.flags?.bulbasaur === true) retireBulbasaur();
+  if (QUEST_STEPS.includes(s.flags?.quest)) story.step = s.flags.quest;
+  if (Array.isArray(s.flags?.clues)) story.clues = CLUES.map(c => c.id).filter(id => s.flags.clues.includes(id));
   if (Number.isFinite(s.time)) playTime = Math.max(0, s.time);
   if (typeof s.slot === 'string') curSlot = s.slot;
 }
@@ -3168,8 +3396,10 @@ window.debug = { // testing hooks, from the console or the ` key: debug.give('KI
     renderParty(); saveGame();
     return m;
   },
+  quest: () => ({ story, CLUES, START }), clue: i => placePlayer(...CLUES[i].at, 0), // debug.clue(0) stands on a stream clue spot
   battle: (key = 'PIDGEY', level = 3) => Object.hasOwn(SPECIES, key = String(key).toUpperCase()) && startBattle(key, Math.floor(+level) || 3),
   shop: () => openShop(), // the Fleurville Poké Mart counter, without walking there
+  follower: () => ({ key: followKey, at: pika.position.toArray().map(n => +n.toFixed(2)), size: +new THREE.Box3().setFromObject(pika).getSize(new V3()).y.toFixed(2), player: P.pos.toArray().map(n => +n.toFixed(2)) }),
 };
 
 // overworld party HUD (portraits rendered from the 3D models, cached per species)
@@ -3198,6 +3428,7 @@ function renderParty() {
     const f = m.hp / m.maxHp;
     return `<div class="mon${m.hp <= 0 ? ' out' : ''}" title="${nm(m)} Lv${m.level} · HP ${m.hp}/${m.maxHp}"><div class="pic"><img alt="${nm(m)}" src="${portrait(m.key)}"></div><div class="hp"><i class="${hpClass(f)}" style="width:${f * 100}%"></i></div></div>`;
   }).join('');
+  setFollower(party[0]?.key);
 }
 // ============================================================ Backpack
 const ICON = { // small hand-drawn SVG item icons
@@ -5381,7 +5612,7 @@ function retireBulbasaur() {
   const c = circles.findIndex(o => o.x === BU[0] && o.z === BU[1]); if (c >= 0) circles.splice(c, 1);
 }
 loadGame();
-renderParty();
+renderParty(); renderObjective();
 
 // ============================================================ loop
 const clock = new THREE.Clock();
@@ -5391,10 +5622,10 @@ function faceTowards(obj, target, dt, k = 10) {
   let d = target - obj.rotation.y; d = Math.atan2(Math.sin(d), Math.cos(d));
   obj.rotation.y += d * (1 - Math.exp(-dt * k));
 }
-// A Pokémon trailing its trainer: catches up smoothly, moves with a gait that fits its body (four-legged ones bound,
+// A Pokémon trailing its trainer: catches up smoothly, moves with a gait that fits its body (four-legged ones trot,
 // two-legged ones waddle, flyers hover), leans into turns and plays a short idle when it stops. Models with their own idle
 // clip keep it playing through the mixer; bone-level tail and ear motion is only added when a model has no clip.
-const STRIDE = { bound: 0.5, waddle: 0.22, hover: 0.6 }; // metres per gait cycle (bound, hover) or per step (waddle)
+const STRIDE = { bound: 0.9, waddle: 0.22, hover: 0.6 }; // metres per gait cycle (bound, hover) or per step (waddle)
 const TOP_SPEED = { bound: 6.5, waddle: 2.4, hover: 5 };
 function follow(o, F, tx, tz, idleFace, dt, t) {
   const u = o.userData, gait = u.gait || (u.flies ? 'hover' : 'waddle');
@@ -5409,17 +5640,15 @@ function follow(o, F, tx, tz, idleFace, dt, t) {
     F.ph += s / STRIDE[gait]; // the gait advances with distance covered, so the feet keep pace with the ground
   } else F.face = wrapAngle(F.face + clamp(wrapAngle(idleFace - F.face), -3 * dt, 3 * dt));
   const blend = 1 - Math.exp(-dt * 8), a = F.amt = THREE.MathUtils.lerp(F.amt, clamp(F.v / 1.5, 0, 1), blend);
-  F.roll = THREE.MathUtils.lerp(F.roll, clamp(-turnRate * F.v * 0.05, -0.3, 0.3), blend); // lean into the turn
+  F.roll = THREE.MathUtils.lerp(F.roll, clamp(-turnRate * F.v * 0.02, -0.12, 0.12), blend); // lean into the turn
   F.look = THREE.MathUtils.lerp(F.look, gap > 0.3 ? clamp(wrapAngle(Math.atan2(dx, dz) - F.face), -0.5, 0.5) * 0.6 : 0, blend);
   let y = 0, sy = 1, lean = 0, roll = F.roll, yaw = 0;
-  if (gait === 'bound') { // airborne for 70% of the cycle: stretch and nose up on take-off, squash and nose down on landing
-    const c = F.ph % 1, air = c < 0.7;
-    y = air ? Math.sin(c / 0.7 * Math.PI) * 0.14 * a : 0;
-    sy = 1 + a * (c < 0.2 ? 0.15 * Math.sin(c / 0.2 * Math.PI) : air ? 0 : -0.2 * Math.sin((c - 0.7) / 0.3 * Math.PI));
-    lean = a * (air ? -0.18 * Math.cos(c / 0.7 * Math.PI) : 0.18 * Math.cos((c - 0.7) / 0.3 * Math.PI));
-  } else if (gait === 'waddle') { // weight rocks onto each foot in turn: lowest and slightly squashed as a foot lands
+  if (gait === 'bound') { // four-legged trot: a small bob per footfall pair, nose slightly down with speed, feet stay near the ground
+    const s = Math.sin(F.ph * Math.PI * 2), lift = Math.abs(s);
+    y = lift * 0.03 * a; sy = 1 - 0.02 * a * (1 - lift); lean = a * (0.08 + s * 0.02);
+  } else if (gait === 'waddle') { // weight shifts onto each foot in turn: lowest as a foot lands
     const s = Math.sin(F.ph * Math.PI), lift = Math.abs(s);
-    y = lift * 0.035 * a; sy = 1 - 0.07 * a * (1 - lift) ** 4; lean = 0.06 * a; roll += s * 0.12 * a; yaw = s * 0.05 * a;
+    y = lift * 0.025 * a; sy = 1 - 0.03 * a * (1 - lift) ** 4; lean = 0.05 * a; roll += s * 0.05 * a; yaw = s * 0.03 * a;
   } else { // hover with a wing beat, pitching forward with speed
     y = 0.35 + Math.sin(t * 3) * 0.05; lean = 0.25 * a;
     if (u.wings) u.wings.forEach((w, i) => swing(w, (i ? -1 : 1) * (0.2 + Math.sin(t * 16) * 0.6)));
@@ -5460,7 +5689,7 @@ function resize() {
 function update(dt, t) {
   uTime.value = t;
   let ix = 0, iz = 0;
-  const busy = ui.dialog || ui.battle || ui.pokedex;
+  const busy = ui.dialog || ui.battle || ui.pokedex || ui.onboard;
   if (!busy) {
     if (keys.has('KeyW') || keys.has('ArrowUp')) iz -= 1;
     if (keys.has('KeyS') || keys.has('ArrowDown')) iz += 1;
@@ -5500,8 +5729,9 @@ function update(dt, t) {
   animWalk(player, dt, P.speed);
   uPlayer.value.copy(P.pos);
 
-  // pikachu trails behind and to the side
+  // the party lead trails behind and to the side
   follow(pika, PK, P.pos.x - Math.sin(P.face) * 0.85 - Math.cos(P.face) * 0.3, P.pos.z - Math.cos(P.face) * 0.85 + Math.sin(P.face) * 0.3, P.face, dt, t);
+  pika.userData.flame?.scale.set(1 + Math.sin(t * 23) * 0.12, 1 + Math.sin(t * 17) * 0.2, 1);
 
   nearest = null; let best = 1e9;
   for (const n of npcs) {
@@ -5532,9 +5762,10 @@ function update(dt, t) {
     charm.userData.flame.scale.set(1 + Math.sin(t * 23) * 0.12, 1 + Math.sin(t * 17) * 0.2, 1);
   }
   bulba.position.y = terrainH(BU[0], BU[1]) + Math.abs(Math.sin(t * 2)) * 0.03;
+  for (const c of CLUES) { c.mark.visible = clueOpen(c); if (c.mark.visible) { c.mark.position.set(c.at[0], walkH(...c.at) + 1.1 + Math.sin(t * 2.5) * 0.12, c.at[1]); c.mark.rotation.y = t * 1.5; } }
   faceTowards(bulba, Math.hypot(P.pos.x - BU[0], P.pos.z - BU[1]) < 4 ? Math.atan2(P.pos.x - BU[0], P.pos.z - BU[1]) : 0.5 + Math.sin(t * 0.5) * 0.5, dt, 3);
 
-  kalosTick(dt, t);
+  kalosTick(dt, t); portalTick();
   for (const b of butterflies) {
     const a = t * b.sp + b.ph;
     b.b.position.set(b.cx + Math.sin(a) * 1.3 + Math.sin(a * 2.3) * 0.35, terrainH(b.cx, b.cz) + 0.8 + Math.sin(a * 3.1) * 0.25, b.cz + Math.cos(a * 0.8) * 1.3);
@@ -5576,10 +5807,12 @@ function update(dt, t) {
     if (typed < full.length) { typed = Math.min(full.length, typed + dt * 45 * TEXT_SPEED[SET.text]); $('dtext').textContent = full.slice(0, Math.floor(typed)); }
   }
 
-  // camera keeps the hero framing: same pitch, follows the player with the same screen offset
+  // camera keeps the hero framing: same pitch, follows the player with the same screen offset (onboarding directs its own shots)
   const look = new V3(P.pos.x - START[0], P.pos.y * 0.6, P.pos.z - START[1]);
   const want = look.clone().add(CAM_OFF.clone().multiplyScalar(zoom));
-  const k = firstFrame ? 1 : 1 - Math.exp(-dt * 4);
+  if (ui.onboard) obShot(want, look, t);
+  const k = firstFrame ? 1 : 1 - Math.exp(-dt * (ui.onboard || OB.swoop > 0 ? 1.3 : 4)); // slow glides between shots and into play
+  OB.swoop -= dt;
   camPos.lerp(want, k); camLook.lerp(look, k); firstFrame = false;
   camera.position.copy(camPos); camera.lookAt(camLook);
 
@@ -5588,7 +5821,7 @@ function update(dt, t) {
 
   const loc = roomAt(P.pos.x, P.pos.z)?.name ?? (inKalos(P.pos.x) ? 'Fleurville Town' : P.pos.x > 8.5 ? 'Route 1' : 'Verdant Town');
   if ($('locName').textContent !== loc) $('locName').textContent = loc;
-  if (!BT.active) music(locMusic(loc));
+  if (!BT.active) music(ui.onboard ? 'gallery' : locMusic(loc)); // the title theme plays through onboarding
 }
 
 // Character Gallery: floor now, models streamed in the first time the player comes near (they are ~115 files)
@@ -5701,7 +5934,7 @@ function slotRow(s, buttons) {
   const p = Array.isArray(s.data.party) ? s.data.party.filter(m => Object.hasOwn(SPECIES, m?.key)) : [], lead = p[0];
   const team = lead ? `${esc(lead.nick ? cleanNick(lead.nick) : SPECIES[lead.key].name)} Lv ${clamp(Math.floor(+lead.level) || 1, 1, 100)}${p.length > 1 ? ` +${p.length - 1}` : ''}` : 'Damaged save';
   return `<div class="gm-slot"><b>${esc(s.name)}${s.id === curSlot ? '<em>CURRENT</em>' : ''}</b>
-    <small>${esc(s.data.loc || 'Unknown place')} · ${team} · ${hrs(s.data.time)} played<br>Saved ${esc(when(s))}</small><div class="gm-row">${buttons}</div></div>`;
+    <small>${s.data.trainer?.name ? esc(cleanNick(s.data.trainer.name, 24)) + ' · ' : ''}${esc(s.data.loc || 'Unknown place')} · ${team} · ${hrs(s.data.time)} played<br>Saved ${esc(when(s))}</small><div class="gm-row">${buttons}</div></div>`;
 }
 let gmView = 'save';
 function gmRender(view = gmView) {
@@ -5735,7 +5968,7 @@ function gmRender(view = gmView) {
       <div class="gm-row"><button class="gm-btn" id="gmDefaults">Restore defaults</button></div>`;
   } else v.innerHTML = `<h3>Controls</h3><ul class="gm-keys"><li>Walk <span><kbd>WASD</kbd> / arrows</span></li><li>Run <span><kbd>Shift</kbd></span></li>
     <li>Talk / read <span><kbd>E</kbd> / <kbd>Space</kbd></span></li><li>Walk to spot <span>click / tap</span></li><li>Zoom <span>scroll wheel</span></li>
-    <li>Bag <span><kbd>B</kbd></span></li><li>Game Menu <span><kbd>Esc</kbd></span></li><li>Travel to Fleurville / Verdant <span><kbd>T</kbd></span></li><li>Character gallery <span><kbd>G</kbd></span></li></ul>`;
+    <li>Bag <span><kbd>B</kbd></span></li><li>Game Menu <span><kbd>Esc</kbd></span></li><li>Travel to Fleurville / Verdant <span><kbd>T</kbd></span></li><li>Use a test portal <span><kbd>X</kbd></span></li><li>Character gallery <span><kbd>G</kbd></span></li></ul>`;
 }
 function gmToast(text, err = false) { const t = $('gmToast'); t.textContent = text; t.classList.toggle('err', err); t.classList.add('show'); clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove('show'), err ? 4000 : 2200); }
 let askRes = null;
@@ -5788,6 +6021,7 @@ async function quitGame() {
   closeMenu(); ui.quit = true; keys.clear();
   for (const a of Object.values(bgm.tracks)) a.pause();
   bgm.want = null; // update() picks the track again on return
+  if (location.hostname === 'game.localhost' || location.protocol === 'game:') return location.assign('/__quit'); // desktop app (src-tauri): the shell closes on this navigation
   window.close(); // only closes tabs a script opened; otherwise the quit screen stays up
   $('quitScreen').classList.add('show'); $('quitBack').focus();
 }
@@ -5834,6 +6068,98 @@ function frame() {
   if (!BT.active) drawMinimap();
   requestAnimationFrame(frame);
 }
+// ============================================================ Onboarding: a new game (or a save from before onboarding) picks a trainer and a nickname
+// Stages: title (card over a high orbit of the town) > intro (the Professor talks, lower orbit) > look > name > confirm (close-up of
+// the trainer, who swaps live) > outro (the Professor again), then the camera glides down into the normal framing.
+const OB = { stage: null, swoop: 0 };
+const PROF = 'Prof. Sycamore', OB_FACE = 0.55; // close-up camera heading from the trainer: south-east, down the dirt path and clear of the tall grass
+const OB_INTRO = ['Hello there! Welcome to the world of Pokémon!', 'My name is Sycamore. People call me the Pokémon Professor.',
+  'This is Verdant Town: wide fields, a winding river, and Pokémon hiding in every patch of tall grass.',
+  'Some people keep Pokémon as pets. Others battle with them. Me? I study them.', 'But enough about me. Let’s talk about you!'];
+function obShot(want, look, t) { // writes this stage's camera target into want / look; update() glides there
+  const p = P.pos;
+  if (OB.stage === 'title' || OB.stage === 'intro') { // orbit the town around the trainer: high under the title card, lower while the Professor talks
+    const hi = OB.stage === 'title', a = t * 0.05 + 0.6, r = hi ? 26 : 15;
+    look.set(p.x - START[0], hi ? 0 : 0.5, p.z - START[1]);
+    want.set(look.x + Math.sin(a) * r, hi ? 18 : 8, look.z + Math.cos(a) * r);
+  } else { // close-up from the south, the side the play camera keeps clear; the trainer turns to face it (obStage)
+    const narrow = vw <= 760, a = OB_FACE + Math.sin(t * 0.3) * 0.08, d = narrow ? 7 : 5.5; // on wide screens the trainer sits right of the panel
+    want.set(p.x + Math.sin(a) * d, p.y + 2.8, p.z + Math.cos(a) * d);
+    const fx = p.x - want.x, fz = p.z - want.z, l = Math.hypot(fx, fz), s = narrow ? 0 : 1.1; // the camera's left is (fz, -fx)
+    look.set(p.x + fz / l * s, p.y + (narrow ? 0.1 : 0.8), p.z - fx / l * s);
+  }
+}
+function obStage(s) {
+  OB.stage = s;
+  $('obSkip').hidden = s !== 'intro';
+  $('obForm').hidden = !['look', 'name', 'confirm', 'starter'].includes(s);
+  for (const el of $('obForm').querySelectorAll('.ob-step')) el.hidden = el.dataset.step !== s;
+  if (s === 'look') { P.face = OB_FACE;$('obForm').querySelector('input[name=char]:checked').focus(); }
+  if (s === 'name') $('obName').focus();
+  if (s === 'confirm') { $('obConfirmName').textContent = $('obName').value.trim(); $('obYes').focus(); }
+  if (s === 'starter') { const el = $('obForm').querySelector('input[name=starter]:checked'); pickStarter(el.value); el.focus(); }
+}
+function pickStarter(key) { // the pick becomes the whole party at once, so the follower behind the trainer previews it
+  party.splice(0, party.length, makeMon(key, 5)); renderParty();
+}
+function openOnboard() {
+  for (const el of document.querySelectorAll('.ob-of')) el.textContent = freshGame ? 3 : 2; // older saves keep their team: no starter step
+  ui.onboard = true; keys.clear(); moveTarget = null; firstFrame = true;
+  document.body.classList.add('onboarding'); $('onboard').hidden = false; obStage('title'); $('obPress').focus();
+}
+function obBegin() { // press any key: the gesture also lets the title theme start
+  if (OB.stage !== 'title') return;
+  SND.chime(); $('obTitleCard').classList.add('gone'); setTimeout(() => $('obTitleCard').remove(), 1200);
+  obStage('intro'); say(PROF, OB_INTRO, null, () => obStage('look'));
+}
+function obSkip() { if (OB.stage !== 'intro') return; ui.dialog = null; $('dialog').classList.remove('show'); obStage('look'); }
+function obKey(e) {
+  if (e.repeat) return;
+  if (OB.stage === 'title') { if (!['Tab', 'Shift', 'Control', 'Alt', 'Meta'].includes(e.key)) { e.preventDefault(); obBegin(); } return; }
+  if (e.code === 'Escape') { e.preventDefault(); return obSkip(); }
+  if (ui.dialog && ['KeyE', 'Space', 'Enter'].includes(e.code)) { e.preventDefault(); act(); } // the form steps take their keys natively
+}
+function obFinish() {
+  ui.onboard = false; OB.stage = null; OB.swoop = 3;
+  document.body.classList.remove('onboarding'); $('onboard').classList.add('end'); setTimeout(() => ($('onboard').hidden = true), 1000);
+  saveGame();
+}
+$('obTitleCard').onclick = obBegin;
+$('obSkip').onclick = obSkip;
+$('obForm').addEventListener('change', e => { // the pick swaps in the world behind, with a spin and a flash
+  if (e.target.name === 'starter') { pickStarter(e.target.value); SND.sparkle(0.5); return; }
+  if (e.target.name !== 'char') return;
+  setTrainer(e.target.value); SND.sparkle(0.5);
+  if (!SET.calm) { $('obFlash').animate([{ opacity: 0.9 }, { opacity: 0 }], 500); tween(0.7, k => (player.body.rotation.y = (1 - easeIO(k)) * Math.PI * 2)); }
+});
+$('obLookNext').onclick = () => obStage('name');
+$('obBack').onclick = () => obStage('look');
+$('obName').addEventListener('input', e => {
+  const el = e.target, v = cleanNick(el.value, 24); if (v !== el.value) el.value = v; // the name ends up in innerHTML (save list)
+  $('obCount').textContent = `${v.length}/24`; $('obErr').hidden = true;
+});
+$('obForm').addEventListener('submit', e => {
+  e.preventDefault();
+  if (OB.stage !== 'name') return;
+  if (!$('obName').value.trim()) { $('obErr').hidden = false; return $('obName').focus(); }
+  obStage('confirm');
+});
+$('obNo').onclick = () => obStage('name');
+$('obYes').onclick = () => {
+  const name = $('obName').value.trim();
+  trainer = { char: $('obForm').elements.char.value, name }; setTrainer(trainer.char); SND.chime();
+  obStage('outro');
+  if (!freshGame) return say(PROF, [`${name}! A fine name for a Trainer.`, 'Your very own Pokémon story is about to unfold.', 'Come and talk to me when you’re ready. I have a favour to ask.'], null, obFinish);
+  say(PROF, [`${name}! A fine name for a Trainer.`, 'But today was meant to be special: the day you receive your first Pokémon.',
+    'I brought three with me. Choose the one you want as your partner.'], null, () => obStage('starter'));
+};
+$('obStarterGo').onclick = () => {
+  const m = party[0]; SND.chime(); freshGame = false;
+  obStage('outro');
+  say(PROF, [`${nm(m)}! An excellent choice. Take good care of each other.`, 'Lately the stream outside town has gone strangely quiet, and wild Pokémon seem uneasy.',
+    'Come and talk to me when you’re ready. I have a favour to ask.'], null, obFinish);
+};
+if (!trainer) openOnboard();
 $('loading').style.opacity = 0;
 setTimeout(() => $('loading').remove(), 700);
 requestAnimationFrame(frame);

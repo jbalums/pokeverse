@@ -8,3 +8,6 @@ output/
 tools/__pycache__/
 graphify-out/cache/
 *.log
+src-tauri/target/
+src-tauri/gen/
+/Verdant Town.exe

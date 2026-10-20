@@ -114,9 +114,9 @@
     "semantic_hash": ""
   },
   "prototypes/verdant-town-3d.html": {
-    "mtime": 1792455644.5571113,
-    "seen": 1792455691.3825285,
-    "ast_hash": "efe55846b5980ae34b036b76d4f71260",
+    "mtime": 1792501603.3444047,
+    "seen": 1792501686.2655153,
+    "ast_hash": "aa113467a5e91b36de4a04fd8d3ed2ea",
     "semantic_hash": ""
   },
   "prototypes/blender/build_characters.py": {
@@ -189,6 +189,36 @@
     "mtime": 1792418011.2843847,
     "seen": 1792418617.8711576,
     "ast_hash": "44d2b9be6c6170d262bfd23386e9fb99",
+    "semantic_hash": ""
+  },
+  "src-tauri/Cargo.toml": {
+    "mtime": 1792481533.7195024,
+    "seen": 1792481894.9692142,
+    "ast_hash": "e51605fc372413e8c11b0be5179946e0",
+    "semantic_hash": ""
+  },
+  "src-tauri/build.rs": {
+    "mtime": 1792481533.7587357,
+    "seen": 1792481894.9692142,
+    "ast_hash": "1be34a5c61c2c35365de3dab14298f0b",
+    "semantic_hash": ""
+  },
+  "src-tauri/src/main.rs": {
+    "mtime": 1792482246.9860976,
+    "seen": 1792482415.5436053,
+    "ast_hash": "dc192ba3bac5580a52a8c58dfc5f903d",
+    "semantic_hash": ""
+  },
+  "src-tauri/tauri.conf.json": {
+    "mtime": 1792481533.7889183,
+    "seen": 1792481894.9692142,
+    "ast_hash": "dd76f4d736e343c57032049a86b1c4a1",
+    "semantic_hash": ""
+  },
+  "src-tauri/icons/icon.png": {
+    "mtime": 1792481558.7092042,
+    "seen": 1792481894.9692142,
+    "ast_hash": "8f35b0dff34facca1f9d979b559c6eac",
     "semantic_hash": ""
   }
 }
