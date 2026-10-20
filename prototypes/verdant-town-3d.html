@@ -644,9 +644,11 @@ function riverInfo(x, z) {
 
 // ============================================================ paths, raised plaza, stairs, tall grass
 const extend = (pts, dist) => { const a = pts[pts.length - 2], b = pts[pts.length - 1], l = Math.hypot(b[0] - a[0], b[1] - a[1]); return [...pts, [b[0] + (b[0] - a[0]) / l * dist, b[1] + (b[1] - a[1]) / l * dist]]; };
+const CLEAR = { x: 19, z: 3, r: 5.5 }; // the woodland clearing off Meadow Route: the forest fill leaves it open; the signal device stands in it
 const PATHS = [
   catmull([I(560, 450), I(655, 420), I(755, 398), I(880, 478), I(1010, 530), I(1100, 576)], 6),
   catmull(extend([I(1425, 500), I(1500, 452), I(1565, 407), I(1650, 352)], 18), 6),
+  catmull([I(1607, 380), [15, 1.2], [CLEAR.x - 2.5, CLEAR.z]], 6), // trail from the road into the clearing
 ];
 const PATH_W = 1.0;
 function pathD(x, z) {
@@ -1016,14 +1018,14 @@ const ROCKS_IN_WATER = [];
 const waterVS = `attribute float aFall; varying float vFall; varying vec2 vUv; varying vec3 vW;
   void main(){ vUv = uv; vFall = aFall; vec4 w = modelMatrix * vec4(position, 1.0); vW = w.xyz; gl_Position = projectionMatrix * viewMatrix * w; }`;
 const waterMat = new THREE.ShaderMaterial({
-  uniforms: { uTime, uRocks: { value: Array.from({ length: 14 }, () => new V3(0, 0, -1)) } },
+  uniforms: { uTime, uFlow: { value: 0 }, uRocks: { value: Array.from({ length: 14 }, () => new V3(0, 0, -1)) } },
   transparent: true, side: THREE.DoubleSide, vertexShader: waterVS,
-  fragmentShader: `uniform float uTime; uniform vec3 uRocks[14]; varying float vFall; varying vec2 vUv; varying vec3 vW;
+  fragmentShader: `uniform float uTime, uFlow; uniform vec3 uRocks[14]; varying float vFall; varying vec2 vUv; varying vec3 vW;
   ${GLSL_NOISE}
   void main(){
     float edge = min(vUv.x, 1.0 - vUv.x) * 2.0;           // 0 at banks, 1 mid-stream
     float sp = 1.1 + vFall * 5.0;
-    vec2 q = vec2(vUv.x * 3.0, vUv.y * 0.9 + uTime * sp);
+    vec2 q = vec2(vUv.x * 3.0, vUv.y * 0.9 + uFlow * sp); // uFlow: the stream's own clock, slowed while the signal keeps it still
     float n1 = fbm2(vec2(q.x * 1.6, q.y * 0.55));
     float n2 = fbm2(vec2(q.x * 4.0 + 3.1, q.y * 1.5 + uTime * 0.5));
     vec3 deep = vec3(0.008, 0.15, 0.6), mid = vec3(0.02, 0.33, 0.85), lite = vec3(0.18, 0.66, 0.98);
@@ -1437,7 +1439,7 @@ for (let i = 0; i < RV.length; i += 1) {
 // forest fill outside the reference frame
 function inHeroView(x, z, h = 0) { const v = new V3(x, h, z).project(heroCam); return Math.abs(v.x) < 1.04 && Math.abs(v.y) < 1.06; }
 function freeSpot(x, z, r = 1) {
-  const ri = riverInfo(x, z); if (ri.d < ri.hw + 1.0 || galleryD(x, z) < 1.2 || galleryD(x, z - 6) < 0) return false; // gallery + open south side for the camera
+  const ri = riverInfo(x, z); if (ri.d < ri.hw + 1.0 || galleryD(x, z) < 1.2 || galleryD(x, z - 6) < 0 || Math.hypot(x - CLEAR.x, z - CLEAR.z) < CLEAR.r) return false; // gallery + open south side for the camera, the clearing
   if (pathD(x, z) < PATH_W + 0.9 || inTallGrass(x, z) || stairsH(x, z) !== null || inCobble(x, z) || onBridge(x, z)) return false;
   for (const b of boxes) if (x > b.x0 - 1 && x < b.x1 + 1 && z > b.z0 - 1 && z < b.z1 + 1) return false;
   for (const [tx, tz, tr] of trees) if (Math.hypot(tx - x, tz - z) < tr + r) return false;
@@ -2334,7 +2336,7 @@ elder.h.body.position.y = -0.3; elder.h.legs.forEach(l => (l.rotation.x = -1.4))
   ['My egg is going to hatch any day now!', "Grandpa says to keep it warm, so I'm sitting it by the lamp."]); }
 const GA = I(1490, 455, 0), GB = I(1622, 368, 0), G0 = I(1530, 410, 0);
 const girl = npc(makeHuman('girl'), G0[0], G0[1], 2.2, 'Hiker Mia',
-  ["My Charmander's tail flame shows how it feels.", "It's blazing today, so we're heading up Route 1!"], { patrol: [GA, GB], leg: 1, wait: 0 });
+  ["My Charmander's tail flame shows how it feels.", "It's blazing today, so we're heading up Meadow Route!"], { patrol: [GA, GB], leg: 1, wait: 0 });
 const charm = makeCharmander(); charm.scale.setScalar(0.72); scene.add(charm);
 const CH0 = I(1606, 397, 0);
 const CH = follower(CH0[0], CH0[1], 2.2);
@@ -2346,26 +2348,29 @@ circles.push({ x: BU[0], z: BU[1], r: 0.4 });
 const interactables = [
   ...npcs.map(n => ({ get x() { return n.x; }, get z() { return n.z; }, r: 1.6, name: n.name, lines: n.lines, npc: n, after: n.after, top: 2.5 })),
   { x: SIGN[0], z: SIGN[1], r: 1.3, name: 'Sign', lines: ['POKéMON CENTER', 'Heal your Pokémon! Open all day, every day.'], top: 1.5 },
-  { x: POST[0], z: POST[1], r: 1.4, name: 'Signpost', lines: ['← Verdant Town      Route 1 →', 'Mind the tall grass. Wild Pokémon live there!'], top: 2 },
+  { x: POST[0], z: POST[1], r: 1.4, name: 'Signpost', lines: ['← Verdant Town      Meadow Route →', 'Mind the tall grass. Wild Pokémon live there!'], top: 2 },
   { x: BU[0], z: BU[1], r: 1.8, name: 'Bulbasaur', lines: ['Bulba! Bulbasaur!', 'The wild Bulbasaur looks ready for a battle!'], top: 1.4,
     after: () => startBattle('BULBASAUR', 5, { intro: 'The wild BULBASAUR wants to battle!', onWin: retireBulbasaur }) },
   { x: COT.door[0], z: COT.door[1], r: 1.1, name: 'Door', lines: ["It's locked. Smells like fresh bread inside..."], top: 2.2 },
 ];
 
-// ============================================================ Story: Chapter 1 "The Silent Stream", first field assignment
-// Steps and clues use stable IDs (saved in flags); dialogue, markers and the objective pill all read this one state.
-const QUEST_STEPS = ['meet-prof', 'investigate-stream', 'report-clues', 'find-ranger'];
+// ============================================================ Story: Chapter 1 "The Silent Stream"
+// Steps and clues use stable IDs (saved in flags). Dialogue, markers, NPC places, the device, the stream and the objective pill
+// all derive from this one state, so loading a save never replays a reward or strands the player between objectives.
+const QUEST_STEPS = ['meet-prof', 'investigate-stream', 'report-clues', 'find-ranger', 'investigate-clearing', 'shut-device', 'report-device', 'chapter-complete'];
 const story = { step: 'meet-prof', clues: [] };
+const reached = id => QUEST_STEPS.indexOf(story.step) >= QUEST_STEPS.indexOf(id);
+const restored = () => reached('report-device'); // the device is off and the stream flows again (saved together as one step)
 function bankAt(px, py, side, gap = 0.9) { // the stream bank nearest a reference pixel: side 1 = east bank, -1 = west
   const [x, z] = I(px, py, -0.4); let i = 0;
   RV.forEach((p, j) => { if (Math.hypot(p[0] - x, p[1] - z) < Math.hypot(RV[i][0] - x, RV[i][1] - z)) i = j; });
   const a = RV[Math.max(0, i - 1)], b = RV[Math.min(RV.length - 1, i + 1)], l = Math.hypot(b[0] - a[0], b[1] - a[1]), p = RV[i], d = p[3] + gap;
   return [p[0] - side * (b[1] - a[1]) / l * d, p[1] + side * (b[0] - a[0]) / l * d];
 }
-const CLUES = [ // along the stream, downstream to upstream, so the last clue points toward Route 1
+const CLUES = [ // along the stream, downstream to upstream, so the last clue points up Meadow Route
   { id: 'still-water', at: bankAt(1150, 760, -1, -0.2), /* close in: a tree overhangs this bank */ lines: ['The stream is perfectly still here.', 'No Poliwag song, no Magikarp splashing... not a single ripple.'] },
   { id: 'tracks', at: bankAt(1205, 430, 1), lines: ['Muddy footprints of many small Pokémon...', 'They all lead away from the water, as if something chased them off.'] },
-  { id: 'hum', at: bankAt(1330, 200, 1), lines: ['A faint, high-pitched hum drifts down from upstream.', 'It seems to come from past Route 1. The Pidgey here keep well away from it.'] },
+  { id: 'hum', at: bankAt(1330, 200, 1), lines: ['A faint, high-pitched hum drifts down from upstream.', 'It seems to come from further along Meadow Route. The Pidgey here keep well away from it.'] },
 ];
 const clueOpen = c => story.step === 'investigate-stream' && !story.clues.includes(c.id);
 for (const c of CLUES) {
@@ -2377,24 +2382,65 @@ for (const c of CLUES) {
     questChanged();
   } });
 }
-function questChanged() { renderObjective(); saveGame(); }
+function questChanged() { renderObjective(); placeStoryNpcs(); saveGame(); }
 function renderObjective() {
   const n = story.clues.length;
   $('obj').textContent = { 'meet-prof': 'Talk to Prof. Sycamore', 'investigate-stream': `Inspect the quiet stream (${n}/${CLUES.length})`,
-    'report-clues': 'Report to Prof. Sycamore', 'find-ranger': 'Find the apprentice ranger past Route 1' }[story.step];
+    'report-clues': 'Report to Prof. Sycamore', 'find-ranger': 'Find the apprentice ranger on Meadow Route', 'investigate-clearing': 'Investigate the woodland clearing off Meadow Route',
+    'shut-device': 'Shut down the strange device', 'report-device': 'Report to Prof. Sycamore', 'chapter-complete': 'Chapter 1 complete! Next: trace the other signals' }[story.step];
 }
-function profTalk() { // [lines, after] for the current step; supplies are granted only on the meet-prof -> investigate-stream transition
+function profTalk() { // [lines, after] for the current step; each grant happens only on its own step transition
   const left = CLUES.length - story.clues.length;
   return {
     'meet-prof': [['Ah, there you are! I have a favour to ask: your first field assignment.', 'The stream east of town has gone silent, and the wild Pokémon are restless.',
       'Follow the bank and inspect anything unusual. Here, these will help on the way.', 'You received 5 Poké Balls and 3 Potions!'],
       () => { if (story.step !== 'meet-prof') return; bag.ball = (bag.ball || 0) + 5; bag.potion = (bag.potion || 0) + 3; story.step = 'investigate-stream'; SND.chime(); questChanged(); }],
     'investigate-stream': [[`Follow the stream east of town. ${left === 1 ? 'One more spot' : `${left} spots`} still need a look.`]],
-    'report-clues': [['Still water, fleeing footprints and a strange hum from upstream...', 'Something past Route 1 is driving the Pokémon away from the water.',
-      'An apprentice ranger is posted out there. Find them: they know the woods better than anyone.'],
+    'report-clues': [['Still water, fleeing footprints and a strange hum from upstream...', 'Something along Meadow Route is driving the Pokémon away from the water.',
+      'An apprentice ranger is posted out there. Find her: she knows the woods better than anyone.'],
       () => { if (story.step !== 'report-clues') return; story.step = 'find-ranger'; questChanged(); }],
-    'find-ranger': [['The ranger is posted past Route 1. Be careful out there!']],
+    'find-ranger': [['The ranger is posted on Meadow Route, past the bridge. Be careful out there!']],
+    'investigate-clearing': [['Lea will look after you in the woods. Find out what is making that hum!']],
+    'shut-device': [['A device in the clearing? Switch it off, then come straight back!']],
+    'report-device': [['Lea told me everything! Listen: the stream is singing again, and the Pokémon are coming home.', 'But a survey device with fresh repairs... someone switched it on deliberately.',
+      'And it is not the only one. Similar signals have been reported in other places across the region.', 'You did wonderful field work. Take these for your next assignment: following those signals.', 'You received 5 Great Balls!'],
+      () => { if (story.step !== 'report-device') return; bag.greatBall = (bag.greatBall || 0) + 5; story.step = 'chapter-complete'; SND.fanfare(); questChanged();
+        const saved = chapterSave();
+        say('Chapter 1', ['The Silent Stream: complete!', saved ? 'Your progress was saved to the file “Chapter 1 complete”.' : 'All save slots are full. Save from the Game Menu to keep a copy of this moment.']); }],
+    'chapter-complete': [['The signals are out there somewhere. When you are ready, your next assignment awaits!']],
   }[story.step];
+}
+function chapterSave() { // the chapter-complete save point: a save file of its own, while a slot is free
+  const slots = readSlots(), prev = curSlot;
+  if (slotsBad || slots.length >= MAX_SLOTS) return false;
+  curSlot = newId(); slots.push({ id: curSlot, name: 'Chapter 1 complete', at: Date.now(), data: snapshot() });
+  if (!writeSlots(slots)) { curSlot = prev; return false; }
+  saveGame(); return true;
+}
+
+// Ranger Lea: posted on Meadow Route; after her battle she waits at the clearing's edge
+const RANGER = 'Ranger Lea', RANGER_AT = I(1560, 330, 0), RANGER_CLEAR = [CLEAR.x - 3.4, CLEAR.z + 1.6];
+const RANGER_TEAM = [['PIDGEY', 3], ['ODDISH', 4]]; // beatable by a lone Lv5 starter without items
+function rangerTalk() { // [lines, after] for the current step
+  if (story.step === 'find-ranger') return [['So Prof. Sycamore sent you? I’m Lea, apprentice ranger.', 'The clearing ahead is no place for a beginner. Show me you can handle yourself!'], () => startBattle(null, 0, {
+    trainer: { name: 'Apprentice Ranger Lea', team: RANGER_TEAM, prize: 300 },
+    onWin: () => { if (story.step !== 'find-ranger') return; story.step = 'investigate-clearing'; renderObjective(); saveGame(); // she walks to the clearing once she has spoken
+      say(RANGER, ['You and your partner work well together. You passed!', 'That hum comes from the woodland clearing just off the road, to the east.', 'I’ll meet you there. Stay close once we’re inside!'], null, placeStoryNpcs); },
+    onLose: () => say(RANGER, ['Don’t give up! I patched up your Pokémon.', 'Catch your breath, then talk to me when you’re ready for a rematch.']),
+  })];
+  return [{
+    'investigate-clearing': ['Careful: that Psyduck is guarding something, and it’s in a real state.', 'Calm it down and we can see what’s behind it.'],
+    'shut-device': ['That machine... the hum is coming from it. Switch it off!'],
+    'report-device': ['Listen to that stream! Hurry back and tell the Professor.', 'I’ll keep an eye on things here.'],
+    'chapter-complete': ['Thanks for your help. If you ever hear that hum again, come find me.'],
+  }[story.step] ?? ['Hold on! The woods past here are off-limits for now.', 'Something has the wild Pokémon spooked. Only Trainers the Professor sends may pass.']];
+}
+let rangerNpc = null;
+function spawnRanger() { // the Backpacker rip stands in (both Pokémon Ranger rips are broken Blender 2.77 re-exports); the girl sculpt if it fails to load
+  const key = XY.backpacker ? 'backpacker' : 'girl';
+  const n = rangerNpc = npc(makeHuman(key), ...RANGER_AT, -Math.PI / 2, RANGER, []);
+  n.h.root.scale.setScalar(0.85); placeStoryNpcs();
+  interactables.push({ get x() { return n.x; }, get z() { return n.z; }, r: 1.6, name: RANGER, get lines() { return rangerTalk()[0]; }, npc: n, get after() { return rangerTalk()[1]; }, top: 2.5 });
 }
 const PROF_AT = [START[0] - 2.2, START[1] - 1.6];
 function spawnProf() { // the professor waits by the spawn; the Verdant elder sculpt stands in if the X/Y model failed to load
@@ -2402,6 +2448,103 @@ function spawnProf() { // the professor waits by the spawn; the Verdant elder sc
   const n = npc(makeHuman(key), ...PROF_AT, Math.atan2(START[0] - PROF_AT[0], START[1] - PROF_AT[1]), PROF, []);
   n.h.root.scale.setScalar(key === 'sycamore' ? FOLK.sycamore[2] : 0.85);
   interactables.push({ get x() { return n.x; }, get z() { return n.z; }, r: 1.6, name: PROF, get lines() { return profTalk()[0]; }, npc: n, get after() { return profTalk()[1]; }, top: 2.5 });
+}
+
+// The woodland clearing: an old survey device pulsing a signal, and the Psyduck it torments standing guard in front of it
+const DEV_AT = [CLEAR.x + 1.4, CLEAR.z - 0.6], GUARD_AT = [CLEAR.x - 0.6, CLEAR.z + 0.2], GUARD_STREAM = bankAt(1205, 520, 1, 0.2);
+const DEV = new THREE.Group();
+{
+  DEV.position.set(DEV_AT[0], terrainH(...DEV_AT), DEV_AT[1]); DEV.rotation.y = -Math.PI / 2 + 0.3; scene.add(DEV);
+  add(new THREE.BoxGeometry(0.95, 0.8, 0.62), '#5f6f63', DEV, 0, 0.4, 0, { mat: { roughness: 0.55, metalness: 0.45 } });
+  add(new THREE.BoxGeometry(1.05, 0.08, 0.7), '#4a5650', DEV, 0, 0.84, 0, { mat: { roughness: 0.6, metalness: 0.4 } });
+  add(new THREE.BoxGeometry(0.55, 0.32, 0.04), '#1f2824', DEV, -0.08, 0.48, 0.32);
+  for (const [x, y] of [[-0.38, 0.12], [0.36, 0.7], [0.4, 0.15]]) add(new THREE.BoxGeometry(0.16, 0.1, 0.02), '#a0612e', DEV, x, y, 0.315); // rust patches
+  for (const x of [-0.42, 0.42]) add(new THREE.CylinderGeometry(0.035, 0.035, 0.04, 8), '#d9dcd2', DEV, x, 0.84, 0.36, { r: [Math.PI / 2, 0, 0] }); // fresh bolts
+  DEV.userData.switch = add(new THREE.BoxGeometry(0.06, 0.16, 0.06), '#e2473b', DEV, 0.3, 0.5, 0.34);
+  add(new THREE.CylinderGeometry(0.025, 0.03, 1.4, 6), '#8a8f88', DEV, 0.28, 1.58, -0.12);
+  add(new THREE.SphereGeometry(0.2, 12, 6, 0, Math.PI * 2, 0, Math.PI / 2.4), '#9aa39a', DEV, -0.25, 1.05, -0.05, { r: [-0.9, 0.4, 0], mat: { side: THREE.DoubleSide, metalness: 0.5, roughness: 0.4 } });
+  DEV.userData.lamp = add(new THREE.SphereGeometry(0.07, 10, 8), '#ff3b2f', DEV, 0.28, 2.3, -0.12, { mat: { emissive: '#ff2010', emissiveIntensity: 2.2 } });
+  DEV.userData.rings = [0, 1, 2].map(i => { // signal pulses rippling out across the clearing
+    const m = new THREE.Mesh(new THREE.RingGeometry(0.92, 1, 48).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ color: '#ff7a6a', transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }));
+    m.position.set(DEV_AT[0], terrainH(...DEV_AT) + 0.08, DEV_AT[1]); m.userData.ph = i / 3; scene.add(m); return m;
+  });
+  circles.push({ x: DEV_AT[0], z: DEV_AT[1], r: 0.6 });
+}
+interactables.push({ x: DEV_AT[0], z: DEV_AT[1], r: 1.5, name: 'Strange device', top: 2.6,
+  get lines() {
+    if (restored()) return ['The old survey device is silent now. Its light has gone dark.'];
+    if (story.step === 'shut-device') return ['An old survey device. Its casing is rusty, but the bolts are brand new: someone repaired it recently.',
+      'A red light blinks in time with the hum that is hurting the Pokémon.', 'There is a big red switch on the panel...', 'Click. The hum winds down... and stops.'];
+    return reached('investigate-clearing') ? ['The Psyduck won’t let you anywhere near the humming machine.'] : ['A humming machine. Something about it makes your teeth ache.', 'Better find the ranger before poking around here.'];
+  },
+  get after() { return story.step === 'shut-device' ? shutDevice : undefined; } });
+function shutDevice() {
+  if (story.step !== 'shut-device') return;
+  story.step = 'report-device'; SND.chime(); questChanged(); // device off and stream restored persist together
+  say(RANGER, ['Listen... can you hear that? The stream is flowing again!', 'And look at Psyduck: it’s heading back to the water.', 'Hurry and tell Prof. Sycamore. I’ll keep an eye on things here.']);
+}
+const GUARD = { model: null, hop: 0 };
+function spawnGuardian() { return loadSpeciesModel('PSYDUCK').then(() => { GUARD.model = SPECIES.PSYDUCK.make(); GUARD.model.scale.multiplyScalar(0.8); scene.add(GUARD.model); placeStoryNpcs(); }); }
+interactables.push({ get x() { return (restored() ? GUARD_STREAM : GUARD_AT)[0]; }, get z() { return (restored() ? GUARD_STREAM : GUARD_AT)[1]; }, r: 1.6, name: 'Psyduck', top: 1.5,
+  get lines() {
+    if (restored()) return ['Psyduck paddles happily in the stream.', 'Psy-yy... duck!'];
+    if (story.step === 'shut-device') return ['Psyduck is tired out, but it still clutches its head.', 'The hum from the machine behind it is getting to everyone...'];
+    return story.step === 'investigate-clearing' ? ['Psyduck is clutching its head and quacking in distress!', 'It’s guarding the humming machine... It attacks!'] : ['A Psyduck clutches its head and glares at you.', 'It won’t let anyone near the humming machine.'];
+  },
+  get after() { return story.step === 'investigate-clearing' ? fightGuardian : undefined; } });
+function fightGuardian() {
+  startBattle('PSYDUCK', 5, { intro: 'The distressed PSYDUCK attacks!', noCatch: true,
+    onWin: () => { if (story.step !== 'investigate-clearing') return; story.step = 'shut-device'; questChanged();
+      say(RANGER, ['Well done! It’s too worn out to fight now.', 'Look, behind it: that rusty machine. The hum is coming from there. Switch it off!']); },
+    onLose: () => say(RANGER, ['I’ve got you! Your Pokémon are patched up.', 'That Psyduck isn’t evil, just hurting. Try again when you’re ready.']) });
+}
+function placeStoryNpcs() { // NPC places follow the story step (called on load, on spawn and on every step change)
+  if (rangerNpc) { const [x, z] = reached('investigate-clearing') ? RANGER_CLEAR : RANGER_AT; Object.assign(rangerNpc, { x, z, baseFace: reached('investigate-clearing') ? 1.2 : -Math.PI / 2 }); }
+  if (GUARD.model) { const [x, z] = restored() ? GUARD_STREAM : GUARD_AT; GUARD.model.position.set(x, walkH(x, z), z); GUARD.model.rotation.y = restored() ? 2.4 : -Math.PI / 2; }
+}
+// the stream: still and silent until the device is off; then it flows, splashes and burbles, and Magikarp leap from it
+const STREAM = { k: 0, fish: [] };
+function streamTick(dt, t) {
+  const on = !restored();
+  STREAM.k = approach(STREAM.k, on ? 0 : 1, dt * 0.35); // a slow swell when the stream comes back
+  waterMat.uniforms.uFlow.value += dt * (0.12 + 0.88 * STREAM.k);
+  for (const s of splashes) { s.pts.visible = STREAM.k > 0.02; s.pts.material.opacity = 0.85 * STREAM.k; }
+  DEV.userData.lamp.material.emissiveIntensity = on ? (Math.sin(t * 6) > 0 ? 2.6 : 0.3) : 0;
+  DEV.userData.lamp.material.color.set(on ? '#ff3b2f' : '#3a2826');
+  for (const r of DEV.userData.rings) { const k = (t * 0.6 + r.userData.ph) % 1; r.visible = on; r.scale.setScalar(0.3 + k * 4.5); r.material.opacity = (1 - k) * 0.55; }
+  if (GUARD.model) { // distress: a jittery shake and anxious hops; calm: a gentle bob in the water
+    const g = GUARD.model, base = walkH(g.position.x, g.position.z);
+    if (on) { g.rotation.z = Math.sin(t * 23) * 0.05; GUARD.hop = Math.max(0, Math.sin(t * 3.1)) ** 6 * 0.18; g.position.y = base + GUARD.hop; }
+    else { g.rotation.z = 0; g.position.y = base - 0.15 + Math.sin(t * 1.8) * 0.04; }
+  }
+  if (STREAM.k > 0.5 && !STREAM.fish.length && !STREAM.loading) { STREAM.loading = true; loadSpeciesModel('MAGIKARP').then(() => {
+    STREAM.fish = [0, 1, 2].map(() => { const m = SPECIES.MAGIKARP.make(); m.scale.multiplyScalar(0.55); m.visible = false; scene.add(m); return { m, wait: rr(1, 5), t: -1 }; }); }); }
+  for (const f of STREAM.fish) { // now and then one leaps in an arc somewhere on the town's stretch of the stream
+    if (f.t < 0) { if ((f.wait -= dt) > 0) continue; const i = Math.floor(rr(14, RV.length - 14)), p = RV[i], q = RV[i + 1];
+      Object.assign(f, { t: 0, x: p[0], z: p[1], y: p[2], dir: Math.atan2(q[0] - p[0], q[1] - p[1]) }); f.m.visible = true; }
+    f.t += dt / 0.9; const k = Math.min(1, f.t);
+    f.m.position.set(f.x + Math.sin(f.dir) * (k - 0.5) * 1.2, f.y - 0.2 + Math.sin(k * Math.PI) * 1.1, f.z + Math.cos(f.dir) * (k - 0.5) * 1.2);
+    f.m.rotation.set(Math.cos(k * Math.PI) * 0.9, f.dir, 0);
+    if (k >= 1) { f.t = -1; f.wait = rr(2, 6); f.m.visible = false; }
+  }
+}
+const AMB = {}; // ambient sound: the brook near the restored stream, the device's hum near the clearing
+function ambientTick() {
+  if (!AC || !BUF) return; // no audio until the first sound (a user gesture) starts the context
+  if (!AMB.brook) {
+    const src = AC.createBufferSource(); src.buffer = BUF.white; src.loop = true;
+    const bp = AC.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 1100; bp.Q.value = 0.6;
+    const lp = AC.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 2600;
+    AMB.brook = AC.createGain(); AMB.brook.gain.value = 0; src.connect(bp).connect(lp).connect(AMB.brook).connect(OUT); src.start();
+    const o = AC.createOscillator(); o.type = 'sawtooth'; o.frequency.value = 196; const ol = AC.createBiquadFilter(); ol.type = 'lowpass'; ol.frequency.value = 900;
+    const trem = AC.createOscillator(); trem.frequency.value = 6; const tg = AC.createGain(); tg.gain.value = 0.5; trem.connect(tg);
+    AMB.hum = AC.createGain(); AMB.hum.gain.value = 0; const am = AC.createGain(); am.gain.value = 0.5; tg.connect(am.gain);
+    o.connect(ol).connect(am).connect(AMB.hum).connect(OUT); o.start(); trem.start();
+  }
+  const out = renderPass.scene !== scene || ui.pokedex || ui.quit, ri = riverInfo(P.pos.x, P.pos.z);
+  const brook = out ? 0 : STREAM.k * 0.16 * clamp(1 - (ri.d - ri.hw) / 12, 0, 1);
+  const hum = out || restored() ? 0 : 0.05 * clamp(1 - (Math.hypot(P.pos.x - DEV_AT[0], P.pos.z - DEV_AT[1]) - 2) / 14, 0, 1);
+  AMB.brook.gain.setTargetAtTime(brook, AC.currentTime, 0.4); AMB.hum.gain.setTargetAtTime(hum, AC.currentTime, 0.4);
 }
 
 // butterflies & drifting pollen
@@ -2427,7 +2570,7 @@ for (let i = 1; i < RV.length; i++) if (RV[i][2] - RV[i - 1][2] > 0.04 && RV[i -
   if (splashes.length && Math.hypot(splashes[splashes.length - 1].x - RV[i - 1][0], splashes[splashes.length - 1].z - RV[i - 1][1]) < 1) continue;
   const n = 46, g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(new Float32Array(n * 3), 3));
   const s = { x: RV[i - 1][0], z: RV[i - 1][1], y: RV[i - 1][2], hw: RV[i - 1][3], g, seeds: Array.from({ length: n }, () => [rnd(), rnd(), rnd()]) };
-  scene.add(new THREE.Points(g, new THREE.PointsMaterial({ color: '#ffffff', size: 0.07, transparent: true, opacity: 0.85, depthWrite: false })));
+  s.pts = new THREE.Points(g, new THREE.PointsMaterial({ color: '#ffffff', size: 0.07, transparent: true, opacity: 0.85, depthWrite: false })); scene.add(s.pts);
   splashes.push(s);
 }
 
@@ -2582,7 +2725,7 @@ async function kProp(path, px, py, size, ry = 0, fade = null) { // a static X/Y 
 }
 function startKalos() { // after the first frame: stream the townsfolk and the X/Y fountain and Pokémon Center in the background
   KAL.started = true;
-  loadFolk(['sycamore']).then(() => { try { spawnProf(); } catch (e) { console.warn('Professor failed:', e); } return loadFolk(); }).then(spawnFolk); // the professor first: the quest starts at him
+  loadFolk(['sycamore', 'backpacker']).then(() => { for (const f of [spawnProf, spawnRanger]) try { f(); } catch (e) { console.warn('Story NPC failed:', e); } spawnGuardian(); return loadFolk(); }).then(spawnFolk); // the story NPCs first: the quest runs through them
   kProp('Roselia Fountain/c01_bm_hunsui.dae', 532, 357, 3.3).then(h => (KAL.spray.y = h * 0.92), e => console.warn('Fountain model failed:', e));
   kProp('Pokemon Center/com_bm_pokecen.dae', 705, 432, 4.7, 0, kRect(662, 386, 748, 474)).catch(e => {
     console.warn('Pokémon Center model failed, using a built one:', e);
@@ -3377,6 +3520,7 @@ function loadGame() {
   if (s.flags?.bulbasaur === true) retireBulbasaur();
   if (QUEST_STEPS.includes(s.flags?.quest)) story.step = s.flags.quest;
   if (Array.isArray(s.flags?.clues)) story.clues = CLUES.map(c => c.id).filter(id => s.flags.clues.includes(id));
+  STREAM.k = restored() ? 1 : 0; // a loaded restored stream is already flowing: no swell
   if (Number.isFinite(s.time)) playTime = Math.max(0, s.time);
   if (typeof s.slot === 'string') curSlot = s.slot;
 }
@@ -3396,7 +3540,7 @@ window.debug = { // testing hooks, from the console or the ` key: debug.give('KI
     renderParty(); saveGame();
     return m;
   },
-  quest: () => ({ story, CLUES, START }), clue: i => placePlayer(...CLUES[i].at, 0), // debug.clue(0) stands on a stream clue spot
+  warp: (x, z) => placePlayer(+x, +z, 0), quest: () => ({ story, CLUES, START, RANGER_AT, CLEAR, DEV_AT, GUARD_AT, STREAM }), clue: i => placePlayer(...(i === 'ranger' ? [RANGER_AT[0] - 1.2, RANGER_AT[1]] : CLUES[i].at), 0), // debug.clue(0) stands on a stream clue spot, debug.clue('ranger') beside the ranger
   battle: (key = 'PIDGEY', level = 3) => Object.hasOwn(SPECIES, key = String(key).toUpperCase()) && startBattle(key, Math.floor(+level) || 3),
   shop: () => openShop(), // the Fleurville Poké Mart counter, without walking there
   follower: () => ({ key: followKey, at: pika.position.toArray().map(n => +n.toFixed(2)), size: +new THREE.Box3().setFromObject(pika).getSize(new V3()).y.toFixed(2), player: P.pos.toArray().map(n => +n.toFixed(2)) }),
@@ -4959,7 +5103,7 @@ function spawnModel(mon, pos, look, scale) {
 }
 const dropModel = m => m && BT.scene.remove(m);
 const modelOf = m => m === BT.foe ? BT.foeModel : BT.meModel;
-const who = m => m === BT.foe ? 'Wild ' + nm(m) : nm(m);
+const who = m => m === BT.foe ? (BT.opts.trainer ? 'The foe ' : 'Wild ') + nm(m) : nm(m);
 const freshStages = () => ({ atk: 0, def: 0, spa: 0, spd: 0, spe: 0, acc: 0 });
 const stageMul = s => s >= 0 ? (2 + s) / 2 : 2 / (2 - s);
 const accMul = s => s >= 0 ? (3 + s) / 3 : 3 / (3 - s);
@@ -5490,10 +5634,14 @@ async function chooseAction() {
 }
 async function checkFaint() {
   if (BT.foe.hp <= 0) {
-    await faintAnim(BT.foeModel); BT.foeModel = null; music('victory');
-    await bsay(`Wild ${nm(BT.foe)} fainted!`);
-    await gainExp(BT.me, Math.max(1, Math.floor(SPECIES[BT.foe.key].exp * BT.foe.level / 7)));
-    const prize = 20 * BT.foe.level; money = Math.min(999999, money + prize); // ponytail: flat wild-win prize; real payouts come with trainer battles
+    const T = BT.opts.trainer, next = T?.team[++BT.foeIdx];
+    await faintAnim(BT.foeModel); BT.foeModel = null; $('foeBox').classList.add('hide');
+    if (!next) music('victory');
+    await bsay(`${who(BT.foe)} fainted!`);
+    await gainExp(BT.me, Math.max(1, Math.floor(SPECIES[BT.foe.key].exp * BT.foe.level / 7 * (T ? 1.5 : 1)))); // trainer Pokémon give 1.5x
+    if (next) { await foeIn(next, `${T.name} sent out ${nm(next)}!`); return null; }
+    if (T) await bsay(`You defeated ${T.name}!`);
+    const prize = T ? T.prize : 20 * BT.foe.level; money = Math.min(999999, money + prize); // ponytail: flat wild-win prize
     await bsay(`You got ₽${prize.toLocaleString()} for winning!`);
     return 'won';
   }
@@ -5510,6 +5658,8 @@ async function checkFaint() {
 async function foeTurn(id) { await useMove(BT.foe, BT.me, id); return (await checkFaint()) ?? null; }
 async function doTurn(act) {
   const me = BT.me, foe = BT.foe, usable = foe.moves.filter(x => x.pp > 0), foeId = usable.length ? pick(usable).id : 'TACKLE';
+  if (act.kind === 'run' && BT.opts.trainer) { await bsay("No! There's no running from a Trainer battle!"); return null; }
+  if (act.kind === 'ball' && (BT.opts.trainer || BT.opts.noCatch)) { await bsay(BT.opts.trainer ? "The Trainer blocked the Ball! Don't be a thief!" : `${nm(BT.foe)} is too distressed to be caught!`); return null; }
   if (act.kind === 'run') {
     BT.tries++;
     if (me.spe >= foe.spe || rnd() * 256 < me.spe * 128 / Math.max(1, foe.spe) + 30 * BT.tries) { await bsay('Got away safely!'); return 'ran'; }
@@ -5537,26 +5687,33 @@ async function doTurn(act) {
   }
   return null;
 }
+async function foeIn(foe, text) { // the foe slides onto its platform from the right, then its box and the line appear
+  foe.st = freshStages(); foe.disp = foe.hp; BT.foe = foe;
+  BT.foeModel = spawnModel(foe, B_FOE, B_ME, 1.45);
+  const x0 = B_FOE.x; BT.foeModel.position.x = x0 + 6;
+  await tween(0.9, t => (BT.foeModel.position.x = x0 + 6 * (1 - easeIO(t))));
+  $('foeBox').classList.remove('hide');
+  await bsay(text);
+}
+// opts.trainer = { name, team: [[key, level], ...], prize }: no running or catching; key / level are ignored and the team comes out in order
 async function startBattle(key, level, opts = {}) {
   if (BT.active || !party.some(m => m.hp > 0)) return;
-  Object.assign(BT, { active: true, opts, tries: 0, zoom: 0, stop: 0, evoQueue: new Set() });
+  if (opts.trainer) opts = { ...opts, trainer: { ...opts.trainer, team: opts.trainer.team.map(([k, l]) => makeMon(k, l)) } }; // makeMon starts every model loading now
+  Object.assign(BT, { active: true, opts, tries: 0, zoom: 0, stop: 0, evoQueue: new Set(), foeIdx: 0 });
   music('battle');
   ui.battle = true; keys.clear(); moveTarget = null; P.v = 0;
   $('btrans').className = 'btrans ' + (SET.calm ? 'fade' : 'flash');
   await wait(1.1);
   if (!BT.scene) buildArena();
   resizeBattle();
-  const foe = makeMon(key, level); foe.st = freshStages(); foe.disp = foe.hp;
-  BT.foe = foe; BT.me = party.find(m => m.hp > 0); BT.me.disp = BT.me.hp; BT.me.expDisp = BT.me.exp;
+  const T = opts.trainer, foe = T ? T.team[0] : makeMon(key, level);
+  BT.me = party.find(m => m.hp > 0); BT.me.disp = BT.me.hp; BT.me.expDisp = BT.me.exp;
   renderPass.scene = BT.scene; renderPass.camera = BT.cam;
   document.body.classList.add('in-battle'); $('meBox').classList.add('hide'); $('foeBox').classList.add('hide');
   bset('');
-  BT.foeModel = spawnModel(foe, B_FOE, B_ME, 1.45);
-  const x0 = B_FOE.x; BT.foeModel.position.x = x0 + 6;
   $('btrans').className = 'btrans out';
-  await tween(0.9, t => (BT.foeModel.position.x = x0 + 6 * (1 - easeIO(t))));
-  $('foeBox').classList.remove('hide');
-  await bsay(opts.intro || `A wild ${nm(foe)} appeared!`);
+  if (T) await bsay(opts.intro || `${T.name} wants to battle!`);
+  await foeIn(foe, T ? `${T.name} sent out ${nm(foe)}!` : opts.intro || `A wild ${nm(foe)} appeared!`);
   await sendOut(BT.me);
   let result = null;
   while (!result) result = await doTurn(await chooseAction());
@@ -5571,7 +5728,9 @@ async function finishBattle(result) {
   renderPass.scene = scene; renderPass.camera = camera;
   document.body.classList.remove('in-battle'); $('bmenu').innerHTML = ''; BM.res = null;
   BT.active = false; ui.battle = false; keys.clear(); grassDist = 0;
-  if (result === 'blackout') {
+  const lost = result === 'blackout' && BT.opts.onLose; // a story battle can catch the loss: heal in place and retry, no trip to the Pokémon Center
+  if (lost) healParty();
+  else if (result === 'blackout') {
     healParty();
     P.pos.set(PC.cx, PLAZA_H, PC.fz + 1.3); PK.pos.set(PC.cx + 0.7, PLAZA_H, PC.fz + 1.6); P.face = 0;
     player.root.position.copy(P.pos); firstFrame = true;
@@ -5579,7 +5738,8 @@ async function finishBattle(result) {
   if (BT.opts.onWin && (result === 'won' || result === 'caught')) BT.opts.onWin();
   renderParty(); saveGame();
   $('btrans').className = 'btrans out';
-  if (result === 'blackout') say('Nurse', ['You blacked out, so we brought you to the Pokémon Center.', 'Your Pokémon are fully healed. Take care out there!']);
+  if (lost) BT.opts.onLose();
+  else if (result === 'blackout') say('Nurse', ['You blacked out, so we brought you to the Pokémon Center.', 'Your Pokémon are fully healed. Take care out there!']);
 }
 function battleTick(dt, t) {
   uTime.value = t;
@@ -5765,7 +5925,7 @@ function update(dt, t) {
   for (const c of CLUES) { c.mark.visible = clueOpen(c); if (c.mark.visible) { c.mark.position.set(c.at[0], walkH(...c.at) + 1.1 + Math.sin(t * 2.5) * 0.12, c.at[1]); c.mark.rotation.y = t * 1.5; } }
   faceTowards(bulba, Math.hypot(P.pos.x - BU[0], P.pos.z - BU[1]) < 4 ? Math.atan2(P.pos.x - BU[0], P.pos.z - BU[1]) : 0.5 + Math.sin(t * 0.5) * 0.5, dt, 3);
 
-  kalosTick(dt, t); portalTick();
+  kalosTick(dt, t); portalTick(); streamTick(dt, t);
   for (const b of butterflies) {
     const a = t * b.sp + b.ph;
     b.b.position.set(b.cx + Math.sin(a) * 1.3 + Math.sin(a * 2.3) * 0.35, terrainH(b.cx, b.cz) + 0.8 + Math.sin(a * 3.1) * 0.25, b.cz + Math.cos(a * 0.8) * 1.3);
@@ -5819,7 +5979,7 @@ function update(dt, t) {
   sun.target.position.set(Math.round(camLook.x), 0, Math.round(camLook.z));
   sun.position.copy(sun.target.position).addScaledVector(SUN_DIR, 30);
 
-  const loc = roomAt(P.pos.x, P.pos.z)?.name ?? (inKalos(P.pos.x) ? 'Fleurville Town' : P.pos.x > 8.5 ? 'Route 1' : 'Verdant Town');
+  const loc = roomAt(P.pos.x, P.pos.z)?.name ?? (inKalos(P.pos.x) ? 'Fleurville Town' : Math.hypot(P.pos.x - CLEAR.x, P.pos.z - CLEAR.z) < CLEAR.r + 1 ? 'Woodland Clearing' : P.pos.x > 8.5 ? 'Meadow Route' : 'Verdant Town');
   if ($('locName').textContent !== loc) $('locName').textContent = loc;
   if (!BT.active) music(ui.onboard ? 'gallery' : locMusic(loc)); // the title theme plays through onboarding
 }
@@ -5871,7 +6031,7 @@ const MUSIC_VOL = 0.45, MUSIC_FADE = 1.5; // seconds for a full fade
 const GREENHOUSE = kRect(680, 5, 800, 132);
 const bgm = { want: null, tracks: {} };
 const locMusic = loc => galleryD(P.pos.x, P.pos.z) < 0 ? 'gallery' : inRect(P.pos.x, P.pos.z, GREENHOUSE, 3) ? 'greenhouse'
-  : ({ 'Verdant Town': 'town', 'Route 1': 'route', 'Fleurville Town': 'kalos', 'Pokémon Center': 'center' })[loc] ?? 'shop'; // other rooms are shops
+  : ({ 'Verdant Town': 'town', 'Meadow Route': 'route', 'Woodland Clearing': 'route', 'Fleurville Town': 'kalos', 'Pokémon Center': 'center' })[loc] ?? 'shop'; // other rooms are shops
 function music(key) {
   if (bgm.want === key) return;
   bgm.want = key;
@@ -6058,7 +6218,7 @@ function frame() {
   const dt = Math.min(clock.getDelta(), 0.05), t = clock.elapsedTime;
   if (ui.quit) { requestAnimationFrame(frame); return; } // quit screen: the world stops
   playTime += dt;
-  musicTick();
+  musicTick(); ambientTick();
   if (ui.pokedex) { tickDex(dt); requestAnimationFrame(frame); return; }
   tickTweens(dt); tickXYMixers(BT.active && BT.stop > 0 ? 0 : dt); // models freeze during a battle hit-stop
   if (!GAL.started && galleryD(P.pos.x, P.pos.z) < 14) loadGallery();
