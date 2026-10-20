@@ -1,0 +1,220 @@
+{
+  "blender": "5.2.2 LTS",
+  "files": 34,
+  "checks": [
+    "SHA256",
+    "GLB import",
+    "triangle counts",
+    "vertex colors",
+    "single material",
+    "finite positions",
+    "dimensions"
+  ],
+  "results": [
+    {
+      "file": "oak.glb",
+      "triangles": 2860,
+      "vertices": 1734,
+      "imported": true
+    },
+    {
+      "file": "oak-lod.glb",
+      "triangles": 1580,
+      "vertices": 1030,
+      "imported": true
+    },
+    {
+      "file": "oak_wide.glb",
+      "triangles": 2860,
+      "vertices": 1734,
+      "imported": true
+    },
+    {
+      "file": "oak_wide-lod.glb",
+      "triangles": 1580,
+      "vertices": 1030,
+      "imported": true
+    },
+    {
+      "file": "oak_tall.glb",
+      "triangles": 2860,
+      "vertices": 1734,
+      "imported": true
+    },
+    {
+      "file": "oak_tall-lod.glb",
+      "triangles": 1580,
+      "vertices": 1030,
+      "imported": true
+    },
+    {
+      "file": "sapling.glb",
+      "triangles": 2860,
+      "vertices": 1734,
+      "imported": true
+    },
+    {
+      "file": "fir.glb",
+      "triangles": 1660,
+      "vertices": 936,
+      "imported": true
+    },
+    {
+      "file": "fir-lod.glb",
+      "triangles": 1060,
+      "vertices": 606,
+      "imported": true
+    },
+    {
+      "file": "fir_slender.glb",
+      "triangles": 1660,
+      "vertices": 936,
+      "imported": true
+    },
+    {
+      "file": "fir_slender-lod.glb",
+      "triangles": 1060,
+      "vertices": 606,
+      "imported": true
+    },
+    {
+      "file": "fir_young.glb",
+      "triangles": 1660,
+      "vertices": 936,
+      "imported": true
+    },
+    {
+      "file": "fir_young-lod.glb",
+      "triangles": 1060,
+      "vertices": 606,
+      "imported": true
+    },
+    {
+      "file": "blossom.glb",
+      "triangles": 2860,
+      "vertices": 1734,
+      "imported": true
+    },
+    {
+      "file": "blossom-lod.glb",
+      "triangles": 1580,
+      "vertices": 1030,
+      "imported": true
+    },
+    {
+      "file": "blossom_wide.glb",
+      "triangles": 2860,
+      "vertices": 1734,
+      "imported": true
+    },
+    {
+      "file": "blossom_wide-lod.glb",
+      "triangles": 1580,
+      "vertices": 1030,
+      "imported": true
+    },
+    {
+      "file": "grass_meadow.glb",
+      "triangles": 48,
+      "vertices": 48,
+      "imported": true
+    },
+    {
+      "file": "grass_fan.glb",
+      "triangles": 40,
+      "vertices": 40,
+      "imported": true
+    },
+    {
+      "file": "grass_tall.glb",
+      "triangles": 56,
+      "vertices": 56,
+      "imported": true
+    },
+    {
+      "file": "wheat.glb",
+      "triangles": 56,
+      "vertices": 56,
+      "imported": true
+    },
+    {
+      "file": "clover.glb",
+      "triangles": 840,
+      "vertices": 462,
+      "imported": true
+    },
+    {
+      "file": "daisy.glb",
+      "triangles": 1266,
+      "vertices": 810,
+      "imported": true
+    },
+    {
+      "file": "cosmos.glb",
+      "triangles": 1146,
+      "vertices": 744,
+      "imported": true
+    },
+    {
+      "file": "buttercup.glb",
+      "triangles": 1026,
+      "vertices": 678,
+      "imported": true
+    },
+    {
+      "file": "blue_flower.glb",
+      "triangles": 1026,
+      "vertices": 678,
+      "imported": true
+    },
+    {
+      "file": "lavender.glb",
+      "triangles": 1620,
+      "vertices": 960,
+      "imported": true
+    },
+    {
+      "file": "bush.glb",
+      "triangles": 1080,
+      "vertices": 594,
+      "imported": true
+    },
+    {
+      "file": "berry_bush.glb",
+      "triangles": 1416,
+      "vertices": 898,
+      "imported": true
+    },
+    {
+      "file": "flower_bush.glb",
+      "triangles": 1684,
+      "vertices": 1002,
+      "imported": true
+    },
+    {
+      "file": "fern.glb",
+      "triangles": 1560,
+      "vertices": 996,
+      "imported": true
+    },
+    {
+      "file": "mushrooms.glb",
+      "triangles": 186,
+      "vertices": 216,
+      "imported": true
+    },
+    {
+      "file": "reeds.glb",
+      "triangles": 56,
+      "vertices": 56,
+      "imported": true
+    },
+    {
+      "file": "cattails.glb",
+      "triangles": 242,
+      "vertices": 272,
+      "imported": true
+    }
+  ],
+  "boundary": "Static Blender GLB import; does not establish browser rendering or runtime frame rate."
+}

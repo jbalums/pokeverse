@@ -114,9 +114,9 @@
     "semantic_hash": ""
   },
   "prototypes/verdant-town-3d.html": {
-    "mtime": 1792507493.6110542,
-    "seen": 1792507570.8927507,
-    "ast_hash": "5505bcbce3a7332e706050a672e9c0ad",
+    "mtime": 1792516086.081666,
+    "seen": 1792516135.516158,
+    "ast_hash": "62ff5960ac86c9dfcc3cf978c0a04815",
     "semantic_hash": ""
   },
   "prototypes/blender/build_characters.py": {
@@ -219,6 +219,72 @@
     "mtime": 1792481558.7092042,
     "seen": 1792481894.9692142,
     "ast_hash": "8f35b0dff34facca1f9d979b559c6eac",
+    "semantic_hash": ""
+  },
+  "prototypes/models/verdant-flora-v1/glb-import-check.json": {
+    "mtime": 1792514640.1910315,
+    "seen": 1792514640.4798877,
+    "ast_hash": "f76524953b40b06cd17de4336e92530f",
+    "semantic_hash": ""
+  },
+  "prototypes/models/verdant-flora-v1/manifest.json": {
+    "mtime": 1792514607.5855665,
+    "seen": 1792514640.4798877,
+    "ast_hash": "6acf82bbb6448ae4b00f4c1dca136e6a",
+    "semantic_hash": ""
+  },
+  "prototypes/models/verdant-flora-v1/rebuild-models.mjs": {
+    "mtime": 1792512845.5170896,
+    "seen": 1792512971.8530478,
+    "ast_hash": "d51efb2a1fb8fccf6d3ebe5841f68182",
+    "semantic_hash": ""
+  },
+  "prototypes/models/verdant-flora-v1/render-models.py": {
+    "mtime": 1792512845.5170896,
+    "seen": 1792512971.8530478,
+    "ast_hash": "01f1a0e56c952220d3653d6b701258e1",
+    "semantic_hash": ""
+  },
+  "prototypes/models/verdant-flora-v1/verify-models.py": {
+    "mtime": 1792512845.5181758,
+    "seen": 1792512971.8530478,
+    "ast_hash": "264e91dea9162bfc3a923e22736d5198",
+    "semantic_hash": ""
+  },
+  "prototypes/models/verdant-flora-v1/world-construction-check.json": {
+    "mtime": 1792512750.7846334,
+    "seen": 1792512971.8530478,
+    "ast_hash": "e02583c247dd4a78bcdc71de480d6313",
+    "semantic_hash": ""
+  },
+  "prototypes/models/verdant-flora-v1/README.md": {
+    "mtime": 1792512845.5181758,
+    "seen": 1792512971.8530478,
+    "ast_hash": "ae7ef2d631b3fb381011010752910681",
+    "semantic_hash": ""
+  },
+  "prototypes/models/verdant-flora-v1/approved-vegetation-reference.png": {
+    "mtime": 1792511521.0375109,
+    "seen": 1792512971.8530478,
+    "ast_hash": "54d3d7e63124a23409e5695dce582b54",
+    "semantic_hash": ""
+  },
+  "prototypes/models/verdant-flora-v1/groundcover-preview.png": {
+    "mtime": 1792514661.701383,
+    "seen": 1792514822.0131428,
+    "ast_hash": "5f4026510751b03bd27b447c82c1456d",
+    "semantic_hash": ""
+  },
+  "prototypes/models/verdant-flora-v1/model-garden-preview.png": {
+    "mtime": 1792514681.1353319,
+    "seen": 1792514822.0131428,
+    "ast_hash": "7f0ca7f2259becb0bd465625129be0df",
+    "semantic_hash": ""
+  },
+  "prototypes/models/verdant-flora-v1/tree-variants-preview.png": {
+    "mtime": 1792514636.4054523,
+    "seen": 1792514640.4798877,
+    "ast_hash": "6a792253e22015ceedb9430e6acbb7e6",
     "semantic_hash": ""
   }
 }

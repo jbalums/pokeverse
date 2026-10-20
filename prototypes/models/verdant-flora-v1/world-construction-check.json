@@ -1,0 +1,28 @@
+{
+  "checks": [
+    "Complete vegetation/world construction with real Three.js geometry and asset data",
+    "Finite mesh/instance transforms",
+    "All vegetation shader hooks expand",
+    "Existing tree placement unchanged",
+    "Existing non-flora prop matrices unchanged"
+  ],
+  "note": "DOM, canvas drawing and WebGL renderer are stubbed. This is a code/geometry check, not a browser, GPU, lighting or frame-rate test.",
+  "before": {
+    "treePositions": 412,
+    "props": 8,
+    "seed": -1865657022,
+    "meshes": 1042,
+    "instances": 23404,
+    "swayMeshes": 0,
+    "floraCounts": 0
+  },
+  "after": {
+    "treePositions": 412,
+    "props": 8,
+    "seed": -1784576215,
+    "meshes": 1188,
+    "instances": 11818,
+    "swayMeshes": 15,
+    "floraCounts": 26
+  }
+}

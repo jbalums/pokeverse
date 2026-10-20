@@ -32,7 +32,6 @@
 
   .btns { position: fixed; right: 1.9vw; bottom: 3vh; display: flex; gap: 22px; }
   .btn { width: 76px; height: 76px; border-radius: 50%; background: var(--panel); border: 3px solid #fff; display: grid; place-items: center; cursor: pointer; box-shadow: 0 4px 14px rgba(0,0,0,.3); }
-  .btn:hover { transform: scale(1.05); }
   .btn:focus-visible { outline: 3px solid #ffd84a; outline-offset: 3px; }
   .btn svg { width: 38px; height: 38px; }
 
@@ -95,86 +94,59 @@
 
   .loading { position: fixed; inset: 0; display: grid; place-items: center; background: #3f6b33; color: #fff; font-weight: 900; font-size: 22px; transition: opacity .6s; }
 
-  /* National Pokédex: an edge-to-edge field terminal. */
+  /* National Pokédex: the backpack's layout (head, side tabs, list, detail card) in Pokédex red, a size up for the 3D viewer.
+     Reuses the .bp-* rules below; only colors and the Pokédex-only parts live here. */
   #dexBtn { position: relative; border-color: #90f5ff; }
   #dexBtn::after { content: 'POKÉDEX'; position: absolute; bottom: -17px; font-size: 10px; font-weight: 900; letter-spacing: 1px; color: #fff; }
-  .dex { --cyan: #85f5ef; position: fixed; inset: 0; margin: 0; width: 100%; height: 100%; height: 100dvh; max-width: none; max-height: none; border: 0; color: #eafaff; background: #07121e; padding: clamp(14px, 2.6vw, 36px); overflow: hidden; }
-  .dex[open] { display: flex; flex-direction: column; gap: 20px; }
-  .dex::backdrop { background: #07121e; }
-  .dex::before { content: ''; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(ellipse at 75% 35%, #12404c70, transparent 58%), linear-gradient(#60dce608 1px, transparent 1px), linear-gradient(90deg, #60dce608 1px, transparent 1px); background-size: auto, 44px 44px, 44px 44px; }
-  .dex > * { position: relative; }
-  .dex button, .dex input, .dex select { font: inherit; }
-  .dex button { cursor: pointer; }
-  .dex :focus-visible { outline: 2px solid var(--cyan); outline-offset: 3px; }
-  .dex-header { display: flex; align-items: center; gap: 16px; }
-  .dex-lens { width: 46px; height: 46px; flex-shrink: 0; border: 1px solid #85f5ef88; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #e7ffff, #4cdae3 15%, #0e6378 45%, #0b2234 65%); box-shadow: 0 0 25px #4de4ec30, inset 0 0 0 5px #07121e; }
-  .dex-kicker { font: 11px ui-monospace, monospace; letter-spacing: 2px; color: #9ebac6; text-transform: uppercase; }
-  .dex h1 { font-size: clamp(23px, 3vw, 38px); line-height: 1.15; letter-spacing: -1px; }
-  .dex-signal { margin-left: auto; color: var(--cyan); font: 11px ui-monospace, monospace; letter-spacing: 1px; }
-  .dex-button { border: 1px solid #70cad24d; border-radius: 9px; padding: 10px 14px; background: #112636; color: #d5faff; }
-  .dex-button:hover { background: #1b4050; border-color: var(--cyan); }
-  .dex-button:disabled { opacity: .4; cursor: default; }
-  .dex-layout { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(280px, 1fr) minmax(320px, 1.12fr); gap: 24px; }
-  .dex-library, .dex-detail { min-width: 0; min-height: 0; border: 1px solid #79cbd433; border-radius: 16px; background: #0c1b29d9; overflow: hidden; }
-  .dex-library { display: flex; flex-direction: column; }
-  .dex-tools { display: flex; flex-wrap: wrap; gap: 10px; padding: 16px; border-bottom: 1px solid #79cbd426; }
-  .dex-search { flex: 1 1 160px; display: flex; flex-direction: column; gap: 6px; color: #a5c1cf; font-size: 11px; letter-spacing: 1px; }
-  .dex input, .dex select { min-width: 0; width: 100%; border: 1px solid #79cbd44d; border-radius: 8px; background: #07121e; color: #eafaff; padding: 10px; user-select: text; }
-  .dex-filter { flex: 0 1 150px; }
-  .dex-count { padding: 12px 16px 0; color: #9ebac6; font: 11px ui-monospace, monospace; }
-  .dex-grid { overflow-y: auto; overscroll-behavior: contain; scrollbar-color: #366c7d #0b1a26; display: grid; grid-template-columns: repeat(auto-fill, minmax(106px, 1fr)); gap: 9px; padding: 16px; align-content: start; }
-  .dex-card { position: relative; min-width: 0; min-height: 140px; padding: 10px 6px; border: 1px solid #55899d40; border-radius: 10px; background: linear-gradient(145deg, #142c3d, #0b1926); color: #dceef5; display: flex; flex-direction: column; align-items: center; gap: 4px; transition: border-color .18s, background .18s; }
-  .dex-card:hover { border-color: #85f5ef88; background: #173749; }
-  .dex-card[aria-pressed="true"] { border-color: var(--cyan); background: #143c48; box-shadow: inset 0 0 20px #63efe612; }
-  .dex-card .dex-num { align-self: flex-start; color: #a2c1d0; font: 10px ui-monospace, monospace; }
-  .dex-art { position: relative; width: 66px; height: 66px; display: grid; place-items: center; color: #5e8599; font-size: 22px; }
-  .dex-art img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; background: #102535; border-radius: 50%; }
-  .dex-card strong { font-size: 12px; overflow-wrap: anywhere; }
-  .dex-card small { font: 9px ui-monospace, monospace; color: #9bb0bf; }
-  .dex-card[data-model="true"] small { color: var(--cyan); }
-  .dex-empty { color: #aac3d1; padding: 20px; grid-column: 1 / -1; }
-  .dex-detail { display: flex; flex-direction: column; }
-  .dex-detail-head { padding: 20px 24px 0; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
-  .dex-detail h2 { font-size: clamp(26px, 3.5vw, 44px); letter-spacing: -1px; }
-  .dex-tags { display: flex; gap: 6px; flex-wrap: wrap; }
-  .dex-tags span { border: 1px solid #85f5ef55; padding: 4px 8px; border-radius: 6px; font: 10px ui-monospace, monospace; color: var(--cyan); }
-  .dex-form { margin: 12px 24px 0; flex: none; }
-  .dex-form[hidden] { display: none; }
-  .dex-stage { flex: 1; min-height: 170px; position: relative; overflow: hidden; background: radial-gradient(ellipse at 50% 75%, #1c647344, transparent 65%); }
-  .dex-stage::before { content: ''; position: absolute; left: 16%; right: 16%; bottom: 9%; height: 16%; border: 1px solid #6ce9ec55; border-radius: 50%; box-shadow: 0 0 35px #6ce9ec18, inset 0 0 30px #6ce9ec12; pointer-events: none; }
+  #pokedex { border: 0; padding: 0; margin: auto; width: min(1120px, 100vw - 24px); height: min(720px, 100dvh - 24px); max-width: none; max-height: none; background: transparent; overflow: visible; }
+  #pokedex::backdrop { background: rgba(20, 28, 36, .55); backdrop-filter: blur(3px); }
+  .dex { height: 100%; display: grid; grid-template-columns: minmax(170px, 230px) minmax(220px, 1fr) minmax(280px, 400px); grid-template-rows: auto 1fr; gap: 14px; background: linear-gradient(160deg, #ef5a4c, #b8282c); border: 5px solid #2a3540; border-radius: 26px; padding: 16px; box-shadow: 0 18px 50px rgba(0,0,0,.45); color: var(--ink); font-weight: 800; }
+  .dex :focus-visible { outline: 3px solid #ffd84a; outline-offset: 2px; }
+  .dex-search { display: flex; flex-direction: column; gap: 4px; color: #fff; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; text-shadow: 0 1px 0 rgba(0,0,0,.25); }
+  .dex input, .dex select { min-width: 0; width: 100%; border: 3px solid #2a3540; border-radius: 12px; padding: 6px 10px; font: 800 16px Nunito, sans-serif; color: var(--ink); background: #fff; letter-spacing: 0; text-transform: none; text-shadow: none; user-select: text; }
+  .dex .bp-tab { background: #ffe6e2; }
+  .dex .bp-tab[aria-selected="true"] { background: #2a3540; }
+  .dex-count { margin-top: auto; color: #fff; font-size: 13px; line-height: 1.4; opacity: .85; }
+  .dex .bp-item:hover { background: #fff0ee; }
+  .dex .bp-item[aria-selected="true"] { background: #ffd9d4; }
+  .dex .bp-item small { display: block; font-size: 12px; opacity: .55; }
+  .dex .bp-item .qty { font-size: 12px; color: #fff; background: #e2473b; border-radius: 8px; padding: 1px 7px; }
+  .dex .bp-item .qty:empty { display: none; }
+  .dex-art { position: relative; width: 44px; height: 44px; display: grid; place-items: center; border-radius: 50%; background: #fff0ee; color: #c9a9a4; font-size: 15px; overflow: hidden; }
+  .dex-art img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; background: #fff0ee; }
+  .dex .bp-detail { min-height: 0; overflow-y: auto; }
+  .dex .bp-detail p { flex: none; }
+  .dex-stage { flex: 1; min-height: 150px; position: relative; overflow: hidden; border-radius: 14px; background: radial-gradient(circle at 50% 62%, #ffd9d4, #fff0ee 55%, #fffdf6 78%); }
+  .dex-stage::before { content: ''; position: absolute; left: 18%; right: 18%; bottom: 8%; height: 14%; border: 3px solid #e2473b33; border-radius: 50%; pointer-events: none; }
   #dexCanvas { position: absolute; inset: 0; display: block; width: 100%; height: 100%; touch-action: none; cursor: grab; }
   #dexCanvas:active { cursor: grabbing; }
   #dexCanvas[hidden], #dexUnavailable[hidden] { display: none; }
-  .dex-unavailable { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 10px; padding: 20px; }
-  .dex-unavailable img { width: min(140px, 32vh); height: min(140px, 32vh); object-fit: contain; }
-  .dex-unavailable p { max-width: 280px; font-size: 12px; color: #9ebac6; }
-  .dex-detail-foot { padding: 16px 24px 20px; border-top: 1px solid #79cbd426; }
-  .dex-view-tools { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
-  .dex-view-tools button { font-size: 12px; }
-  .dex-help { font-size: 11px; color: #9ebac6; line-height: 1.6; }
-  .dex-status { color: var(--cyan); font: 11px ui-monospace, monospace; }
-  .dex-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px 20px; margin-top: 14px; }
-  .dex-stat { display: grid; grid-template-columns: 1fr auto; font: 10px ui-monospace, monospace; color: #adc9d5; gap: 4px; }
-  .dex-stat i { grid-column: 1 / -1; height: 3px; background: #1d3b4d; }
-  .dex-stat b { display: block; height: 100%; background: #70ded8; }
-  .dex-footer { display: flex; justify-content: space-between; gap: 12px; font: 10px ui-monospace, monospace; color: #7f9caa; }
-  body.in-pokedex .loc, body.in-pokedex .obj, body.in-pokedex .mm, body.in-pokedex .party, body.in-pokedex .btns, body.in-pokedex .hint, body.in-pokedex .prompt, body.in-pokedex .dialog { visibility: hidden; }
+  .dex-unavailable { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 6px; padding: 16px; }
+  .dex-unavailable img { width: min(120px, 22vh); height: min(120px, 22vh); object-fit: contain; }
+  .dex .dex-unavailable p { max-width: 260px; font-size: 13px; opacity: .65; }
+  .dex-detail-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 10px; }
+  .dex-tags { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+  .dex-tags span { color: #fff; border: 2px solid #2a3540; border-radius: 999px; padding: 1px 10px; font-size: 12px; text-shadow: 0 1px 0 rgba(0,0,0,.3); }
+  .dex-form { display: flex; align-items: center; gap: 8px; font-size: 13px; letter-spacing: 1px; text-transform: uppercase; color: #8a6a66; }
+  .dex-form[hidden] { display: none; }
+  .dex .dex-status { font-size: 13px; color: #b8282c; }
+  .dex-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px 14px; }
+  .dex-stats:empty { display: none; }
+  .dex-stat { display: grid; grid-template-columns: 1fr auto; gap: 2px; font-size: 11px; }
+  .dex-stat i { grid-column: 1 / -1; height: 6px; background: #f0dcd8; border-radius: 3px; overflow: hidden; }
+  .dex-stat b { display: block; height: 100%; background: #e2473b; }
+  .dex .dex-help { font-size: 12px; opacity: .55; }
+  .dex .bp-actions button { font-size: 15px; padding: 7px 4px; }
   @media (max-width: 760px) {
-    .dex[open] { gap: 10px; padding: 12px; }
-    .dex-signal, .dex-lens { display: none; }
-    .dex-header .dex-button { margin-left: auto; }
-    .dex-kicker { font-size: 9px; letter-spacing: 1px; }
-    .dex-layout { display: flex; flex-direction: column; gap: 10px; overflow-y: auto; overscroll-behavior: contain; }
-    .dex-detail { order: -1; flex: 0 0 auto; }
-    .dex-stage { flex: none; height: clamp(180px, 28vh, 270px); }
-    .dex-detail-head { padding: 12px 16px 0; }
-    .dex-detail-foot { padding: 10px 16px; }
-    .dex-stats { display: none; }
-    .dex-library { flex: 0 0 auto; overflow: visible; }
-    .dex-grid { overflow: visible; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); padding: 12px; }
-    .dex-footer { font-size: 9px; }
-    .dex-tools { padding: 12px; }
-    .dex-card { min-height: 132px; }
+    #pokedex { height: calc(100dvh - 16px); width: calc(100vw - 16px); }
+    .dex { grid-template-columns: 1fr; grid-template-rows: auto auto 1fr auto; padding: 12px; gap: 10px; overflow-y: auto; }
+    .dex-side { flex-wrap: wrap; }
+    .dex-search { flex: 1 1 100%; }
+    .dex-count { flex: 1 1 100%; margin: 0; font-size: 12px; }
+    #dexSummary { display: none; } .dex .bp-close { margin-left: auto; }
+    .dex .bp-list { min-height: 38dvh; }
+    .dex-stage { flex: none; height: clamp(140px, 24vh, 220px); }
+    .dex-stats, .dex .dex-help { display: none; }
     .btns { bottom: 100px; }
   }
   @media (prefers-reduced-motion: reduce) { .dex *, .dex *::before { transition: none !important; animation: none !important; } }
@@ -370,6 +342,22 @@
     .gm-set { grid-template-columns: 1fr; }
     .gm-slot { grid-template-columns: 1fr; } .gm-slot .gm-row { grid-column: 1; grid-row: auto; }
   }
+  /* ---------- Shared button feedback: lift on hover, sink on press, a springy pop on click (.pop, set by the click listener).
+     Uses the standalone translate / scale / filter properties so it stacks on each button's own transform and box-shadow. */
+  button:not(:disabled) { transition: transform .12s, translate .14s cubic-bezier(.3, 1.4, .5, 1), scale .14s cubic-bezier(.3, 1.4, .5, 1), filter .14s, background-color .15s, color .15s; }
+  @media (hover: hover) {
+    button:not(:disabled):hover { translate: 0 -2px; filter: brightness(1.06) drop-shadow(0 3px 0 rgba(42, 53, 64, .35)); }
+    .btn:not(:disabled):hover { scale: 1.08; }
+    .ob-chars label:hover span { filter: brightness(1.03); }
+  }
+  button:not(:disabled):active { translate: 0 1px; scale: .95; filter: brightness(.88); transition-duration: .05s; }
+  .ob-chars label:active span { scale: .97; filter: brightness(.94); }
+  button.pop { animation: btnPop .32s cubic-bezier(.3, 1.4, .5, 1); }
+  @keyframes btnPop { 0% { scale: .92; } 55% { scale: 1.06; } 100% { scale: 1; } }
+  @media (prefers-reduced-motion: reduce) {
+    button:not(:disabled):hover, button:not(:disabled):active { translate: none; scale: none; }
+    button.pop { animation: none; }
+  }
 </style>
 <script src="verdant-assets.js"></script><!-- optional Blender assets; the demo falls back to code-built shapes -->
 <script src="verdant-chars.js"></script><!-- sculpted characters and Pokémon (prototypes/blender/build_characters.py) -->
@@ -387,11 +375,12 @@
 <div class="loc"><svg viewBox="0 0 24 24" fill="#fff"><path d="M12 2a7 7 0 0 0-7 7c0 5.2 7 13 7 13s7-7.8 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg><span id="locName">Verdant Town</span></div>
 <div class="obj" id="obj" aria-live="polite"></div>
 <div class="mm"><canvas id="mm" width="412" height="412"></canvas><div class="n">N</div></div>
-<div class="hint" id="hint"><kbd>WASD</kbd> walk · <kbd>Shift</kbd> run · <kbd>E</kbd> talk · click to move · scroll to zoom · <kbd>G</kbd> character gallery · <kbd>T</kbd> travel to Fleurville</div>
+<div class="hint" id="hint"><kbd>WASD</kbd> walk · <kbd>Shift</kbd> run · <kbd>E</kbd> talk · click to move · drag to look · <kbd>V</kbd> first person · scroll to zoom · <kbd>G</kbd> test grounds · <kbd>T</kbd> travel to Fleurville</div>
 
 <div class="party" id="party"></div>
 
 <div class="btns">
+  <button class="btn" id="viewBtn" aria-label="First-person view (V)" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linejoin="round"><path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></button>
   <button class="btn" id="dexBtn" aria-label="Open Pokédex" aria-haspopup="dialog" aria-controls="pokedex"><svg viewBox="0 0 24 24" fill="none" stroke="#a6ffff" stroke-width="1.7" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="3"/><circle cx="9" cy="7" r="2"/><path d="M14 6h3M14 9h3M7 13h10v5H7zM8 20h8"/></svg></button>
   <button class="btn" id="bagBtn" aria-label="Bag"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linejoin="round"><path d="M8 7V5.5A2.5 2.5 0 0 1 10.5 3h3A2.5 2.5 0 0 1 16 5.5V7"/><path d="M5 10a3 3 0 0 1 3-3h8a3 3 0 0 1 3 3v9a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2z"/><path d="M8 14h8v4H8z"/><path d="M5 12h14"/></svg></button>
   <button class="btn" id="menuBtn" aria-label="Game menu" aria-haspopup="dialog" aria-controls="gameMenu"><svg viewBox="0 0 24 24" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
@@ -491,21 +480,26 @@
 <div class="btrans" id="btrans"></div>
 <div class="loading" id="loading">Building Verdant Town…</div>
 
-<dialog class="dex" id="pokedex" aria-labelledby="dexTitle">
-  <header class="dex-header"><div class="dex-lens" aria-hidden="true"></div><div><p class="dex-kicker">Verdant / Field research terminal</p><h1 id="dexTitle">National Pokédex</h1></div><span class="dex-signal">● ARCHIVE ONLINE</span><button class="dex-button" id="dexClose" aria-label="Close Pokédex">Close ×</button></header>
-  <div class="dex-layout" id="dexLayout">
-    <section class="dex-library" aria-label="Pokémon catalog">
-      <div class="dex-tools"><label class="dex-search">FIND A POKÉMON<input id="dexSearch" type="search" placeholder="Name or #0001" autocomplete="off" spellcheck="false"></label><label class="dex-search dex-filter">MODEL FILTER<select id="dexFilter"><option value="all">All Pokémon</option><option value="models">3D available</option></select></label></div>
-      <p class="dex-count" id="dexCount" role="status"></p><div class="dex-grid" id="dexGrid"></div>
-    </section>
-    <section class="dex-detail" aria-labelledby="dexName">
-      <div class="dex-detail-head"><div><p class="dex-kicker" id="dexNumber"></p><h2 id="dexName"></h2></div><div class="dex-tags" id="dexTypes"></div></div>
-      <label class="dex-search dex-form" id="dexFormLabel" hidden>MODEL FORM<select id="dexForm" aria-label="Pokémon model form"></select></label>
+<dialog id="pokedex" aria-labelledby="dexTitle">
+  <div class="dex">
+    <div class="bp-head"><h2 id="dexTitle">Pokédex</h2><span class="money" id="dexSummary"></span><button class="bp-close" id="dexClose" aria-label="Close Pokédex">Close ✕</button></div>
+    <div class="bp-pockets dex-side">
+      <div class="bp-sack" id="dexLens" aria-hidden="true"><svg viewBox="0 0 100 100"><circle cx="40" cy="50" r="30" fill="#fff" stroke="#2a3540" stroke-width="4"/><circle cx="40" cy="50" r="20" fill="#3fa7f5" stroke="#2a3540" stroke-width="4"/><circle cx="33" cy="43" r="7" fill="#bfe6ff"/><circle cx="82" cy="26" r="7" fill="#e2473b" stroke="#2a3540" stroke-width="3"/><circle cx="82" cy="50" r="7" fill="#ffd23f" stroke="#2a3540" stroke-width="3"/><circle cx="82" cy="74" r="7" fill="#53d06a" stroke="#2a3540" stroke-width="3"/></svg></div>
+      <label class="dex-search">Find a Pokémon<input id="dexSearch" type="search" placeholder="Name or #0025" autocomplete="off" spellcheck="false"></label>
+      <div role="tablist" aria-label="Show" id="dexTabs" style="display:contents"><button class="bp-tab" role="tab" data-f="all" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M3 12h6m6 0h6"/><circle cx="12" cy="12" r="3"/></svg>All<small id="dexAllCount"></small></button><button class="bp-tab" role="tab" data-f="models" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M4 7.5l8 4.5 8-4.5M12 12v9"/></svg>3D models<small id="dex3dCount"></small></button></div>
+      <p class="dex-count" id="dexCount" role="status"></p>
+    </div>
+    <div class="bp-list" role="listbox" aria-label="Pokémon" id="dexList"></div>
+    <section class="bp-detail" aria-labelledby="dexName">
       <div class="dex-stage" id="dexStage"><canvas id="dexCanvas" tabindex="0" role="img" aria-label="3D Pokémon preview. Drag to rotate; use arrow keys to orbit." aria-describedby="dexHelp"></canvas><div class="dex-unavailable" id="dexUnavailable" hidden><img id="dexFallbackArt" alt="" referrerpolicy="no-referrer"><strong id="dexUnavailableTitle">3D model unavailable</strong><p id="dexUnavailableText">This Pokémon is in the National archive. Its 3D model has not been added to Verdant Town.</p></div></div>
-      <div class="dex-detail-foot"><p class="dex-status" id="dexStatus" role="status"></p><div class="dex-view-tools"><button class="dex-button" id="dexMotion" aria-pressed="true">Pause motion</button><button class="dex-button" id="dexSpin" aria-pressed="true">Auto rotate: on</button><button class="dex-button" id="dexReset">Reset view</button></div><p class="dex-help" id="dexHelp">Drag to rotate · scroll / pinch to zoom · arrow keys to orbit</p><div class="dex-stats" id="dexStats" aria-label="Base stats"></div></div>
+      <div class="dex-detail-head"><div><div class="cat" id="dexNumber"></div><h3 id="dexName"></h3></div><div class="dex-tags" id="dexTypes"></div></div>
+      <label class="dex-form" id="dexFormLabel" hidden>Form<select id="dexForm" aria-label="Pokémon model form"></select></label>
+      <p class="dex-status" id="dexStatus" role="status"></p>
+      <div class="dex-stats" id="dexStats" aria-label="Base stats"></div>
+      <p class="dex-help" id="dexHelp">Drag to rotate · scroll / pinch to zoom · arrow keys to orbit</p>
+      <div class="bp-actions"><button id="dexMotion" aria-pressed="true">Pause</button><button id="dexSpin" aria-pressed="true">Spin: on</button><button id="dexReset">Reset</button></div>
     </section>
   </div>
-  <footer class="dex-footer"><span id="dexSummary"></span><span>National No. ↑ · Catalog: PokéAPI</span></footer>
 </dialog>
 
 <script type="module">
@@ -574,7 +568,6 @@ const CAM_PITCH = 45 * Math.PI / 180, CAM_FOV = 35, CAM_DIST = 19.3;
 const heroCam = new THREE.PerspectiveCamera(CAM_FOV, REF_ASPECT, 0.1, 500);
 heroCam.position.set(0, CAM_DIST * Math.sin(CAM_PITCH), CAM_DIST * Math.cos(CAM_PITCH));
 heroCam.lookAt(0, 0, 0); heroCam.updateMatrixWorld();
-const CAM_OFF = heroCam.position.clone();
 const _ray = new THREE.Raycaster(), _ndc = new THREE.Vector2();
 function I(px, py, h = 0) {
   _ray.setFromCamera(_ndc.set(px / REF_W * 2 - 1, 1 - py / REF_H * 2), heroCam);
@@ -584,7 +577,7 @@ function I(px, py, h = 0) {
 const START = I(865, 505, 0);
 const BU = I(405, 645, 0); // wild Bulbasaur in the tall grass
 
-// ============================================================ Fleurville Town: the second map (Verdant Town stays as the test map)
+// ============================================================ Fleurville Town: the second map
 // Traced from a top-down Kalos-style town plan (889x632 px, 20 px per metre). It sits far east of Verdant in the same
 // scene, beyond the camera's far plane, so both maps share one engine; T (or the south gate) travels between them.
 const KX = 300, KS = 20, ROOM_X = 600; // building interiors sit east of ROOM_X
@@ -664,8 +657,13 @@ function pathD(x, z) {
   return m;
 }
 const PLAZA_H = 1.0;
-// Character Gallery (for testing): a flat plaza at the end of the east road where every trainer / NPC model stands in rows
-const GALLERY = { x0: 18, x1: 40, z0: -25, z1: -13, h: 1.0 };
+// Test Grounds (testing only): a flat lot far west of Verdant, beyond the camera's far plane like Fleurville, so the story maps carry
+// no test props. It holds the warp pads to every map and room, the Character Gallery and (east wing) the low-poly tree kit.
+// G goes there and back; ?map=test starts there.
+const TX = -300, T_WALK = [TX - 14, -14, TX + 30, 10], T_SPAWN = [TX, 8];
+const inTest = x => x < TX + 60;
+// Character Gallery: every trainer / NPC model stands in rows at the north end of the Test Grounds
+const GALLERY = { x0: TX - 11, x1: TX + 11, z0: -13, z1: -1, h: 0 };
 const galleryD = (x, z) => Math.max(GALLERY.x0 - x, x - GALLERY.x1, GALLERY.z0 - z, z - GALLERY.z1); // < 0 inside
 const STA = I(620, 345, PLAZA_H), STB = I(705, 298, PLAZA_H);
 const EDGE = [I(150, 415, PLAZA_H), I(505, 450, PLAZA_H), STA, STB, I(812, 262, PLAZA_H), I(1085, 338, PLAZA_H), I(1205, 352, PLAZA_H)];
@@ -700,7 +698,7 @@ function hillH(x, z) {
 const noise = (x, z) => Math.sin(x * 0.31 + 1.3) * Math.cos(z * 0.27) * 0.12 + Math.sin(x * 0.83 + z * 0.61) * 0.05 + Math.cos(x * 0.57 - z * 0.91) * 0.04;
 
 function terrainH(x, z) {
-  if (x > ROOM_X - 40) return 0; // interiors
+  if (x > ROOM_X - 40 || inTest(x)) return 0; // interiors, Test Grounds
   if (inKalos(x)) return kalosH(x, z);
   let h;
   const st = stairsH(x, z);
@@ -712,7 +710,6 @@ function terrainH(x, z) {
     h += 0.32 * smooth(1.9, 0.2, Math.hypot(x - MOUND[0], z - MOUND[1]));
     h += hillH(x, z);
   }
-  const gd = galleryD(x, z); if (gd < 1.5) h = GALLERY.h + (h - GALLERY.h) * smooth(0, 1.5, gd);
   const r = riverInfo(x, z);
   if (r.d < r.hw + 0.7) {
     const bed = r.level - 0.55;
@@ -745,6 +742,13 @@ const scene = new THREE.Scene();
 const BG = new THREE.Color('#3f6b33');
 scene.background = BG;
 scene.fog = new THREE.Fog('#5d8a45', 34, 70);
+// first person sees above the horizon: a sky gradient there, with the fog fading into its haze (third person keeps the green)
+const FOG = scene.fog.color.clone(), HAZE = new THREE.Color('#cfe3d6'), SKY = (() => {
+  const c = document.createElement('canvas'); c.width = 1; c.height = 64;
+  const g = c.getContext('2d'), gr = g.createLinearGradient(0, 0, 0, 64);
+  gr.addColorStop(0, '#78aee0'); gr.addColorStop(1, '#cfe3d6'); g.fillStyle = gr; g.fillRect(0, 0, 1, 64);
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
+})();
 const camera = new THREE.PerspectiveCamera(CAM_FOV, innerWidth / innerHeight, 0.3, 200);
 
 const SUN_DIR = new V3(-10, 17, 9).normalize();
@@ -948,11 +952,11 @@ function flushInstances() {
     for (const m of list) { const k = Math.floor(m.elements[12] / CHUNK) + ',' + Math.floor(m.elements[14] / CHUNK); if (!cells.has(k)) cells.set(k, []); cells.get(k).push(m); }
     for (const ms of cells.values()) {
       const c = { pts: ms.map(m => [m.elements[12], m.elements[14]]), pairs: [], near: null };
-      for (const p of ASSETS[name]) {
+      for (const p of TREE_KIT[name] ?? ASSETS[name]) {
         if (p.lod === undefined) p.lod = p.geo.index.count > 12000 ? lodGeo(p.geo) : null;
         const make = geo => {
           const im = new THREE.InstancedMesh(geo, AMAT[p.mat] || AMAT.base, ms.length);
-          ms.forEach((m, i) => im.setMatrixAt(i, m));
+          ms.forEach((m, i) => { im.setMatrixAt(i, m); if (m.tint) im.setColorAt(i, m.tint); }); // tint: per-instance colour variety at no draw-call cost
           im.castShadow = !NO_SHADOW.has(p.mat); im.receiveShadow = true; // frustumCulled stays on: InstancedMesh culls by its instances' bounds
           scene.add(im); return im;
         };
@@ -1124,6 +1128,11 @@ const _m = new THREE.Matrix4(), _q = new THREE.Quaternion(), _e = new THREE.Eule
 // colorFn(worldPos, worldNormal, out) fills `out` (a THREE.Color); a plain color string is used flat with per-face jitter
 function addB(key, geo, color, pos, rot = [0, 0, 0], scl = [1, 1, 1], jitter = 0.06) {
   const g = geo.index ? geo.toNonIndexed() : geo.clone();
+  if (color === null && g.hasAttribute('color')) { // keep the new flora's authored stem, leaf, petal and pollen colours
+    for (const k of Object.keys(g.attributes)) if (!['position', 'normal', 'color'].includes(k)) g.deleteAttribute(k);
+    g.applyMatrix4(_m.compose(_v.set(...pos), _q.setFromEuler(_e.set(...rot)), new V3(...scl)));
+    (batches[key] ||= []).push(g); return;
+  }
   for (const k of Object.keys(g.attributes)) if (k !== 'position' && k !== 'normal') g.deleteAttribute(k);
   g.applyMatrix4(_m.compose(_v.set(...pos), _q.setFromEuler(_e.set(...rot)), new V3(...scl)));
   const P = g.attributes.position, N = g.attributes.normal, n = P.count, cols = new Float32Array(n * 3);
@@ -1149,17 +1158,8 @@ function blobGeo(wseg, hseg, amp, sy = 1) {
 }
 const LEAF_BALLS = [blobGeo(12, 9, 0.22), blobGeo(12, 9, 0.28), blobGeo(10, 8, 0.25)];
 const ROCK_GEOS = [blobGeo(9, 7, 0.5, 0.7), blobGeo(8, 6, 0.45, 0.65), blobGeo(10, 7, 0.38, 0.75)];
-const JAG = (() => { // jagged pine tier
-  const g = new THREE.ConeGeometry(1, 1, 18, 3), p = g.attributes.position;
-  for (let i = 0; i < p.count; i++) {
-    const x = p.getX(i), y = p.getY(i), z = p.getZ(i);
-    if (y < -0.49 && Math.hypot(x, z) > 0.5) { const a = Math.atan2(z, x), k = (Math.round(a / (Math.PI * 2) * 18) % 2) ? 1.16 : 0.92; p.setXYZ(i, x * k, y - (k > 1 ? 0.1 : 0), z * k); }
-  }
-  g.computeVertexNormals(); return g;
-})();
 const BOX = new THREE.BoxGeometry(1, 1, 1);
 const CYL = new THREE.CylinderGeometry(1, 1, 1, 10);
-const TRUNK = new THREE.CylinderGeometry(0.75, 1, 1, 8);
 const SUNC = new THREE.Color('#f2f08a');
 
 const boxes = [], circles = [], segs = [], trees = [];
@@ -1171,49 +1171,253 @@ function foliageColor(base, y0, hgt) {
     out.multiplyScalar(0.92 + hash3(Math.round(p.x * 9), Math.round(p.y * 9), Math.round(p.z * 9)) * 0.16);
   };
 }
-const LEAF = ['#4a8f33', '#559a3a', '#3f8530', '#5c9f3c', '#4d9236'];
-const PINE = ['#265f33', '#2c6a38', '#22592f', '#2f703c'];
-function roundTree(x, z, s = 1, h0) {
-  const y = h0 ?? terrainH(x, z);
-  if (ASSETS) { placeAsset('tree_round_' + Math.floor(rnd() * 3), x, y, z, rnd() * 6.28, s, s * rr(0.92, 1.08), s); circles.push({ x, z, r: 0.2 * s }); trees.push([x, z, 1.0 * s]); return; }
-  addB('trunk', TRUNK, '#6e4a2c', [x, y + 0.65 * s, z], [0, rnd() * 6, 0], [0.13 * s, 1.3 * s, 0.13 * s]);
-  for (const a of [0.7, 2.6, 4.4]) addB('trunk', TRUNK, '#6e4a2c', [x + Math.cos(a) * 0.18 * s, y + 1.25 * s, z + Math.sin(a) * 0.18 * s], [Math.sin(a) * 0.7, 0, -Math.cos(a) * 0.7], [0.05 * s, 0.6 * s, 0.05 * s]);
-  const cy = y + 1.75 * s, fc = foliageColor(pick(LEAF), cy - 0.95 * s, 1.95 * s);
-  addB('leaf', pick(LEAF_BALLS), fc, [x, cy + 0.15 * s, z], [rnd(), rnd() * 6, 0], [0.82 * s, 0.75 * s, 0.82 * s]);
-  const n = 9;
-  for (let i = 0; i < n; i++) {
-    const a = i / n * Math.PI * 2 + rr(-0.3, 0.3), r = rr(0.5, 0.68) * s, hy = rr(-0.25, 0.35) * s, bs = rr(0.42, 0.56) * s;
-    addB('leaf', pick(LEAF_BALLS), fc, [x + Math.cos(a) * r, cy + hy, z + Math.sin(a) * r], [rnd(), rnd() * 6, 0], [bs, bs * 0.9, bs]);
+// ============================================================ approved layered-leaf flora (20 October 2026)
+// The editable model source lives here. The reusable GLBs in models/verdant-flora-v1 are exported from this SAME builder.
+// Closed folded leaves, curved ribbons and cupped petals share one botanical style; no textures, alpha cards or paid generation.
+// FLORA_MODEL_SOURCE_BEGIN
+function buildFloraModels() {
+  const models = {}, tau = Math.PI * 2, v = new THREE.Vector3(), q = new THREE.Quaternion(), m = new THREE.Matrix4();
+  const noise = n => { const a = Math.sin(n * 127.1 + 19.7) * 43758.5453; return a - Math.floor(a); };
+  const palette = ['#26583a', '#36733c', '#4a8d3e', '#67a843', '#88bd4d'];
+  // A closed, shallow folded almond: 40 triangles, a curved midrib, broad shoulders and a tapered drooping tip.
+  // All foliage uses this same shape at different scales, including the tree crowns, bushes, clover and flower leaves.
+  function leafShape(droop = 0.32, broad = 1) {
+    const pos = [0, 0, 0, -0.18 * broad, 0.035, 0.22, 0, 0.105, 0.22, 0.18 * broad, 0.035, 0.22,
+      -0.285 * broad, -droop * 0.05, 0.52, 0, 0.12 - droop * 0.05, 0.52, 0.285 * broad, -droop * 0.05, 0.52,
+      -0.17 * broad, -droop * 0.45, 0.8, 0, 0.075 - droop * 0.45, 0.8, 0.17 * broad, -droop * 0.45, 0.8, 0, -droop, 1];
+    const top = [0, 1, 2, 0, 2, 3];
+    for (let a = 1; a <= 4; a += 3) top.push(a, a + 3, a + 1, a + 1, a + 3, a + 4, a + 1, a + 4, a + 2, a + 2, a + 4, a + 5);
+    top.push(7, 10, 8, 8, 10, 9); const idx = [...top];
+    for (let i = 0; i < 11; i++) pos.push(pos[i * 3], pos[i * 3 + 1] - 0.018, pos[i * 3 + 2]);
+    for (let i = 0; i < top.length; i += 3) idx.push(top[i + 2] + 11, top[i + 1] + 11, top[i] + 11);
+    const rim = [0, 1, 4, 7, 10, 9, 6, 3];
+    for (let i = 0; i < rim.length; i++) { const a = rim[i], b = rim[(i + 1) % rim.length]; idx.push(a, a + 11, b, b, a + 11, b + 11); }
+    const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setIndex(idx); g.computeVertexNormals(); return g;
   }
-  addB('leaf', pick(LEAF_BALLS), fc, [x + rr(-0.15, 0.15) * s, cy + 0.72 * s, z], [0, rnd() * 6, 0], [0.5 * s, 0.45 * s, 0.5 * s]);
-  circles.push({ x, z, r: 0.2 * s }); trees.push([x, z, 1.0 * s]);
+  function grassRibbon() { // eight triangles per blade; broad, folded and bent, rather than a three-sided needle
+    const pos = [0, 0, 0, -0.11, 0.035, 0.32, 0, 0.07, 0.32, 0.11, 0.035, 0.32,
+      -0.075, -0.04, 0.7, 0, 0, 0.7, 0.075, -0.04, 0.7, 0, -0.17, 1];
+    const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+    g.setIndex([0, 1, 2, 0, 2, 3, 1, 4, 2, 2, 4, 5, 2, 5, 3, 3, 5, 6, 4, 7, 5, 5, 7, 6]); g.computeVertexNormals(); return g;
+  }
+  const leaf = leafShape(), petal = leafShape(-0.14, 1.35), blade = grassRibbon();
+  const stem = new THREE.CylinderGeometry(0.65, 1, 1, 5), seed = new THREE.SphereGeometry(1, 7, 4);
+  function part(parts, geo, col, pos, scale = [1, 1, 1], rot = [0, 0, 0]) { parts.push({ geo, col, pos, scale, rot }); }
+  function merge(parts) {
+    const geometries = parts.map(p => {
+      const g = p.geo.clone(); for (const k of Object.keys(g.attributes)) if (k !== 'position' && k !== 'normal') g.deleteAttribute(k);
+      g.applyMatrix4(m.compose(v.set(...p.pos), q.setFromEuler(new THREE.Euler(...p.rot, 'YXZ')), new THREE.Vector3(...p.scale)));
+      const P = g.attributes.position, N = g.attributes.normal, colors = new Float32Array(P.count * 3), c = new THREE.Color(p.col);
+      for (let i = 0; i < P.count; i++) {
+        // Gentle midrib / underside shading, no per-vertex speckle or large flat triangle patches.
+        const k = 0.87 + Math.max(0, N.getY(i)) * 0.13;
+        colors.set([c.r * k, c.g * k, c.b * k], i * 3);
+      }
+      g.setAttribute('color', new THREE.BufferAttribute(colors, 3)); return g;
+    });
+    const geo = mergeGeometries(geometries); geometries.forEach(g => g.dispose()); geo.computeBoundingBox(); geo.computeBoundingSphere(); return geo;
+  }
+  function limb(parts, a, b, radius, color = '#775039') {
+    const start = new THREE.Vector3(...a), end = new THREE.Vector3(...b), d = end.sub(start), len = d.length();
+    q.setFromUnitVectors(new THREE.Vector3(0, 1, 0), d.normalize());
+    const rot = new THREE.Euler().setFromQuaternion(q, 'YXZ');
+    part(parts, stem, color, start.addScaledVector(d, len / 2).toArray(), [radius, len, radius], [rot.x, rot.y, rot.z]);
+  }
+  function crown(parts, center, radius, variant, pink = false, far = false) {
+    const rings = far ? [5, 3] : [8, 5, 3];
+    rings.forEach((n, tier) => {
+      const r = radius * (1.12 - tier * (far ? 0.35 : 0.27));
+      for (let j = 0; j < n; j++) {
+        const a = j / n * tau + tier * 0.73 + variant, h = noise(j + tier * 71 + variant * 11);
+        const col = pink ? ['#d778a4', '#e998b9', '#f5bad0'][Math.min(2, tier)] : palette[Math.min(4, tier + 1 + (h > 0.5 ? 1 : 0))];
+        part(parts, leaf, col, [center[0] + Math.sin(a) * r * 0.10, center[1] + tier * radius * 0.32, center[2] + Math.cos(a) * r * 0.10],
+          [r * (far ? 1.85 : 1.55), r, r * 1.25], [0.08 + h * 0.12, a, 0]);
+      }
+    });
+    // A small overlapping terminal leaf closes the rosette centre without adding a spherical crown filler.
+    part(parts, leaf, pink ? '#f5bad0' : '#88bd4d', [center[0], center[1] + radius * (far ? 0.37 : 0.69), center[2]],
+      [radius * 0.7, radius * 0.4, radius * 0.55], [0.1, variant + 1, 0]);
+  }
+  function tree(variant, pink = false, far = false) {
+    const parts = [], wide = variant === 1 ? 1.12 : variant === 2 ? 0.86 : 1, tall = variant === 2 ? 1.12 : 1;
+    limb(parts, [0, 0, 0], [0.055, 1.85 * tall, 0], 0.145, pink ? '#805441' : '#775039');
+    for (let i = 0; i < 3; i++) {
+      const a = i / 3 * tau + variant * 0.67, r = (0.52 + (i % 2) * 0.10) * wide;
+      const c = [Math.sin(a) * r, (1.72 + i * 0.1) * tall, Math.cos(a) * r];
+      limb(parts, [0.02, 1.02, 0], [c[0], c[1] + 0.18, c[2]], 0.065);
+      crown(parts, c, (0.68 + noise(i + variant * 19) * 0.09) * wide, a, pink, far);
+    }
+    crown(parts, [0.02, 2.24 * tall, -0.05], 0.72 * wide, variant + 0.4, pink, far);
+    for (let i = 0; i < 3; i++) { const a = i * tau / 3; limb(parts, [0, 0.22, 0], [Math.sin(a) * 0.26, 0.018, Math.cos(a) * 0.26], 0.065); }
+    return merge(parts);
+  }
+  function fir(variant, far = false) {
+    const parts = [], wide = variant === 1 ? 0.83 : 1, tall = variant === 1 ? 1.12 : variant === 2 ? 0.83 : 1;
+    limb(parts, [0, 0, 0], [0, 2.54 * tall, 0], 0.105, '#705039');
+    for (let tier = 0; tier < 5; tier++) {
+      const n = far ? 5 : 8, r = (1.0 - tier * 0.165) * wide;
+      for (let j = 0; j < n; j++) {
+        const a = j / n * tau + tier * 0.43 + variant;
+        part(parts, leaf, ['#245b3d', '#2f7041', '#3e8345', '#50934b', '#6ba751'][tier], [Math.sin(a) * 0.045, (1.05 + tier * 0.4) * tall, Math.cos(a) * 0.045],
+          [r * (far ? 2.15 : 1.65), r * 1.1, r * 1.18], [0.30, a, 0]);
+      }
+    }
+    part(parts, leaf, '#76ad53', [0, 2.48 * tall, 0], [0.3, 0.34, 0.38], [-1.2, 0.3, 0]);
+    return merge(parts);
+  }
+  function grass(blades, tall = false, spread = 0.12) {
+    const parts = [];
+    for (let i = 0; i < blades; i++) {
+      const a = i * 2.39996, h = 0.62 + noise(i * 13 + blades) * 0.38;
+      const lean = Math.PI / 2 - 1.4 + (tall ? 0.025 : noise(i + 7) * 0.18);
+      part(parts, blade, ['#39763c', '#55953e', '#78b34a'][i % 3], [Math.sin(a) * spread * noise(i), 0.02, Math.cos(a) * spread * noise(i + 4)],
+        [tall ? 0.46 : 0.62, h, h], [-Math.PI / 2 + lean * 0.9, a, 0]); // 10% less outward lean, keeping curved tips
+    }
+    return merge(parts);
+  }
+  function flower(parts, x, z, h, color, petals = 6, size = 0.12) {
+    limb(parts, [x, 0, z], [x + 0.018, h, z], 0.012, '#4c823f');
+    for (let j = 0; j < 2; j++) part(parts, leaf, j ? '#609e42' : '#47873e', [x, h * (0.28 + j * 0.16), z], [0.15, 0.15, 0.22], [-0.3, j * 3 + x * 7, 0]);
+    for (let j = 0; j < petals; j++) part(parts, petal, color, [x + 0.018, h, z], [size * 1.45, size * 0.65, size], [0, j / petals * tau, 0]);
+    part(parts, seed, '#efbf42', [x + 0.018, h + 0.022, z], [size * 0.3, 0.035, size * 0.3]);
+  }
+  function flowers(color, petals, height, size, count = 3) {
+    const parts = [];
+    for (let i = 0; i < count; i++) { const a = i * 2.4; flower(parts, Math.sin(a) * 0.11, Math.cos(a) * 0.1, height * (0.78 + noise(i + 11) * 0.32), color, petals, size); }
+    return merge(parts);
+  }
+  function lavender() {
+    const parts = [];
+    for (let i = 0; i < 3; i++) {
+      const x = (i - 1) * 0.11, z = i % 2 * 0.1, h = 0.45 + i * 0.055;
+      limb(parts, [x, 0, z], [x, h, z], 0.009, '#548745');
+      for (let j = 0; j < 3; j++) part(parts, leaf, '#508b46', [x, 0.04 + j * 0.07, z], [0.11, 0.13, 0.20], [-0.7, j * 2.4 + i, 0]);
+      for (let j = 0; j < 5; j++) for (let k = 0; k < 2; k++) part(parts, petal, ['#9070c6', '#ad8cdd', '#c1a5eb'][j % 3], [x, h - 0.2 + j * 0.052, z], [0.095 - j * 0.009, 0.075, 0.073 - j * 0.006], [-0.5, k * Math.PI + j, 0]);
+    }
+    return merge(parts);
+  }
+  function clover() {
+    const parts = [];
+    for (let i = 0; i < 7; i++) {
+      const a = i * 2.4, r = Math.sqrt(i / 7) * 0.23, x = Math.sin(a) * r, z = Math.cos(a) * r;
+      for (let j = 0; j < 3; j++) part(parts, leaf, ['#4d8c41', '#6ca546', '#80b450'][i % 3], [x, 0.07 + noise(i) * 0.04, z], [0.24, 0.10, 0.14], [0, a + j * tau / 3, 0]);
+    }
+    return merge(parts);
+  }
+  function fern() {
+    const parts = [];
+    for (let i = 0; i < 6; i++) {
+      const a = i / 6 * tau, length = 0.39 + noise(i) * 0.14;
+      limb(parts, [0, 0.015, 0], [Math.sin(a) * length, 0.23, Math.cos(a) * length], 0.009, '#659746');
+      for (let j = 1; j < 4; j++) for (const side of [-1, 1]) {
+        const t = j / 4, w = 0.21 * (1 - t * 0.62);
+        part(parts, leaf, ['#397444', '#528d47', '#77a64d'][j % 3], [Math.sin(a) * length * t, 0.05 + t * 0.22, Math.cos(a) * length * t], [w * 0.72, w * 0.7, w], [-0.15, a + side * 0.95, 0]);
+      }
+    }
+    return merge(parts);
+  }
+  function shrub(variant) {
+    const parts = [];
+    for (let i = 0; i < 3; i++) {
+      const a = i * tau / 3; crown(parts, [Math.sin(a) * 0.19, 0.20 + (i % 2) * 0.1, Math.cos(a) * 0.19], 0.34, variant + a, false, true);
+    }
+    if (variant === 1) for (let i = 0; i < 8; i++) {
+      // Attach berries to the actual upper leaf midribs, rather than floating above the shrub.
+      const cluster = i % 3, ca = cluster * tau / 3, j = Math.floor(i / 3), a = j / 3 * tau + 0.73 + variant + ca;
+      const r = 0.34 * 0.77, tilt = 0.08 + noise(j + 71 + (variant + ca) * 11) * 0.12;
+      const p = new THREE.Vector3(0, (0.12 - 0.32 * 0.05) * r, 0.52 * r * 1.25).applyEuler(new THREE.Euler(tilt, a, 0, 'YXZ'));
+      p.add(new THREE.Vector3(Math.sin(ca) * 0.19 + Math.sin(a) * r * 0.1, 0.20 + (cluster % 2) * 0.1 + 0.34 * 0.32 + 0.045, Math.cos(ca) * 0.19 + Math.cos(a) * r * 0.1));
+      part(parts, seed, i % 2 ? '#d95653' : '#bd3d4b', p.toArray(), [0.043, 0.05, 0.043]);
+    }
+    if (variant === 2) for (let i = 0; i < 2; i++) { const a = i * 2.4; flower(parts, Math.sin(a) * 0.26, Math.cos(a) * 0.26, 0.59 + noise(i) * 0.05, '#f4b9d1', 4, 0.085); }
+    return merge(parts);
+  }
+  function reeds(cattail) {
+    const parts = [];
+    for (let i = 0; i < 7; i++) { const a = i * 2.4, h = 0.58 + noise(i) * 0.25;
+      part(parts, blade, i % 2 ? '#75a54c' : '#508443', [Math.sin(a) * 0.1, 0, Math.cos(a) * 0.1], [0.46, h, h], [-1.27 + noise(i + 4) * 0.25, a, 0]); }
+    if (cattail) for (let i = 0; i < 3; i++) {
+      const x = (i - 1) * 0.12, h = 0.95 + i * 0.09;
+      limb(parts, [x, 0, 0], [x + 0.035, h, 0], 0.014, '#758b43');
+      part(parts, seed, '#90633f', [x + 0.03, h - 0.08, 0], [0.044, 0.15, 0.044]);
+    }
+    return merge(parts);
+  }
+  function mushrooms() {
+    const parts = [];
+    for (let i = 0; i < 3; i++) { const x = (i - 1) * 0.12, z = i % 2 * 0.1, h = 0.12 + i * 0.045;
+      limb(parts, [x, 0, z], [x, h, z], 0.024, '#e8d6ae'); part(parts, seed, i % 2 ? '#d5a35c' : '#b97d4a', [x, h, z], [0.09 + i * 0.017, 0.05, 0.09 + i * 0.017]); }
+    return merge(parts);
+  }
+  const register = (name, label, category, geo, lod = null) => {
+    geo.userData.floraNatural = true;
+    geo.userData.doubleSided = category === 'groundcover' || category === 'waterside';
+    models[name] = { label, category, geo, lod };
+  };
+  register('oak', 'Layered oak', 'tree', tree(0), tree(0, false, true));
+  register('oak_wide', 'Spreading oak', 'tree', tree(1), tree(1, false, true));
+  register('oak_tall', 'Upright oak', 'tree', tree(2), tree(2, false, true));
+  const sapling = tree(2); sapling.scale(0.64, 0.72, 0.64); sapling.computeBoundingBox(); sapling.computeBoundingSphere();
+  register('sapling', 'Young broadleaf', 'tree', sapling);
+  register('fir', 'Layered fir', 'tree', fir(0), fir(0, true));
+  register('fir_slender', 'Slender fir', 'tree', fir(1), fir(1, true));
+  register('fir_young', 'Young fir', 'tree', fir(2), fir(2, true));
+  register('blossom', 'Pink blossom', 'tree', tree(0, true), tree(0, true, true));
+  register('blossom_wide', 'Spreading blossom', 'tree', tree(1, true), tree(1, true, true));
+  register('grass_meadow', 'Meadow grass', 'groundcover', grass(6));
+  register('grass_fan', 'Fan grass', 'groundcover', grass(5, false, 0.07));
+  register('grass_tall', 'Encounter grass', 'groundcover', grass(7, true));
+  const wheat = grass(7, true), wheatColors = wheat.attributes.color, gold = new THREE.Color('#d5bc62');
+  for (let i = 0; i < wheatColors.count; i++) { const k = 0.82 + (i % 3) * 0.07; wheatColors.setXYZ(i, gold.r * k, gold.g * k, gold.b * k); }
+  register('wheat', 'Golden field grass', 'groundcover', wheat);
+  register('clover', 'Clover patch', 'groundcover', clover());
+  register('daisy', 'White daisies', 'flower', flowers('#fff3d8', 7, 0.33, 0.115));
+  register('cosmos', 'Pink cosmos', 'flower', flowers('#e89abd', 6, 0.41, 0.125));
+  register('buttercup', 'Golden wildflowers', 'flower', flowers('#efc64b', 5, 0.26, 0.09));
+  register('blue_flower', 'Blue wildflowers', 'flower', flowers('#a1bde2', 5, 0.34, 0.10));
+  register('lavender', 'Lavender spires', 'flower', lavender());
+  register('bush', 'Layered bush', 'undergrowth', shrub(0));
+  register('berry_bush', 'Berry bush', 'undergrowth', shrub(1));
+  register('flower_bush', 'Flowering bush', 'undergrowth', shrub(2));
+  register('fern', 'Woodland fern', 'undergrowth', fern());
+  register('mushrooms', 'Mushroom cluster', 'undergrowth', mushrooms());
+  register('reeds', 'River reeds', 'waterside', reeds(false));
+  register('cattails', 'Cattails', 'waterside', reeds(true));
+  [leaf, petal, blade, stem, seed].forEach(g => g.dispose());
+  return models;
 }
-function pineTree(x, z, s = 1, h0) {
-  const y = h0 ?? terrainH(x, z);
-  if (ASSETS) { placeAsset('tree_pine_' + Math.floor(rnd() * 2), x, y, z, rnd() * 6.28, s * 0.9); circles.push({ x, z, r: 0.18 * s }); trees.push([x, z, 0.8 * s]); return; }
-  addB('trunk', TRUNK, '#5e3f27', [x, y + 0.35 * s, z], [0, 0, 0], [0.11 * s, 0.7 * s, 0.11 * s]);
-  const base = pick(PINE);
-  for (let i = 0; i < 5; i++) {
-    const r = (0.92 - i * 0.16) * s, h = (0.8 - i * 0.07) * s, by = y + (0.45 + i * 0.4) * s;
-    const b = new THREE.Color(base), dark = b.clone().multiplyScalar(0.65), tip = b.clone().lerp(new THREE.Color('#6fa64a'), 0.35);
-    addB('leaf', JAG, (p, nrm, out) => {
-      const t = clamp((p.y - by) / h, 0, 1), rad = Math.hypot(p.x - x, p.z - z) / r;
-      out.copy(dark).lerp(b, 0.4 + 0.6 * t).lerp(tip, smooth(0.6, 1.1, rad) * 0.6).lerp(SUNC, Math.max(0, nrm.dot(SUN_DIR)) * 0.12);
-    }, [x, by + h / 2, z], [0, rnd() * 3, 0], [r, h, r]);
-  }
-  circles.push({ x, z, r: 0.18 * s }); trees.push([x, z, 0.8 * s]);
+// FLORA_MODEL_SOURCE_END
+const FLORA_MODELS = buildFloraModels();
+const KIT_SPECIES = Object.fromEntries(Object.entries(FLORA_MODELS).filter(([, p]) => p.category === 'tree').map(([k, p]) => [k, p.geo]));
+const TREE_KIT = Object.fromEntries(Object.entries(FLORA_MODELS).map(([k, p]) => ['kit_' + k, [{ mat: 'base', geo: p.geo, lod: p.lod }]]));
+// Battle backdrops and old prop names use the same models, without rewriting any supporting asset archives.
+if (ASSETS) {
+  ['oak', 'oak_wide', 'oak_tall'].forEach((k, i) => { ASSETS['tree_round_' + i] = TREE_KIT['kit_' + k]; });
+  ['fir', 'fir_slender'].forEach((k, i) => { ASSETS['tree_pine_' + i] = TREE_KIT['kit_' + k]; });
+  ['bush', 'berry_bush', 'flower_bush'].forEach((k, i) => { ASSETS['bush_' + i] = TREE_KIT['kit_' + k]; });
+}
+function kitTree(kind, x, z, s = 1, h0) { // hashed from the spot, not rnd(): adding kit trees never reshuffles the rest of the world
+  const h = hash2(x, z), k = hash2(z, x);
+  placeAsset('kit_' + kind, x, h0 ?? terrainH(x, z), z, h * 6.28, s * (0.95 + k * 0.1), s * (0.9 + h * 0.2));
+  instQueue['kit_' + kind].at(-1).tint = new THREE.Color(0.88 + h * 0.22, 0.9 + k * 0.18, 0.88 + h * 0.16);
+  circles.push({ x, z, r: 0.18 * s }); trees.push([x, z, 0.9 * s]);
+}
+function fillTree(x, z, s, pine, alt = 0) { // forest fill: a kit tree sized like the sculpted one it replaces (fir ~2.7 m, oak ~3.3 m at s = 1)
+  for (let i = pine ? 2 : 3; i--;) rnd(); // the draws the sculpted tree made, so grass, flowers and rocks placed after keep their spots
+  const variants = pine ? ['fir', 'fir', 'fir_slender', 'fir_young'] : hash2(z, x) < alt ? ['blossom', 'blossom_wide'] : ['oak', 'oak', 'oak_wide', 'oak_tall'];
+  kitTree(variants[Math.floor(hash2(x + 7, z - 3) * variants.length)], x, z, s * (pine ? 0.95 : 1.05));
+  trees.at(-1)[2] = (pine ? 0.8 : 1.0) * s; // the old spacing radius too: later spots are tested against it, and a changed test changes the draws
 }
 function bush(x, z, s = 1, flowers = 0, h0) {
-  const y = h0 ?? terrainH(x, z), fc = foliageColor(pick(['#62ad3e', '#6fb946', '#57a238']), y, 0.9 * s);
-  if (ASSETS) placeAsset('bush_' + Math.floor(rnd() * 3), x, y - 0.04 * s, z, rnd() * 6.28, s * rr(0.95, 1.1), s, s * rr(0.95, 1.1));
-  else for (let i = 0; i < 4; i++) {
-    const a = rnd() * 6.28, r = i ? 0.3 * s : 0;
-    addB('leaf', pick(LEAF_BALLS), fc, [x + Math.cos(a) * r, y + 0.32 * s, z + Math.sin(a) * r], [rnd(), rnd() * 6, 0], [0.42 * s, 0.36 * s, 0.42 * s]);
-  }
+  const y = h0 ?? terrainH(x, z); rnd(); // retain the former bush colour draw in the shared placement stream
+  const shrub = ['bush', 'berry_bush', 'bush'][Math.floor(rnd() * 3)];
+  placeAsset('kit_' + shrub, x, y, z, rnd() * 6.28, s * rr(0.95, 1.1), s, s * rr(0.95, 1.1));
   const fcol = typeof flowers === 'string' ? flowers : pick(['#ffffff', '#ffffff', '#ff9ec0', '#b89cff', '#ffd23f']);
   for (let i = 0; i < (flowers ? 9 : 0); i++) {
     const a = rnd() * 6.28, r = rr(0.25, 0.55) * s;
-    addB('flower', LEAF_BALLS[2], fcol, [x + Math.cos(a) * r, y + rr(0.45, 0.7) * s, z + Math.sin(a) * r], [0, 0, 0], [0.06, 0.05, 0.06], 0.02);
+    addB('flora', FLORA_MODELS[typeof fcol === 'string' && fcol === '#ffffff' ? 'daisy' : 'cosmos'].geo, null,
+      [x + Math.cos(a) * r, y + rr(0.32, 0.45) * s, z + Math.sin(a) * r], [0, a, 0], [0.34 * s, 0.34 * s, 0.34 * s]);
+    seed = (seed + Math.imul(0x6D2B79F5, LEAF_BALLS[2].index.count / 3)) | 0; // preserve old per-face jitter draws without allocating old flowers
   }
 }
 function rock(x, z, s, y = terrainH(x, z) - s * 0.25) {
@@ -1257,7 +1461,9 @@ function planter(x, z, s = 1, h0, flowerCols = ['#ff8a3d', '#ffd23f', '#ffffff',
   const y = h0 ?? terrainH(x, z);
   addB('wood', BOX, '#8a5a32', [x, y + 0.18 * s, z], [0, 0, 0], [0.62 * s, 0.36 * s, 0.42 * s]);
   bush(x, z, 0.62 * s, 0, y + 0.28 * s);
-  for (let i = 0; i < 12; i++) addB('flower', LEAF_BALLS[2], pick(flowerCols), [x + rr(-0.28, 0.28) * s, y + rr(0.55, 0.78) * s, z + rr(-0.18, 0.18) * s], [0, 0, 0], [0.065, 0.055, 0.065], 0.02);
+  for (let i = 0; i < 5; i++) addB('flora', FLORA_MODELS[['daisy', 'cosmos', 'buttercup'][i % 3]].geo, null,
+    [x + rr(-0.22, 0.22) * s, y + 0.49 * s, z + rr(-0.12, 0.12) * s], [0, rnd() * 6.28, 0], [0.5 * s, 0.55 * s, 0.5 * s]);
+  seed = (seed + Math.imul(0x6D2B79F5, 12 * (4 + LEAF_BALLS[2].index.count / 3) - 15)) | 0; // retain the downstream world placement stream
   circles.push({ x, z, r: 0.32 * s });
 }
 
@@ -1446,26 +1652,26 @@ fence(P0(862, 205, PLAZA_H), P0(1030, 286, PLAZA_H), PLAZA_H);
 fence(P0(1462, 556), P0(1625, 500));
 fence(P0(60, 326, PLAZA_H), P0(205, 352, PLAZA_H), PLAZA_H);
 
-const T = (px, py, h, fn, s) => { const [x, z] = P0(px, py, h); fn(x, z, s); };
-T(600, 484, 0, roundTree, 1.0);
-T(1138, 272, PLAZA_H, pineTree, 1.55);
-T(190, 570, 0, pineTree, 1.35);
-T(935, 905, 0, pineTree, 1.55);
-T(1050, 940, 0, pineTree, 1.1);
-T(470, 96, PLAZA_H, pineTree, 1.15);
-T(405, 40, PLAZA_H, pineTree, 1.1);
-T(20, 70, PLAZA_H, roundTree, 1.2);
-T(735, 60, PLAZA_H, roundTree, 1.0);
-T(1110, 45, PLAZA_H, roundTree, 1.15);
-T(1200, 125, PLAZA_H, roundTree, 1.0);
-T(1290, 75, PLAZA_H, roundTree, 1.15);
-T(1560, 70, 0.9, roundTree, 1.3);
-T(1640, 170, 0.9, roundTree, 1.15);
-T(1650, 545, 0, roundTree, 1.2);
-T(90, 650, 0, roundTree, 1.35);
-T(200, 830, 0, roundTree, 1.45);
-T(40, 880, 0, roundTree, 1.2);
-T(300, 945, 0, roundTree, 1.1);
+const T = (px, py, h, kind, s) => { const [x, z] = P0(px, py, h); fillTree(x, z, s, kind === 'fir'); }; // the hero view's traced trees
+T(600, 484, 0, 'oak', 1.0);
+T(1138, 272, PLAZA_H, 'fir', 1.55);
+T(190, 570, 0, 'fir', 1.35);
+T(935, 905, 0, 'fir', 1.55);
+T(1050, 940, 0, 'fir', 1.1);
+T(470, 96, PLAZA_H, 'fir', 1.15);
+T(405, 40, PLAZA_H, 'fir', 1.1);
+T(20, 70, PLAZA_H, 'oak', 1.2);
+T(735, 60, PLAZA_H, 'oak', 1.0);
+T(1110, 45, PLAZA_H, 'oak', 1.15);
+T(1200, 125, PLAZA_H, 'oak', 1.0);
+T(1290, 75, PLAZA_H, 'oak', 1.15);
+T(1560, 70, 0.9, 'oak', 1.3);
+T(1640, 170, 0.9, 'oak', 1.15);
+T(1650, 545, 0, 'oak', 1.2);
+T(90, 650, 0, 'oak', 1.35);
+T(200, 830, 0, 'oak', 1.45);
+T(40, 880, 0, 'oak', 1.2);
+T(300, 945, 0, 'oak', 1.1);
 for (const [px, py, s, fl] of [[480, 905, 1.3, 0], [580, 935, 1.1, '#ffffff'], [800, 900, 1.1, 0], [1600, 640, 1.2, '#b89cff'], [1500, 595, 0.9, '#ffffff'], [1660, 780, 1.2, 0], [920, 335, 0.8, '#ffffff'], [1050, 420, 0.75, '#b89cff'], [835, 330, 0.9, 0], [1180, 300, 0.7, '#ffffff'], [1440, 410, 0.7, '#b89cff']])
   { const [x, z] = P0(px, py, 0.2); bush(x, z, s, fl); }
 for (const [px, py, s] of [[100, 360, 0.8], [250, 378, 0.9], [380, 392, 0.85], [600, 335, 0.7]]) { const [x, z] = P0(px, py, PLAZA_H); bush(x, z, s, '#ffffff', PLAZA_H); }
@@ -1488,7 +1694,7 @@ for (let i = 0; i < RV.length; i += 1) {
 // forest fill outside the reference frame
 function inHeroView(x, z, h = 0) { const v = new V3(x, h, z).project(heroCam); return Math.abs(v.x) < 1.04 && Math.abs(v.y) < 1.06; }
 function freeSpot(x, z, r = 1) {
-  const ri = riverInfo(x, z); if (ri.d < ri.hw + 1.0 || galleryD(x, z) < 1.2 || galleryD(x, z - 6) < 0 || Math.hypot(x - CLEAR.x, z - CLEAR.z) < CLEAR.r) return false; // gallery + open south side for the camera, the clearing
+  const ri = riverInfo(x, z); if (ri.d < ri.hw + 1.0 || Math.hypot(x - CLEAR.x, z - CLEAR.z) < CLEAR.r) return false; // the clearing
   if (pathD(x, z) < PATH_W + 0.9 || inTallGrass(x, z) || stairsH(x, z) !== null || inCobble(x, z) || onBridge(x, z)) return false;
   for (const b of boxes) if (x > b.x0 - 1 && x < b.x1 + 1 && z > b.z0 - 1 && z < b.z1 + 1) return false;
   for (const [tx, tz, tr] of trees) if (Math.hypot(tx - x, tz - z) < tr + r) return false;
@@ -1502,7 +1708,7 @@ for (let i = 0; i < 1500; i++) {
   const d = Math.hypot(x - START[0], (z - START[1]) * 1.3);
   if (rnd() > smooth(7, 16, d) * 0.9) continue;
   const s = rr(0.95, 1.5);
-  if (rnd() < 0.45) pineTree(x, z, s); else roundTree(x, z, s);
+  fillTree(x, z, s, rnd() < 0.45);
 }
 for (let i = 0; i < 160; i++) { const x = rr(-26, 26), z = rr(-20, 14); if (!inHeroView(x, z) && freeSpot(x, z, 0.4)) bush(x, z, rr(0.6, 1.1), rnd() < 0.5); }
 
@@ -1799,7 +2005,7 @@ linkRoom(room(ROOM_SPEC.pc), K(705, 0)[0], K(0, 474)[1] + 0.45);
   for (const s of [-1, 1]) add(new THREE.CircleGeometry(W / 2, 28, 0, Math.PI), 0, vault, 0, 0, s * D / 2, { material: KMAT.glass, shadow: false });
   kDoor(g, 0, D / 2 + 0.02, 1.0, 1.7, '#2f5a3a');
   for (let i = 0; i < 9; i++) bush(cx + rr(-W / 2 + 0.7, W / 2 - 0.7), cz + rr(-D / 2 + 0.7, D / 2 - 1.2), rr(0.55, 0.9), pick(['#ff6f8f', '#ffd23f', '#b89cff', '#ffffff', 0]));
-  for (const [x, z] of [[-W / 3, -D / 4], [W / 4, -D / 5]]) roundTree(cx + x, cz + z, 0.8);
+  for (const [x, z] of [[-W / 3, -D / 4], [W / 4, -D / 5]]) fillTree(cx + x, cz + z, 0.8, false);
   kBox(r); KDOORS.push({ x: cx, z: r[3] + 0.5, name: 'Greenhouse', lines: ["PROF. SYCAMORE'S GREENHOUSE", 'Rare Berry trees and flowers from all over Kalos grow inside.'] });
 }
 { // the windmill in the manor grounds; its sails turn in kalosTick
@@ -1891,11 +2097,11 @@ for (const [px, py] of [[390, 174], [465, 455], [600, 455]]) kBench(px, py);
   const KIN = kRect(205, 165, 880, 612), KCAFE = kRect(48, 100, 225, 366);
   const ok = (x, z) => !inRect(x, z, KIN) && !inRect(x, z, KCAFE, 0.6) && !kPaved(x, z) && !K_DIRT.some(r => inRect(x, z, r, 1.3)) && !K_FIELDS.some(r => inRect(x, z, r, 1.1))
     && !kBoxes.some(r => inRect(x, z, r, 1.2)) && trees.every(([tx, tz, tr]) => Math.abs(tx - x) > 3 || Math.hypot(tx - x, tz - z) > tr + 0.9);
-  for (const [px, py] of [[196, 520], [42, 338], [36, 468]]) { const [x, z] = K(px, py); roundTree(x, z, rr(1.05, 1.3)); }
+  for (const [px, py] of [[196, 520], [42, 338], [36, 468]]) { const [x, z] = K(px, py); fillTree(x, z, rr(1.05, 1.3), false); }
   for (let i = 0; i < 2800; i++) {
     const x = rr(KX - 29, KX + 29), z = rr(-23.5, 25.5);
     if (!ok(x, z) || z > K_WALK[3] - 3 && z < K_WALK[3] + 9 && x > K_WALK[0] - 4 && x < K_WALK[2] + 4 || rnd() > (inRect(x, z, K_WALK) ? 0.03 : 0.8)) continue; // the camera looks north: keep the south edge open
-    const s = rr(0.95, 1.5); if (rnd() < 0.4) pineTree(x, z, s); else roundTree(x, z, s);
+    const s = rr(0.95, 1.5); fillTree(x, z, s, rnd() < 0.4, 0.25); // a few cherry blossoms among Fleurville's oaks
   }
   for (let i = 0; i < 70; i++) { const x = rr(KX - 21, KX + 22), z = rr(-14, 15.5); if (ok(x, z)) bush(x, z, rr(0.6, 1.0), rnd() < 0.5 ? pick(['#ffffff', '#ff9ec0', '#ffd23f']) : 0); }
 }
@@ -1915,11 +2121,19 @@ for (const k in batches) { // merged per material and per CHUNK cell (not across
     scene.add(m);
   }
 }
-if (ASSETS) flushInstances();
+{ // All nine authored tree variants fit inside the existing east wing; G / ?map=test opens this comparison area.
+  Object.keys(KIT_SPECIES).forEach((k, i) => {
+    const x = TX + 17 + i % 3 * 4.7, z = -10 + Math.floor(i / 3) * 4.8, { geo, lod } = TREE_KIT['kit_' + k][0];
+    kitTree(k, x, z, 1, 0);
+    add(new THREE.PlaneGeometry(3.8, 0.5), 0, scene, x, 0.03, z + 1.8, { r: [-Math.PI / 2, 0, 0], shadow: false,
+      material: new THREE.MeshBasicMaterial({ map: signTex(`${FLORA_MODELS[k].label.toUpperCase()} · ${geo.index.count / 3} TRIS${lod ? ` / FAR ${lod.index.count / 3}` : ''}`, '#1b2a44', '#9fe2ff') }) });
+  });
+}
+flushInstances(); // without the Blender assets only kit trees are queued
 
 // ============================================================ instanced grass, reeds, flowers
 function swayMaterial(gradient) {
-  const m = new THREE.MeshLambertMaterial({ side: THREE.DoubleSide });
+  const m = new THREE.MeshLambertMaterial({ side: THREE.DoubleSide, vertexColors: true });
   m.onBeforeCompile = s => {
     s.uniforms.uTime = uTime; s.uniforms.uPlayer = uPlayer;
     s.vertexShader = 'uniform float uTime; uniform vec3 uPlayer; varying float vGH;\n' + s.vertexShader.replace('#include <project_vertex>', `
@@ -1927,7 +2141,7 @@ function swayMaterial(gradient) {
       vec4 mvPosition = instanceMatrix * vec4(transformed, 1.0);
       float k = max(position.y, 0.0);
       vec2 dd = mvPosition.xz - uPlayer.xz; float dl = length(dd);
-      float push = smoothstep(0.75, 0.1, dl) * step(abs(mvPosition.y - uPlayer.y), 1.5);
+      float push = (1.0 - smoothstep(0.1, 0.75, dl)) * step(abs(mvPosition.y - uPlayer.y), 1.5);
       mvPosition.xz += dd / (dl + 0.001) * push * 0.42 * k;
       mvPosition.y -= push * 0.22 * k;
       mvPosition.x += sin(uTime * 1.7 + mvPosition.x * 0.8 + mvPosition.z * 0.5) * 0.09 * k;
@@ -1935,29 +2149,24 @@ function swayMaterial(gradient) {
       mvPosition = modelViewMatrix * mvPosition;
       gl_Position = projectionMatrix * mvPosition;`);
     s.fragmentShader = 'varying float vGH;\n' + s.fragmentShader.replace('#include <color_fragment>', `#include <color_fragment>
-      diffuseColor.rgb *= ${gradient ? 'mix(0.6, 1.15, clamp(vGH, 0.0, 1.0))' : '1.0'};`);
+      diffuseColor.rgb *= ${gradient ? 'mix(0.83, 1.12, clamp(vGH, 0.0, 1.0))' : '1.0'};`);
   };
+  m.customProgramCacheKey = () => 'verdant-flora-v1-' + (gradient ? 'gradient' : 'solid');
   return m;
 }
-function tuftGeo(blades, spread, lean, width) {
-  const parts = [];
-  for (let i = 0; i < blades; i++) {
-    const g = new THREE.ConeGeometry(width, 1, 3, 1, true); g.translate(0, 0.5, 0);
-    const h = rr(0.62, 1);
-    g.applyMatrix4(_m.compose(_v.set(rr(-spread, spread), 0, rr(-spread, spread)), _q.setFromEuler(_e.set(rr(-lean, lean), rnd() * 6, rr(-lean, lean))), new V3(1, h, 1)));
-    parts.push(g);
-  }
-  return mergeGeometries(parts);
-}
+const GRASS_DENSITY = 0.75 * 0.75 * 0.65; // another 35% reduction: 36.5625% of the original density
+const GRASS_GEOMETRIES = new Set(['grass_meadow', 'grass_fan', 'grass_tall', 'wheat'].map(k => FLORA_MODELS[k].geo));
 function scatter(geo, count, accept, place, colors, gradient = true) {
-  const im = new THREE.InstancedMesh(geo, swayMaterial(gradient), count), o = new THREE.Object3D(), c = new THREE.Color();
+  const im = new THREE.InstancedMesh(geo, swayMaterial(gradient), count), o = new THREE.Object3D(), c = new THREE.Color(), white = new THREE.Color('#ffffff');
   let n = 0, tries = 0;
   while (n < count && tries++ < count * 30) {
     const p = accept(); if (!p) continue;
     place(o, p[0], p[1]); o.updateMatrix(); im.setMatrixAt(n, o.matrix);
-    im.setColorAt(n, c.set(pick(colors)).multiplyScalar(rr(0.88, 1.1))); n++;
+    c.set(pick(colors)); if (geo.userData.floraNatural) c.lerp(white, 0.9); // authored colours need only a subtle instance tint
+    im.setColorAt(n, c.multiplyScalar(rr(0.92, 1.05))); n++;
   }
-  im.count = n; im.receiveShadow = true;
+  // Generate the full placement stream, then draw fewer grass clumps so other vegetation keeps its existing positions.
+  im.count = GRASS_GEOMETRIES.has(geo) ? Math.round(n * GRASS_DENSITY) : n; im.receiveShadow = true;
   scene.add(im); return im;
 }
 const groundFree = (x, z, pathPad) => {
@@ -1968,56 +2177,91 @@ const groundFree = (x, z, pathPad) => {
   return true;
 };
 // tall grass patch
-const TALL_GEO = tuftGeo(6, 0.14, 0.38, 0.065);
+const TALL_GEO = FLORA_MODELS.grass_tall.geo;
 scatter(TALL_GEO, 1400, () => { const x = rr(-10, 2), z = rr(-1, 6); return inTallGrass(x, z) && Math.hypot(x - BU[0], z - BU[1]) > 0.55 ? [x, z] : null; },
   (o, x, z) => { o.position.set(x, terrainH(x, z) - 0.03, z); o.rotation.set(0, rnd() * 6.28, 0); const s = rr(0.7, 1.15); o.scale.set(rr(1, 1.3), s, rr(1, 1.3)); },
   ['#3c8a2c', '#4a9c37', '#57ad41', '#357b28', '#62b546']);
 // short tufts everywhere (denser in view)
-const SHORT_GEO = tuftGeo(5, 0.08, 0.45, 0.032);
-scatter(SHORT_GEO, 7000, () => {
+const SHORT_GEO = FLORA_MODELS.grass_meadow.geo;
+scatter(SHORT_GEO, 3400, () => {
   const x = rr(-24, 26), z = rr(-20, 14);
   if (!inHeroView(x, z) && rnd() < 0.55) return null;
   if (inTallGrass(x, z) || !groundFree(x, z, rnd() * 0.5)) return null;
+  if (hash2(Math.floor(x * 1.3), Math.floor(z * 1.3)) < 0.24) return null; // open turf between intentional clumps
   return [x, z];
 }, (o, x, z) => { o.position.set(x, terrainH(x, z) - 0.02, z); o.rotation.set(0, rnd() * 6.28, 0); const s = rr(0.22, 0.48); o.scale.set(rr(0.9, 1.3), s, rr(0.9, 1.3)); },
   ['#6fb03f', '#5a9e34', '#86c04c', '#529530', '#97c955']);
 // reeds on the far bank
-scatter(TALL_GEO, 220, () => {
+scatter(FLORA_MODELS.reeds.geo, 150, () => {
   const x = rr(5, 16), z = rr(-7, -1.5), r = riverInfo(x, z);
   if (r.d < r.hw + 0.2 || r.d > r.hw + 2.6 || !groundFree(x, z, 0.3)) return null;
   return hillH(x, z) < 0.9 && x > HILL_A[0] - 1.5 ? [x, z] : null;
 }, (o, x, z) => { o.position.set(x, terrainH(x, z), z); o.rotation.set(0, rnd() * 6, 0); const s = rr(0.8, 1.15); o.scale.set(1, s, 1); }, ['#6db544', '#7fc24c', '#5aa23a']);
-// daisies & wildflowers: dense along path edges, banks and the mound
-const petal = (() => { const g = new THREE.CircleGeometry(1, 12), p = g.attributes.position; for (let i = 1; i < p.count; i++) if (i % 2 === 0) p.setXYZ(i, p.getX(i) * 0.45, p.getY(i) * 0.45, 0); g.scale(0.075, 0.075, 1); g.rotateX(-Math.PI / 2 + 0.55); g.translate(0, 0.2, 0); return g; })();
+// Three-dimensional flower CLUSTERS, not petal confetti. Species are grouped by a spatial hash into coherent beds.
 const flowerSpots = [], fo = new THREE.Object3D();
-for (let tries = 0; flowerSpots.length < 2600 && tries < 90000; tries++) {
+for (let tries = 0; flowerSpots.length < 560 && tries < 35000; tries++) {
   const x = rr(-20, 22), z = rr(-14, 10);
-  if (inTallGrass(x, z) || !groundFree(x, z, 0.35)) continue;
+  if (inTallGrass(x, z) || !groundFree(x, z, 0.55) || !groundFree(x + 0.24, z + 0.24, 0.35) || !groundFree(x - 0.24, z - 0.24, 0.35)) continue;
   const pd = pathD(x, z), r = riverInfo(x, z), md = Math.hypot(x - MOUND[0], z - MOUND[1]);
   const w = Math.max(1 - smooth(PATH_W + 0.3, PATH_W + 2.2, pd), 1 - smooth(r.hw + 0.3, r.hw + 2.0, r.d), 1 - smooth(0.5, 2.5, md), raised(x, z) ? 0.2 : 0.1) * (inHeroView(x, z) ? 1 : 0.35);
-  if (rnd() < w) flowerSpots.push([x, z, terrainH(x, z)]);
+  if (rnd() < w && hash2(Math.floor(x * 1.4), Math.floor(z * 1.4)) > 0.33) flowerSpots.push([x, z, terrainH(x, z)]);
 }
 {
-  const n = flowerSpots.length, pm = new THREE.InstancedMesh(petal, swayMaterial(false), n);
-  const cm = new THREE.InstancedMesh(new THREE.SphereGeometry(0.026, 6, 4).translate(0, 0.205, 0.02), swayMaterial(false), n), c = new THREE.Color();
-  flowerSpots.forEach(([x, z, y], i) => {
-    fo.position.set(x, y, z); fo.rotation.set(0, rr(-0.5, 0.5), 0); const s = rr(0.8, 1.35); fo.scale.set(s, s * rr(0.8, 1.3), s); fo.updateMatrix();
-    pm.setMatrixAt(i, fo.matrix); cm.setMatrixAt(i, fo.matrix);
-    const purpleZone = Math.hypot(x - MOUND[0], z - MOUND[1]) < 2.2 || x > 7;
-    pm.setColorAt(i, c.set(rnd() < 0.62 ? '#ffffff' : pick(purpleZone ? ['#b48cff', '#9b7be0', '#ff9ec0'] : ['#ffd23f', '#ff8a3d', '#ff9ec0', '#7fb2ff', '#b48cff'])));
-    cm.setColorAt(i, c.set('#ffc928'));
+  const beds = Object.fromEntries(['daisy', 'cosmos', 'buttercup', 'blue_flower', 'lavender'].map(k => [k, []]));
+  flowerSpots.forEach(([x, z, y]) => {
+    const h = hash2(Math.floor(x * 0.65), Math.floor(z * 0.65)), purpleZone = Math.hypot(x - MOUND[0], z - MOUND[1]) < 2.2 || x > 7;
+    const choices = purpleZone ? ['lavender', 'cosmos', 'daisy', 'blue_flower'] : ['daisy', 'daisy', 'buttercup', 'cosmos'];
+    beds[choices[Math.floor(h * choices.length)]].push([x, y, z]);
   });
-  for (const m of [pm, cm]) { m.material.emissive = new THREE.Color('#303030'); scene.add(m); }
+  for (const [name, points] of Object.entries(beds)) {
+    if (!points.length) continue;
+    const im = new THREE.InstancedMesh(FLORA_MODELS[name].geo, swayMaterial(false), points.length);
+    points.forEach(([x, y, z], i) => { const h = hash2(x, z), s = 0.66 + h * 0.42;
+      fo.position.set(x, y, z); fo.rotation.set(0, h * Math.PI * 2, 0); fo.scale.set(s, s * (0.85 + hash2(z, x) * 0.25), s); fo.updateMatrix(); im.setMatrixAt(i, fo.matrix); });
+    im.receiveShadow = true; scene.add(im);
+  }
 }
 { // Fleurville: wheat in rows across the fields (wild Pokémon hide there), short tufts on the lawns
   const VS = seed;
-  scatter(TALL_GEO, 3200, () => { const x = rr(KX - 17.5, KX + 3.6), z = rr(-20, -11.6); return inKField(x, z) && ((z % 0.62) + 0.62) % 0.62 < 0.4 ? [x, z] : null; },
+  scatter(FLORA_MODELS.wheat.geo, 2200, () => { const x = rr(KX - 17.5, KX + 3.6), z = rr(-20, -11.6); return inKField(x, z) && ((z % 0.62) + 0.62) % 0.62 < 0.4 ? [x, z] : null; },
     (o, x, z) => { o.position.set(x, kalosH(x, z) - 0.03, z); o.rotation.set(0, rnd() * 6.28, 0); const s = rr(0.85, 1.25); o.scale.set(rr(1, 1.3), s, rr(1, 1.3)); },
     ['#d9c64a', '#cbb83e', '#e6d35c', '#bfae3a', '#a9be48']);
-  scatter(SHORT_GEO, 5000, () => { const x = rr(KX - 26, KX + 26), z = rr(-20, 22); return kPaved(x, z) || kDirt(x, z) || inKField(x, z) || kBoxes.some(r => inRect(x, z, r)) ? null : [x, z]; },
+  scatter(SHORT_GEO, 2300, () => { const x = rr(KX - 26, KX + 26), z = rr(-20, 22); return kPaved(x, z) || kDirt(x, z) || inKField(x, z) || kBoxes.some(r => inRect(x, z, r)) ? null : [x, z]; },
     (o, x, z) => { o.position.set(x, kalosH(x, z) - 0.02, z); o.rotation.set(0, rnd() * 6.28, 0); const s = rr(0.22, 0.48); o.scale.set(rr(0.9, 1.3), s, rr(0.9, 1.3)); },
     ['#6fb03f', '#5a9e34', '#86c04c', '#529530', '#97c955']);
   seed = VS;
+}
+
+{ // Groundcover uses a private random stream: adding plants never changes subsequent NPC / Pokémon placement.
+  const savedSeed = seed; seed = 0x464c4f52;
+  const neutral = ['#ffffff', '#eff7e8', '#f8ffe9'];
+  const place = (o, x, z) => { const s = rr(0.72, 1.1); o.position.set(x, terrainH(x, z), z); o.rotation.set(0, rnd() * Math.PI * 2, 0); o.scale.setScalar(s); };
+  const underTree = () => {
+    const [tx, tz] = trees[Math.floor(rnd() * trees.length)], a = rnd() * Math.PI * 2, r = rr(0.35, 1.2), x = tx + Math.sin(a) * r, z = tz + Math.cos(a) * r;
+    if (inTest(x) || inKalos(x) || inTallGrass(x, z) || !groundFree(x, z, 0.65)) return null;
+    return [x, z];
+  };
+  scatter(FLORA_MODELS.fern.geo, 100, underTree, place, neutral);
+  scatter(FLORA_MODELS.clover.geo, 220, () => {
+    const x = rr(-21, 22), z = rr(-15, 12);
+    return groundFree(x, z, 0.6) && !inTallGrass(x, z) && hash2(Math.floor(x), Math.floor(z)) > 0.48 ? [x, z] : null;
+  }, place, neutral);
+  scatter(FLORA_MODELS.grass_fan.geo, 170, () => {
+    const p = underTree(); return p && groundFree(...p, 0.65) ? p : null;
+  }, (o, x, z) => { place(o, x, z); o.scale.multiplyScalar(0.42); }, neutral);
+  scatter(FLORA_MODELS.mushrooms.geo, 36, underTree, place, neutral, false);
+  scatter(FLORA_MODELS.cattails.geo, 55, () => {
+    const x = rr(-8, 18), z = rr(-12, 10), r = riverInfo(x, z);
+    return r.d > r.hw + 0.35 && r.d < r.hw + 1.0 && groundFree(x, z, 0.75) && !inTallGrass(x, z) ? [x, z] : null;
+  }, place, neutral);
+  // A small, labelled plant nursery alongside the existing tree specimens.
+  ['grass_meadow', 'grass_fan', 'grass_tall', 'clover', 'daisy', 'cosmos', 'buttercup', 'blue_flower', 'lavender', 'fern', 'berry_bush', 'cattails'].forEach((k, i) => {
+    const x = TX + 15.5 + i % 6 * 2.4, z = 4.0 + Math.floor(i / 6) * 3.3, model = FLORA_MODELS[k];
+    const mesh = new THREE.Mesh(model.geo, AMAT.base); mesh.position.set(x, 0, z); mesh.castShadow = mesh.receiveShadow = true; scene.add(mesh);
+    add(new THREE.PlaneGeometry(2.2, 0.35), 0, scene, x, 0.025, z + 0.85, { r: [-Math.PI / 2, 0, 0], shadow: false,
+      material: new THREE.MeshBasicMaterial({ map: signTex(model.label.toUpperCase(), '#1b2a44', '#9fe2ff') }) });
+  });
+  seed = savedSeed;
 }
 
 // ============================================================ characters (prototypes/blender/build_characters.py -> verdant-chars.js)
@@ -2056,7 +2300,7 @@ function humanJoint(root, name) {
       ['x', 'y', 'z'].forEach((key, i) => bone.quaternion.multiply(q.setFromAxisAngle(axes[i], angles[key])));
     },
   });
-  return { rotation };
+  return { rotation, bone };
 }
 function humanBody(root) {
   // Keep gait offsets separate from navigation, imported scale and bind transforms.
@@ -2633,12 +2877,12 @@ for (let i = 1; i < RV.length; i++) if (RV[i][2] - RV[i - 1][2] > 0.04 && RV[i -
 // ============================================================ collision
 const PR = 0.26;
 function blockedAt(x, z, fromH, ignore) {
-  if (x > ROOM_X - 40 ? !ROOMS.some(r => inRect(x, z, r.walk)) : inKalos(x) ? !inRect(x, z, K_WALK) : x < -24 || x > 26 || z < -20 || z > 14) return true;
+  if (x > ROOM_X - 40 ? !ROOMS.some(r => inRect(x, z, r.walk)) : inKalos(x) ? !inRect(x, z, K_WALK) : inTest(x) ? !inRect(x, z, T_WALK) : x < -24 || x > 26 || z < -20 || z > 14) return true;
   const h = walkH(x, z);
   if (Math.abs(h - fromH) > 0.35) return true;
   for (const [dx, dz] of [[PR, 0], [-PR, 0], [0, PR], [0, -PR]]) {
     const xx = x + dx, zz = z + dz;
-    if (!inKalos(xx) && !onBridge(xx, zz)) { const r = riverInfo(xx, zz); if (r.d < r.hw + 0.05 || terrainH(xx, zz) < r.level + 0.05) return true; }
+    if (!inKalos(xx) && !inTest(xx) && !onBridge(xx, zz)) { const r = riverInfo(xx, zz); if (r.d < r.hw + 0.05 || terrainH(xx, zz) < r.level + 0.05) return true; }
     if (Math.abs(walkH(xx, zz) - h) > 0.35) return true;
   }
   for (const b of boxes) if (x > b.x0 - PR && x < b.x1 + PR && z > b.z0 - PR && z < b.z1 + PR) return true;
@@ -2837,10 +3081,13 @@ function placePlayer(x, z, face) {
   P.pos.set(x, walkH(x, z), z); P.face = face; player.root.position.copy(P.pos); player.root.rotation.y = face;
   PK.pos.set(x - Math.sin(face) * 0.9, 0, z - Math.cos(face) * 0.9); pika.position.copy(PK.pos);
 }
-// test portals on the west side of Verdant's plaza: one glowing pad per map; on a pad, X asks to confirm, X again warps (T comes back)
-const PORTALS = [['FLEURVILLE', () => placePlayer(...K_SPAWN, Math.PI)], ...ROOMS.map(r => [r.name.toUpperCase(), () => placePlayer(r.cx, r.rect[3] - 0.9, Math.PI)])]
+// Test Grounds floor: a plain grid, so nothing here reads as part of a story map
+const tGround = add(new THREE.PlaneGeometry(52, 30), 0, scene, TX + 8, 0, -2, { r: [-Math.PI / 2, 0, 0], shadow: false,
+  material: texMat(canvasTex(64, 64, (c, w, h) => { c.fillStyle = '#9aa9a2'; c.fillRect(0, 0, w, h); c.strokeStyle = '#7f8f88'; c.lineWidth = 3; c.strokeRect(0, 0, w, h); }), 26, 15, { roughness: 0.95 }) });
+// warp pads in the Test Grounds, south of the gallery: one glowing pad per map and room; on a pad, X asks to confirm, X again warps (G comes back)
+const PORTALS = [['VERDANT', () => placePlayer(...START, Math.PI / 2 + 0.25)], ['FLEURVILLE', () => placePlayer(...K_SPAWN, Math.PI)], ...ROOMS.map(r => [r.name.toUpperCase(), () => placePlayer(r.cx, r.rect[3] - 0.9, Math.PI)])]
   .map(([name, go], i) => {
-    const x = -20.4 + (i % 2) * 2.4, z = -13.6 + Math.floor(i / 2) * 1.9, y = walkH(x, z), flat = [-Math.PI / 2, 0, 0];
+    const x = TX - 7.5 + (i % 6) * 3, z = 1.5 + Math.floor(i / 6) * 2.2, y = walkH(x, z), flat = [-Math.PI / 2, 0, 0];
     add(new THREE.RingGeometry(0.42, 0.58, 32), '#9fe2ff', scene, x, y + 0.03, z, { r: flat, shadow: false, mat: { emissive: '#3fb8ff', emissiveIntensity: 2 } });
     add(new THREE.CircleGeometry(0.42, 32), '#2a6fb0', scene, x, y + 0.025, z, { r: flat, shadow: false, mat: { emissive: '#1f5f9f', emissiveIntensity: 0.8 } });
     add(new THREE.PlaneGeometry(1.9, 0.36), 0, scene, x, y + 0.03, z + 0.82, { r: flat, shadow: false, material: new THREE.MeshBasicMaterial({ map: signTex(name, '#1b2a44', '#9fe2ff') }) });
@@ -2867,28 +3114,33 @@ function fadeTo(move) { // fade to black, move the player, fade back in
     move(); moveTarget = null; firstFrame = true; el.style.opacity = 0; KAL.busy = false;
   }, 400);
 }
-if (new URLSearchParams(location.search).get('map') === 'kalos') placePlayer(...K_SPAWN, Math.PI); // verdant-town-3d.html?map=kalos starts in Fleurville
+{ const map = new URLSearchParams(location.search).get('map'); // verdant-town-3d.html?map=kalos starts in Fleurville, ?map=test in the Test Grounds
+  if (map === 'kalos') placePlayer(...K_SPAWN, Math.PI); else if (map === 'test') placePlayer(...T_SPAWN, Math.PI); }
 
 // ============================================================ input
 const keys = new Set();
 const ui = { dialog: null, battle: false, pokedex: false, bag: false, menu: false, quit: false, shop: false, onboard: false };
 const $ = id => document.getElementById(id);
+addEventListener('click', e => { // replay the .pop animation on whichever button was clicked (mouse, touch, Enter or Space)
+  const b = e.target.closest?.('button'); if (!b) return;
+  b.classList.remove('pop'); void b.offsetWidth; b.classList.add('pop');
+}, true);
+addEventListener('animationend', e => e.animationName === 'btnPop' && e.target.classList.remove('pop'));
 addEventListener('keydown', e => {
   if (ui.onboard) return obKey(e);
   if (ui.menu || ui.quit || ui.shop) return; // the Game Menu and shop dialogs handle their own keys (Esc closes them)
-  if (ui.pokedex) { if (e.code === 'Escape') { e.preventDefault(); closePokedex(); } return; }
+  if (ui.pokedex) return dexKey(e);
   if (ui.bag) return bagKey(e);
   if (BT.active) return battleKey(e);
   keys.add(e.code);
   if (['Space', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.code)) e.preventDefault();
   if (['KeyE', 'Space', 'Enter'].includes(e.code) && !e.repeat) act();
-  if (e.code === 'KeyG' && !e.repeat) { // testing shortcut: jump to the Character Gallery entrance (walking there along the east road works too)
-    const [x, z] = [29, -12.2]; P.pos.set(x, walkH(x, z), z); PK.pos.set(x - 0.8, walkH(x - 0.8, z + 0.6), z + 0.6); moveTarget = null;
-  }
+  if (e.code === 'KeyG' && !e.repeat) fadeTo(() => inTest(P.pos.x) ? placePlayer(...START, Math.PI / 2 + 0.25) : placePlayer(...T_SPAWN, Math.PI)); // testing shortcut: the Test Grounds and back
   if (e.code === 'Escape' && !e.repeat) { e.preventDefault(); openMenu(); } // preventDefault: this Esc must not also close the dialog it opens
   if (e.code === 'KeyB' && !e.repeat) openBag();
   if (e.code === 'KeyX' && !e.repeat) portalKey();
-  if (e.code === 'KeyT' && !e.repeat) travel(!inKalos(P.pos.x)); // travel between Verdant Town (test map) and Fleurville Town
+  if (e.code === 'KeyV' && !e.repeat) toggleView();
+  if (e.code === 'KeyT' && !e.repeat) travel(!inKalos(P.pos.x)); // travel between Verdant Town and Fleurville Town
   if (e.code === 'Backquote' && !e.repeat) { // testing shortcut: give a Pokémon at a level, plus items (see window.debug)
     keys.clear();
     const a = prompt('Debug give: SPECIES LEVEL [item=qty ...] [money=N] [nick=Name] [gender=male|female]', 'EEVEE 20 waterStone=1');
@@ -2897,7 +3149,14 @@ addEventListener('keydown', e => {
 });
 addEventListener('keyup', e => keys.delete(e.code));
 addEventListener('blur', () => keys.clear());
-let zoom = 1, moveTarget = null;
+let zoom = 1, moveTarget = null, drag = null;
+// yaw 0 and CAM_PITCH are the original hero framing; look is the first-person pitch
+const VIEW = { fpv: false, yaw: 0, pitch: CAM_PITCH, look: -0.15 };
+function toggleView() {
+  VIEW.fpv = !VIEW.fpv;
+  if (VIEW.fpv) { VIEW.yaw = P.face + Math.PI; VIEW.look = -0.15; } // look the way the trainer faces; leaving keeps the camera behind that direction
+  $('viewBtn').setAttribute('aria-pressed', VIEW.fpv);
+}
 addEventListener('wheel', e => { if (!ui.pokedex && !ui.menu && !ui.onboard) zoom = clamp(zoom * (e.deltaY > 0 ? 1.08 : 0.93), 0.6, 2.2); }, { passive: true });
 const ray = new THREE.Raycaster(), ndc = new THREE.Vector2();
 canvas.addEventListener('pointerdown', e => {
@@ -2905,11 +3164,26 @@ canvas.addEventListener('pointerdown', e => {
   if (ui.pokedex) return;
   if (BT.active) return bconfirm();
   if (ui.dialog) return act();
+  drag = { x: e.clientX, y: e.clientY, moved: false }; canvas.setPointerCapture(e.pointerId);
+});
+canvas.addEventListener('pointermove', e => { // dragging turns the camera; a click without a drag walks there
+  if (!drag || !e.buttons) return void (drag = null); // a missed pointerup must not leave plain hovering turning the view
+  const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
+  if (!drag.moved && Math.hypot(dx, dy) < 6) return;
+  drag.moved = true; drag.x = e.clientX; drag.y = e.clientY;
+  VIEW.yaw = wrapAngle(VIEW.yaw - dx * 0.005);
+  if (VIEW.fpv) VIEW.look = clamp(VIEW.look - dy * 0.005, -1.2, 0.6); else VIEW.pitch = clamp(VIEW.pitch + dy * 0.005, 0.35, 1.4);
+});
+canvas.addEventListener('pointerup', e => {
+  const d = drag; drag = null;
+  if (!d || d.moved || e.button !== 0) return;
   ndc.set(e.clientX / innerWidth * 2 - 1, -(e.clientY / innerHeight) * 2 + 1);
   ray.setFromCamera(ndc, camera);
-  const hit = ray.intersectObjects([terrain, kGround])[0];
+  const hit = ray.intersectObjects([terrain, kGround, tGround])[0];
   if (hit) moveTarget = { x: hit.point.x, z: hit.point.z, t: 0 };
 });
+canvas.addEventListener('pointercancel', () => (drag = null));
+canvas.addEventListener('contextmenu', e => e.preventDefault()); // right-drag turns the camera too
 $('dialog').addEventListener('click', act);
 $('bmsg').addEventListener('click', () => bconfirm());
 $('bagBtn').onclick = openBag;
@@ -2919,6 +3193,7 @@ $('backpack').addEventListener('cancel', e => { e.preventDefault(); closeBag(); 
 $('backpack').addEventListener('click', e => { if (e.target === $('backpack')) closeBag(); }); // click on the dimmed backdrop
 $('menuBtn').onclick = () => openMenu();
 $('dexBtn').onclick = openPokedex;
+$('viewBtn').onclick = toggleView;
 
 let nearest = null, typed = 0;
 function showLine() { $('who').textContent = ui.dialog.name; typed = 0; $('dtext').textContent = ''; }
@@ -2926,7 +3201,7 @@ function act() {
   if (ui.pokedex) return;
   if (ui.dialog) {
     const full = ui.dialog.lines[ui.dialog.i];
-    if (typed < full.length) { typed = full.length; return; }
+    if (typed < full.length) { typed = full.length; $('dtext').textContent = full; return; } // the frame loop stops drawing once typed is full, so draw it here
     if (++ui.dialog.i >= ui.dialog.lines.length) { const after = ui.dialog.after; ui.dialog = null; $('dialog').classList.remove('show'); after?.(); return; }
     return showLine();
   }
@@ -4330,7 +4605,7 @@ const DEX_TEXTURE_FIXES = {
 const DEX_DISPLAY = { 'nidoran-f': 'Nidoran ♀', 'nidoran-m': 'Nidoran ♂', 'mr-mime': 'Mr. Mime', 'mime-jr': 'Mime Jr.', 'farfetchd': 'Farfetch’d', 'sirfetchd': 'Sirfetch’d', 'type-null': 'Type: Null', 'flabebe': 'Flabébé', 'ho-oh': 'Ho-Oh', 'porygon-z': 'Porygon-Z', 'jangmo-o': 'Jangmo-o', 'hakamo-o': 'Hakamo-o', 'kommo-o': 'Kommo-o', 'wo-chien': 'Wo-Chien', 'chien-pao': 'Chien-Pao', 'ting-lu': 'Ting-Lu', 'chi-yu': 'Chi-Yu' };
 const NATIONAL_DEX = NATIONAL_NAMES.map((slug, index) => ({ id: index + 1, slug, key: DEX_GAME_SPECIES[index + 1], models: DEX_MODELS[index + 1] || [], name: DEX_DISPLAY[slug] || slug.split('-').map(s => s[0].toUpperCase() + s.slice(1)).join(' ') }));
 const dexReducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
-const DX = { selected: 1, form: 0, request: 0, abort: null, loading: false, kit: null, models: new Map(), model: null, motion: !dexReducedMotion.matches, spin: !dexReducedMotion.matches, time: 0, previousFocus: null, failed: false };
+const DX = { selected: 1, form: 0, filter: 'all', request: 0, abort: null, loading: false, kit: null, models: new Map(), model: null, motion: !dexReducedMotion.matches, spin: !dexReducedMotion.matches, time: 0, previousFocus: null, failed: false };
 const dexNumber = id => '#' + String(id).padStart(4, '0');
 const dexArtwork = id => `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`;
 const dexNormalize = value => value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9♀♂]/g, '');
@@ -4339,9 +4614,29 @@ function filteredDex(query, onlyModels) {
   return NATIONAL_DEX.filter(entry => (!onlyModels || entry.models.length) && (!q || dexNormalize(entry.name).includes(q) || dexNormalize(entry.slug).includes(q) || String(entry.id) === q.replace(/^0+/, '') || String(entry.id).padStart(4, '0').includes(q)));
 }
 function renderDexCatalog() {
-  const entries = filteredDex($('dexSearch').value, $('dexFilter').value === 'models');
-  $('dexCount').textContent = `${entries.length.toLocaleString()} / ${NATIONAL_DEX.length.toLocaleString()} entries · National number order`;
-  $('dexGrid').innerHTML = entries.length ? entries.map(entry => `<button class="dex-card" data-id="${entry.id}" data-model="${!!entry.models.length}" aria-pressed="${entry.id === DX.selected}" aria-label="${dexNumber(entry.id)} ${entry.name}, ${entry.models.length ? '3D available' : '3D unavailable'}"><span class="dex-num">${dexNumber(entry.id)}</span><span class="dex-art" aria-hidden="true">${entry.name.slice(0, 2)}<img src="${dexArtwork(entry.id)}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer"></span><strong>${entry.name}</strong><small>${entry.models.length ? '● 3D AVAILABLE' : '3D UNAVAILABLE'}</small></button>`).join('') : '<p class="dex-empty">No Pokémon found. Try another name or number, or select All Pokémon.</p>';
+  const entries = filteredDex($('dexSearch').value, DX.filter === 'models');
+  for (const tab of $('dexTabs').children) tab.setAttribute('aria-selected', String(tab.dataset.f === DX.filter));
+  $('dexCount').textContent = `${entries.length.toLocaleString()} of ${NATIONAL_DEX.length.toLocaleString()} shown · catalog and sprites: PokéAPI`;
+  $('dexList').innerHTML = entries.length ? entries.map(entry => `<button class="bp-item" role="option" data-id="${entry.id}" aria-selected="${entry.id === DX.selected}" aria-label="${dexNumber(entry.id)} ${entry.name}, ${entry.models.length ? '3D available' : 'no 3D model'}"><span class="dex-art" aria-hidden="true">${entry.name.slice(0, 2)}<img src="${dexArtwork(entry.id)}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer"></span><span>${entry.name}<small>${dexNumber(entry.id)}</small></span><span class="qty">${entry.models.length ? '3D' : ''}</span></button>`).join('') : '<div class="bp-empty">No Pokémon found. Try another name or number, or show All.</div>';
+}
+function dexShow(filter) { // the bag's pocket switch: re-list and give the lens a wiggle
+  if (filter === DX.filter) return;
+  DX.filter = filter; renderDexCatalog();
+  const lens = $('dexLens').firstElementChild; lens.classList.remove('wiggle'); void lens.offsetWidth; lens.classList.add('wiggle');
+}
+function dexStep(d) { // the bag's ↑/↓: move the selection through the visible list
+  const list = filteredDex($('dexSearch').value, DX.filter === 'models'); if (!list.length) return;
+  const i = list.findIndex(e => e.id === DX.selected);
+  selectDex(list[clamp(i < 0 ? 0 : i + d, 0, list.length - 1)].id);
+  const row = $('dexList').querySelector('[aria-selected="true"]');
+  if (document.activeElement?.closest('#dexList')) row?.focus(); else row?.scrollIntoView({ block: 'nearest' });
+}
+function dexKey(e) {
+  if (e.code === 'Escape') { e.preventDefault(); return closePokedex(); }
+  const field = e.target.tagName;
+  if (field === 'SELECT') return; // the form picker keeps its own arrows; the 3D view stops its own
+  if (e.code === 'ArrowDown' || e.code === 'ArrowUp') { e.preventDefault(); dexStep(e.code === 'ArrowDown' ? 1 : -1); }
+  else if ((e.code === 'ArrowRight' || e.code === 'ArrowLeft') && field !== 'INPUT') { e.preventDefault(); dexShow(DX.filter === 'all' ? 'models' : 'all'); }
 }
 function initDexViewer() {
   if (DX.kit) return DX.kit;
@@ -4372,8 +4667,8 @@ function resizeDexViewer() {
   DX.kit.width = w; DX.kit.height = h; r.setSize(w, h, false); cam.aspect = w / h; cam.updateProjectionMatrix(); resetDexView();
 }
 function syncDexControls() {
-  $('dexMotion').textContent = DX.motion ? 'Pause motion' : 'Play motion'; $('dexMotion').setAttribute('aria-pressed', String(DX.motion));
-  $('dexSpin').textContent = `Auto rotate: ${DX.spin ? 'on' : 'off'}`; $('dexSpin').setAttribute('aria-pressed', String(DX.spin));
+  $('dexMotion').textContent = DX.motion ? 'Pause' : 'Play'; $('dexMotion').setAttribute('aria-pressed', String(DX.motion));
+  $('dexSpin').textContent = `Spin: ${DX.spin ? 'on' : 'off'}`; $('dexSpin').setAttribute('aria-pressed', String(DX.spin));
   for (const id of ['dexMotion', 'dexSpin', 'dexReset']) $(id).disabled = !DX.model;
 }
 function disposeDexObject(root) {
@@ -4491,7 +4786,7 @@ function syncDexPreview(entry) {
   $('dexUnavailableTitle').textContent = DX.loading ? 'Loading 3D model…' : DX.failed ? '3D preview unavailable' : '3D model unavailable';
   $('dexUnavailableText').textContent = DX.loading ? 'Preparing this Pokémon and its textures.' : DX.failed ? 'This model could not be loaded. Select this entry again to retry, or try another form.' : 'This Pokémon is in the National archive. Its 3D model has not been added to Verdant Town.';
   $('dexStatus').textContent = DX.model ? DX.model.userData.textureWarnings ? '● LIVE 3D / SOME TEXTURES UNAVAILABLE' : '● LIVE 3D / INTERACTIVE VIEW' : DX.loading ? '○ LOADING 3D PREVIEW' : DX.failed ? '○ PREVIEW UNAVAILABLE' : '○ NATIONAL ARCHIVE / NO 3D MODEL';
-  $('dexHelp').textContent = DX.model ? 'Drag to rotate · scroll / pinch to zoom · arrow keys to orbit' : DX.loading ? 'You can keep browsing while the preview loads.' : 'Browse the archive, or choose “3D available” to inspect a model.';
+  $('dexHelp').textContent = DX.model ? 'Drag to rotate · scroll / pinch to zoom · arrow keys to orbit' : DX.loading ? 'You can keep browsing while the preview loads.' : 'Browse the archive, or choose “3D models” to inspect a model.';
   $('dexCanvas').setAttribute('aria-label', `${entry.name} 3D preview. Drag to rotate; use arrow keys to orbit.`);
   syncDexControls();
 }
@@ -4500,11 +4795,11 @@ async function selectDex(id, form = 0) {
   if (!Number.isInteger(form) || form < 0 || form >= entry.models.length) form = 0;
   DX.abort?.abort(); DX.abort = new AbortController(); const signal = DX.abort.signal, request = ++DX.request;
   DX.selected = id; DX.form = form; DX.time = 0;
-  $('dexGrid').querySelector('[aria-pressed="true"]')?.setAttribute('aria-pressed', 'false');
-  $('dexGrid').querySelector(`[data-id="${id}"]`)?.setAttribute('aria-pressed', 'true');
+  $('dexList').querySelector('[aria-selected="true"]')?.setAttribute('aria-selected', 'false');
+  $('dexList').querySelector(`[data-id="${id}"]`)?.setAttribute('aria-selected', 'true');
   $('dexNumber').textContent = `NATIONAL ${dexNumber(id)}`; $('dexName').textContent = entry.name;
   const sp = entry.key && SPECIES[entry.key];
-  $('dexTypes').innerHTML = sp ? sp.types.map(t => `<span style="color:${TYPE_COL[t]}">${t}</span>`).join('') : '';
+  $('dexTypes').innerHTML = sp ? sp.types.map(t => `<span style="background:${TYPE_COL[t]}">${t}</span>`).join('') : '';
   $('dexStats').innerHTML = sp ? sp.base.map((v, i) => `<div class="dex-stat"><span>${['HP', 'ATTACK', 'DEFENSE', 'SP. ATK', 'SP. DEF', 'SPEED'][i]}</span><span>${v}</span><i><b style="width:${v / 255 * 100}%"></b></i></div>`).join('') : '';
   $('dexFormLabel').hidden = entry.models.length < 2;
   $('dexForm').replaceChildren(...entry.models.map(([label], index) => new Option(label, String(index))));
@@ -4532,14 +4827,17 @@ async function selectDex(id, form = 0) {
 function openPokedex() {
   if (ui.battle || ui.dialog || ui.pokedex) return;
   DX.previousFocus = document.activeElement; keys.clear(); moveTarget = null;
-  ui.pokedex = true; document.body.classList.add('in-pokedex'); $('pokedex').showModal();
-  $('dexSummary').textContent = `${NATIONAL_DEX.length.toLocaleString()} SPECIES / ${Object.keys(DEX_MODELS).length} WITH 3D / ${Object.values(DEX_MODELS).reduce((count, forms) => count + forms.length, 0)} FORMS`;
-  renderDexCatalog(); selectDex(DX.selected, DX.form); $('dexSearch').focus({ preventScroll: true });
+  ui.pokedex = true; $('pokedex').showModal();
+  const with3d = NATIONAL_DEX.filter(e => e.models.length).length;
+  $('dexSummary').textContent = `${NATIONAL_DEX.length.toLocaleString()} species · ${with3d} in 3D`;
+  $('dexAllCount').textContent = NATIONAL_DEX.length.toLocaleString(); $('dex3dCount').textContent = with3d;
+  renderDexCatalog(); selectDex(DX.selected, DX.form);
+  $('dexList').querySelector('[aria-selected="true"]')?.scrollIntoView({ block: 'nearest' }); $('dexSearch').focus({ preventScroll: true });
 }
 function closePokedex() {
   if (!ui.pokedex) return;
   DX.abort?.abort(); DX.request++; DX.loading = false;
-  $('pokedex').close(); ui.pokedex = false; document.body.classList.remove('in-pokedex'); keys.clear(); moveTarget = null;
+  $('pokedex').close(); ui.pokedex = false; keys.clear(); moveTarget = null;
   DX.previousFocus?.focus({ preventScroll: true });
 }
 function tickDex(dt) {
@@ -4561,16 +4859,13 @@ function tickDex(dt) {
 $('dexClose').onclick = closePokedex;
 $('pokedex').addEventListener('cancel', e => { e.preventDefault(); closePokedex(); });
 $('pokedex').addEventListener('close', () => { if (ui.pokedex) closePokedex(); });
+$('pokedex').addEventListener('click', e => { if (e.target === $('pokedex')) closePokedex(); }); // click on the dimmed backdrop
 $('dexSearch').addEventListener('input', renderDexCatalog);
-$('dexFilter').addEventListener('change', renderDexCatalog);
+$('dexTabs').addEventListener('click', e => { const tab = e.target.closest('[data-f]'); if (tab) dexShow(tab.dataset.f); });
 $('dexForm').addEventListener('change', e => { selectDex(DX.selected, Number(e.target.value)); });
-$('dexGrid').addEventListener('click', e => {
-  const card = e.target.closest('[data-id]'); if (!card) return;
-  selectDex(Number(card.dataset.id));
-  if (innerWidth <= 760) $('dexLayout').scrollTop = 0;
-});
+$('dexList').addEventListener('click', e => { const row = e.target.closest('[data-id]'); if (row) selectDex(Number(row.dataset.id)); });
 // Broken optional sprites reveal the name monogram; catalog and models remain usable.
-$('dexGrid').addEventListener('error', e => { if (e.target.tagName === 'IMG') e.target.hidden = true; }, true);
+$('dexList').addEventListener('error', e => { if (e.target.tagName === 'IMG') e.target.hidden = true; }, true);
 $('dexFallbackArt').addEventListener('error', e => { e.target.hidden = true; });
 $('dexMotion').onclick = () => { DX.motion = !DX.motion; syncDexControls(); };
 $('dexSpin').onclick = () => { DX.spin = !DX.spin; syncDexControls(); };
@@ -5911,7 +6206,7 @@ function update(dt, t) {
     if (keys.has('KeyS') || keys.has('ArrowDown')) iz += 1;
     if (keys.has('KeyA') || keys.has('ArrowLeft')) ix -= 1;
     if (keys.has('KeyD') || keys.has('ArrowRight')) ix += 1;
-    if (ix || iz) moveTarget = null;
+    if (ix || iz) { moveTarget = null; const c = Math.cos(VIEW.yaw), s = Math.sin(VIEW.yaw); [ix, iz] = [ix * c + iz * s, iz * c - ix * s]; } // W walks away from the camera, whichever way it faces
     else if (moveTarget) {
       const dx = moveTarget.x - P.pos.x, dz = moveTarget.z - P.pos.z, l = Math.hypot(dx, dz);
       moveTarget.t += dt;
@@ -6024,11 +6319,22 @@ function update(dt, t) {
     if (typed < full.length) { typed = Math.min(full.length, typed + dt * 45 * TEXT_SPEED[SET.text]); $('dtext').textContent = full.slice(0, Math.floor(typed)); }
   }
 
-  // camera keeps the hero framing: same pitch, follows the player with the same screen offset (onboarding directs its own shots)
-  const look = new V3(P.pos.x - START[0], P.pos.y * 0.6, P.pos.z - START[1]);
-  const want = look.clone().add(CAM_OFF.clone().multiplyScalar(zoom));
+  // camera: the hero framing follows the player with the same screen offset, orbited by VIEW.yaw / VIEW.pitch, or the trainer's
+  // own eyes in first person (onboarding directs its own shots)
+  const cy = Math.cos(VIEW.yaw), sy = Math.sin(VIEW.yaw), fpv = VIEW.fpv && !ui.onboard, look = new V3(), want = new V3();
+  if (fpv) {
+    (player.head.bone || player.head).getWorldPosition(want).y += 0.12; // sculpted trainers wrap their head bone (humanJoint)
+    const c = Math.cos(VIEW.look);
+    look.set(want.x - sy * c, want.y + Math.sin(VIEW.look), want.z - cy * c);
+  } else {
+    look.set(P.pos.x - START[0] * cy - START[1] * sy, P.pos.y * 0.6, P.pos.z + START[0] * sy - START[1] * cy);
+    const d = CAM_DIST * zoom, c = Math.cos(VIEW.pitch);
+    want.set(look.x + sy * c * d, look.y + Math.sin(VIEW.pitch) * d, look.z + cy * c * d);
+  }
+  player.root.visible = !fpv;
+  if (!KAL.dark) { scene.background = fpv ? SKY : BG; scene.fog.color.copy(fpv ? HAZE : FOG); } // rooms keep their own dark backdrop
   if (ui.onboard) obShot(want, look, t);
-  const k = firstFrame ? 1 : 1 - Math.exp(-dt * (ui.onboard || OB.swoop > 0 ? 1.3 : 4)); // slow glides between shots and into play
+  const k = firstFrame || fpv ? 1 : 1 - Math.exp(-dt * (ui.onboard || OB.swoop > 0 ? 1.3 : 4)); // slow glides between shots and into play; first person never lags the head
   OB.swoop -= dt;
   camPos.lerp(want, k); camLook.lerp(look, k); firstFrame = false;
   camera.position.copy(camPos); camera.lookAt(camLook);
@@ -6037,7 +6343,7 @@ function update(dt, t) {
   sun.target.position.set(Math.round(camLook.x), 0, Math.round(camLook.z));
   sun.position.copy(sun.target.position).addScaledVector(SUN_DIR, 30);
 
-  const loc = roomAt(P.pos.x, P.pos.z)?.name ?? (inKalos(P.pos.x) ? 'Fleurville Town' : Math.hypot(P.pos.x - CLEAR.x, P.pos.z - CLEAR.z) < CLEAR.r + 1 ? 'Woodland Clearing' : P.pos.x > 8.5 ? 'Meadow Route' : 'Verdant Town');
+  const loc = roomAt(P.pos.x, P.pos.z)?.name ?? (inTest(P.pos.x) ? 'Test Grounds' : inKalos(P.pos.x) ? 'Fleurville Town' : Math.hypot(P.pos.x - CLEAR.x, P.pos.z - CLEAR.z) < CLEAR.r + 1 ? 'Woodland Clearing' : P.pos.x > 8.5 ? 'Meadow Route' : 'Verdant Town');
   if ($('locName').textContent !== loc) $('locName').textContent = loc;
   if (!BT.active) music(ui.onboard ? 'gallery' : locMusic(loc)); // the title theme plays through onboarding
 }
@@ -6088,8 +6394,8 @@ const MUSIC = { town: '01-verdant-town', route: '02-route-1', kalos: '03-fleurvi
 const MUSIC_VOL = 0.45, MUSIC_FADE = 1.5; // seconds for a full fade
 const GREENHOUSE = kRect(680, 5, 800, 132);
 const bgm = { want: null, tracks: {} };
-const locMusic = loc => galleryD(P.pos.x, P.pos.z) < 0 ? 'gallery' : inRect(P.pos.x, P.pos.z, GREENHOUSE, 3) ? 'greenhouse'
-  : ({ 'Verdant Town': 'town', 'Meadow Route': 'route', 'Woodland Clearing': 'route', 'Fleurville Town': 'kalos', 'Pokémon Center': 'center' })[loc] ?? 'shop'; // other rooms are shops
+const locMusic = loc => inRect(P.pos.x, P.pos.z, GREENHOUSE, 3) ? 'greenhouse'
+  : ({ 'Verdant Town': 'town', 'Meadow Route': 'route', 'Woodland Clearing': 'route', 'Fleurville Town': 'kalos', 'Pokémon Center': 'center', 'Test Grounds': 'gallery' })[loc] ?? 'shop'; // other rooms are shops
 function music(key) {
   if (bgm.want === key) return;
   bgm.want = key;
@@ -6188,7 +6494,7 @@ function gmRender(view = gmView) {
       <div class="gm-row"><button class="gm-btn" id="gmDefaults">Restore defaults</button></div>`;
   } else v.innerHTML = `<h3>Controls</h3><ul class="gm-keys"><li>Walk <span><kbd>WASD</kbd> / arrows</span></li><li>Run <span><kbd>Shift</kbd></span></li>
     <li>Talk / read <span><kbd>E</kbd> / <kbd>Space</kbd></span></li><li>Walk to spot <span>click / tap</span></li><li>Zoom <span>scroll wheel</span></li>
-    <li>Bag <span><kbd>B</kbd></span></li><li>Game Menu <span><kbd>Esc</kbd></span></li><li>Travel to Fleurville / Verdant <span><kbd>T</kbd></span></li><li>Use a test portal <span><kbd>X</kbd></span></li><li>Character gallery <span><kbd>G</kbd></span></li></ul>`;
+    <li>Bag <span><kbd>B</kbd></span></li><li>Game Menu <span><kbd>Esc</kbd></span></li><li>Travel to Fleurville / Verdant <span><kbd>T</kbd></span></li><li>Test Grounds (warp pads, character gallery) <span><kbd>G</kbd></span></li><li>Use a warp pad <span><kbd>X</kbd></span></li></ul>`;
 }
 function gmToast(text, err = false) { const t = $('gmToast'); t.textContent = text; t.classList.toggle('err', err); t.classList.add('show'); clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove('show'), err ? 4000 : 2200); }
 let askRes = null;

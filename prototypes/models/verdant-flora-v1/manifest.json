@@ -1,0 +1,716 @@
+{
+  "version": 1,
+  "created": "2026-10-21",
+  "units": "metres",
+  "upAxis": "+Y",
+  "material": "Opaque vertex-coloured, no textures",
+  "provenance": {
+    "type": "Original deterministic procedural geometry authored for this project",
+    "provider": null,
+    "license": "Project-owned; no third-party model geometry",
+    "source": "prototypes/verdant-town-3d.html:buildFloraModels",
+    "sourceSHA256": "33a86af2be3ff1ac15d394d52056203c37834a294a6a27fe9beb812b3aa17f70",
+    "approvedReference": "approved-vegetation-reference.png",
+    "design": "Layered folded almond leaves, drooping fir tiers, broad curved grass, cupped flowers; match approved screenshot edit."
+  },
+  "validation": {
+    "finiteAttributes": true,
+    "unitNormals": true,
+    "validIndices": true,
+    "nondegenerateTriangles": true,
+    "deterministic": true,
+    "browserTested": false
+  },
+  "models": [
+    {
+      "name": "oak",
+      "label": "Layered oak",
+      "category": "tree",
+      "file": "oak.glb",
+      "bytes": 80932,
+      "sha256": "ffbdb3d3b4bada9fe314b1fdd00d9e513709ee08fffd56a215fb8b5a07dbedac",
+      "triangles": 2860,
+      "vertices": 1734,
+      "min": [
+        -1.5005961656570435,
+        -0.015363944694399834,
+        -1.3747109174728394
+      ],
+      "max": [
+        1.576356291770935,
+        2.7581913471221924,
+        1.590517520904541
+      ],
+      "surfaceArea": 52.76395,
+      "lod": {
+        "file": "oak-lod.glb",
+        "bytes": 47916,
+        "sha256": "aa4a7fbf3d24d418c828f89c6ee94fb0af215cd43c50c90911fd4d30656a3bbc",
+        "triangles": 1580,
+        "vertices": 1030,
+        "min": [
+          -1.3911662101745605,
+          -0.015363944694399834,
+          -1.3881826400756836
+        ],
+        "max": [
+          1.4741865396499634,
+          2.5277915000915527,
+          1.590517520904541
+        ],
+        "surfaceArea": 35.40425
+      }
+    },
+    {
+      "name": "oak_wide",
+      "label": "Spreading oak",
+      "category": "tree",
+      "file": "oak_wide.glb",
+      "bytes": 80944,
+      "sha256": "0b65381252b30440a6b7fb9be6a3c1bcf5ec4301cc284507aab6f64b94c1f4e7",
+      "triangles": 2860,
+      "vertices": 1734,
+      "min": [
+        -1.7237883806228638,
+        -0.015363944694399834,
+        -1.7978321313858032
+      ],
+      "max": [
+        1.5242832899093628,
+        2.8203744888305664,
+        1.5860201120376587
+      ],
+      "surfaceArea": 63.4119,
+      "lod": {
+        "file": "oak_wide-lod.glb",
+        "bytes": 47924,
+        "sha256": "afb91f3f5e485b40d017ac14e4570e8c98cb4c47663cfad9e1eb6a89dbf5b6d0",
+        "triangles": 1580,
+        "vertices": 1030,
+        "min": [
+          -1.7237883806228638,
+          -0.015363944694399834,
+          -1.7978321313858032
+        ],
+        "max": [
+          1.4814690351486206,
+          2.562326431274414,
+          1.4008265733718872
+        ],
+        "surfaceArea": 42.36126
+      }
+    },
+    {
+      "name": "oak_tall",
+      "label": "Upright oak",
+      "category": "tree",
+      "file": "oak_tall.glb",
+      "bytes": 80940,
+      "sha256": "a7a4ec469e78857d3547eb1aba7d9fc2cd546db6cd7ad7bcb277f73cc2c7946b",
+      "triangles": 2860,
+      "vertices": 1734,
+      "min": [
+        -1.2444037199020386,
+        -0.015363944694399834,
+        -1.3354138135910034
+      ],
+      "max": [
+        1.355514645576477,
+        2.954444646835327,
+        1.2942785024642944
+      ],
+      "surfaceArea": 39.91996,
+      "lod": {
+        "file": "oak_tall-lod.glb",
+        "bytes": 47924,
+        "sha256": "f49bcab15b1a905432a8288e5939023c8f46c59300a30ae09383bf93e83e1c48",
+        "triangles": 1580,
+        "vertices": 1030,
+        "min": [
+          -1.1650450229644775,
+          -0.015363944694399834,
+          -1.3354138135910034
+        ],
+        "max": [
+          1.355514645576477,
+          2.756300687789917,
+          1.1750932931900024
+        ],
+        "surfaceArea": 27.13414
+      }
+    },
+    {
+      "name": "sapling",
+      "label": "Young broadleaf",
+      "category": "tree",
+      "file": "sapling.glb",
+      "bytes": 80940,
+      "sha256": "3bf3d07446134006ea9b867e2cc22c65f46cfeaa73036db5d591f108f66a9258",
+      "triangles": 2860,
+      "vertices": 1734,
+      "min": [
+        -0.7964183688163757,
+        -0.011062039993703365,
+        -0.8546648621559143
+      ],
+      "max": [
+        0.8675293922424316,
+        2.127200126647949,
+        0.8283382654190063
+      ],
+      "surfaceArea": 17.06348
+    },
+    {
+      "name": "fir",
+      "label": "Layered fir",
+      "category": "tree",
+      "file": "fir.glb",
+      "bytes": 44996,
+      "sha256": "36d8301c4efcf07f9338aba19e8812777b58f30d96ca79004f1afe461e2aaad0",
+      "triangles": 1660,
+      "vertices": 936,
+      "min": [
+        -1.068273901939392,
+        -2.220446049250313e-16,
+        -1.068273901939392
+      ],
+      "max": [
+        1.068273901939392,
+        2.794750213623047,
+        1.068273901939392
+      ],
+      "surfaceArea": 33.57135,
+      "lod": {
+        "file": "fir-lod.glb",
+        "bytes": 29524,
+        "sha256": "160b0cf575d98106deebde64613b30454358fb6494f497a8feacf318b18aab68",
+        "triangles": 1060,
+        "vertices": 606,
+        "min": [
+          -1.0159889459609985,
+          -2.220446049250313e-16,
+          -0.9429728388786316
+        ],
+        "max": [
+          1.0159889459609985,
+          2.794750213623047,
+          1.068273901939392
+        ],
+        "surfaceArea": 27.16884
+      }
+    },
+    {
+      "name": "fir_slender",
+      "label": "Slender fir",
+      "category": "tree",
+      "file": "fir_slender.glb",
+      "bytes": 44996,
+      "sha256": "b96e0ed13a002e2df11b582e7a1cacbbcd802ca6bada039c30401ef0e7e46796",
+      "triangles": 1660,
+      "vertices": 936,
+      "min": [
+        -0.8738028407096863,
+        0,
+        -0.8738028407096863
+      ],
+      "max": [
+        0.8738028407096863,
+        3.0923502445220947,
+        0.8738028407096863
+      ],
+      "surfaceArea": 23.72734,
+      "lod": {
+        "file": "fir_slender-lod.glb",
+        "bytes": 29520,
+        "sha256": "c389253fffc1a7ee577c03f703f48d125ec7701daa7959af72c5450c4f15fff7",
+        "triangles": 1060,
+        "vertices": 606,
+        "min": [
+          -0.8928382396697998,
+          0,
+          -0.8332515954971313
+        ],
+        "max": [
+          0.7989439368247986,
+          3.0923502445220947,
+          0.865027666091919
+        ],
+        "surfaceArea": 19.31664
+      }
+    },
+    {
+      "name": "fir_young",
+      "label": "Young fir",
+      "category": "tree",
+      "file": "fir_young.glb",
+      "bytes": 44992,
+      "sha256": "de5d9a94e4363d5233d2080b3b0d7a3db56f2c40c53912268c2c6b3d6dc1e105",
+      "triangles": 1660,
+      "vertices": 936,
+      "min": [
+        -1.0012190341949463,
+        0,
+        -1.0012190341949463
+      ],
+      "max": [
+        1.0012190341949463,
+        2.37315034866333,
+        1.0012190341949463
+      ],
+      "surfaceArea": 33.35151,
+      "lod": {
+        "file": "fir_young-lod.glb",
+        "bytes": 29516,
+        "sha256": "19433a9527951d870b6bc1d74764b6b169fe32a20fd646617435cb93064be0bb",
+        "triangles": 1060,
+        "vertices": 606,
+        "min": [
+          -1.0471670627593994,
+          0,
+          -1.0612123012542725
+        ],
+        "max": [
+          0.971378743648529,
+          2.37315034866333,
+          0.9635233283042908
+        ],
+        "surfaceArea": 26.949
+      }
+    },
+    {
+      "name": "blossom",
+      "label": "Pink blossom",
+      "category": "tree",
+      "file": "blossom.glb",
+      "bytes": 80940,
+      "sha256": "866ab450e9620c3a598c58f0f1684de9e556135943d8f5a7e843dda3a07b4b96",
+      "triangles": 2860,
+      "vertices": 1734,
+      "min": [
+        -1.5005961656570435,
+        -0.015363944694399834,
+        -1.3747109174728394
+      ],
+      "max": [
+        1.576356291770935,
+        2.7581913471221924,
+        1.590517520904541
+      ],
+      "surfaceArea": 52.76395,
+      "lod": {
+        "file": "blossom-lod.glb",
+        "bytes": 47924,
+        "sha256": "3365fad08a9d257a4c404c8d870862c9210f91e9974686c5840bd0e19941cfa2",
+        "triangles": 1580,
+        "vertices": 1030,
+        "min": [
+          -1.3911662101745605,
+          -0.015363944694399834,
+          -1.3881826400756836
+        ],
+        "max": [
+          1.4741865396499634,
+          2.5277915000915527,
+          1.590517520904541
+        ],
+        "surfaceArea": 35.40425
+      }
+    },
+    {
+      "name": "blossom_wide",
+      "label": "Spreading blossom",
+      "category": "tree",
+      "file": "blossom_wide.glb",
+      "bytes": 80952,
+      "sha256": "7b1b123947940467c37dddd5a17bc83e2ca50287fd7376356206877c7e5a0382",
+      "triangles": 2860,
+      "vertices": 1734,
+      "min": [
+        -1.7237883806228638,
+        -0.015363944694399834,
+        -1.7978321313858032
+      ],
+      "max": [
+        1.5242832899093628,
+        2.8203744888305664,
+        1.5860201120376587
+      ],
+      "surfaceArea": 63.4119,
+      "lod": {
+        "file": "blossom_wide-lod.glb",
+        "bytes": 47932,
+        "sha256": "287633f25fa02f3c162d12665f73d1ee7ba2d4186006c94044ea993bc782ba19",
+        "triangles": 1580,
+        "vertices": 1030,
+        "min": [
+          -1.7237883806228638,
+          -0.015363944694399834,
+          -1.7978321313858032
+        ],
+        "max": [
+          1.4814690351486206,
+          2.562326431274414,
+          1.4008265733718872
+        ],
+        "surfaceArea": 42.36126
+      }
+    },
+    {
+      "name": "grass_meadow",
+      "label": "Meadow grass",
+      "category": "groundcover",
+      "file": "grass_meadow.glb",
+      "bytes": 3364,
+      "sha256": "1f881b24f5131075347b039ffb842978b5d375e45876c569e6f1f34ed999977f",
+      "triangles": 48,
+      "vertices": 48,
+      "min": [
+        -0.29936137795448303,
+        0.019999999552965164,
+        -0.3085949718952179
+      ],
+      "max": [
+        0.29949453473091125,
+        0.7436596155166626,
+        0.3465231955051422
+      ],
+      "surfaceArea": 0.3879
+    },
+    {
+      "name": "grass_fan",
+      "label": "Fan grass",
+      "category": "groundcover",
+      "file": "grass_fan.glb",
+      "bytes": 3020,
+      "sha256": "8111482a538bb89ecdfbb535ac15933ba5e5e378aef9f32dcee0c6adf27cc38e",
+      "triangles": 40,
+      "vertices": 40,
+      "min": [
+        -0.3661770522594452,
+        0.019999999552965164,
+        -0.31872403621673584
+      ],
+      "max": [
+        0.33765172958374023,
+        0.8980045914649963,
+        0.41184374690055847
+      ],
+      "surfaceArea": 0.40819
+    },
+    {
+      "name": "grass_tall",
+      "label": "Encounter grass",
+      "category": "groundcover",
+      "file": "grass_tall.glb",
+      "bytes": 3696,
+      "sha256": "c82bfb08346208a9bb658a19304a97ef1fc1ed719e107965250a7954f310c7c3",
+      "triangles": 56,
+      "vertices": 56,
+      "min": [
+        -0.3135501444339752,
+        0.019999999552965164,
+        -0.34644564986228943
+      ],
+      "max": [
+        0.32345905900001526,
+        0.9443920850753784,
+        0.3557069003582001
+      ],
+      "surfaceArea": 0.43561
+    },
+    {
+      "name": "wheat",
+      "label": "Golden field grass",
+      "category": "groundcover",
+      "file": "wheat.glb",
+      "bytes": 3684,
+      "sha256": "b1af3f70e65cb4f661ec7d90cc665381b9ed52824d9bef9904e37ce964466cfa",
+      "triangles": 56,
+      "vertices": 56,
+      "min": [
+        -0.3135501444339752,
+        0.019999999552965164,
+        -0.34644564986228943
+      ],
+      "max": [
+        0.32345905900001526,
+        0.9443920850753784,
+        0.3557069003582001
+      ],
+      "surfaceArea": 0.43561
+    },
+    {
+      "name": "clover",
+      "label": "Clover patch",
+      "category": "groundcover",
+      "file": "clover.glb",
+      "bytes": 23016,
+      "sha256": "d707584373d46a65c59b2dc1e1b3286cceb1961636c3c44513debd67159d1abd",
+      "triangles": 840,
+      "vertices": 462,
+      "min": [
+        -0.2619316875934601,
+        0.04405050352215767,
+        -0.30905774235725403
+      ],
+      "max": [
+        0.340817928314209,
+        0.11087367683649063,
+        0.2821725010871887
+      ],
+      "surfaceArea": 0.53909
+    },
+    {
+      "name": "daisy",
+      "label": "White daisies",
+      "category": "flower",
+      "file": "daisy.glb",
+      "bytes": 38320,
+      "sha256": "09417fd7e530a49a51fa02ab776d58c6fac98adc045ee5c336f38a711750300f",
+      "triangles": 1266,
+      "vertices": 816,
+      "min": [
+        -0.26583969593048096,
+        -0.0007264246232807636,
+        -0.2829585075378418
+      ],
+      "max": [
+        0.2044176608324051,
+        0.3427685797214508,
+        0.32515689730644226
+      ],
+      "surfaceArea": 0.6388
+    },
+    {
+      "name": "cosmos",
+      "label": "Pink cosmos",
+      "category": "flower",
+      "file": "cosmos.glb",
+      "bytes": 35228,
+      "sha256": "2a64b500072540581c8857c8ecc992006d65a41c006deaca88e9ae09973d619f",
+      "triangles": 1146,
+      "vertices": 750,
+      "min": [
+        -0.26583969593048096,
+        -0.0005851007881574333,
+        -0.2829585075378418
+      ],
+      "max": [
+        0.20055413246154785,
+        0.41204580664634705,
+        0.32515689730644226
+      ],
+      "surfaceArea": 0.66029
+    },
+    {
+      "name": "buttercup",
+      "label": "Golden wildflowers",
+      "category": "flower",
+      "file": "buttercup.glb",
+      "bytes": 32136,
+      "sha256": "d8c2f3a1541a7cdc9de92b7ecc6a5576a8abfc4db9141d382ae796470924e900",
+      "triangles": 1026,
+      "vertices": 684,
+      "min": [
+        -0.26583969593048096,
+        -0.0009208615520037711,
+        -0.2829585075378418
+      ],
+      "max": [
+        0.18619778752326965,
+        0.2821510136127472,
+        0.32515689730644226
+      ],
+      "surfaceArea": 0.40076
+    },
+    {
+      "name": "blue_flower",
+      "label": "Blue wildflowers",
+      "category": "flower",
+      "file": "blue_flower.glb",
+      "bytes": 32144,
+      "sha256": "c56740bbc572272bf51def97cfadd8c620cbac1b4cb81af63bffd79294e4e5b8",
+      "triangles": 1026,
+      "vertices": 684,
+      "min": [
+        -0.26583969593048096,
+        -0.0007051419815979898,
+        -0.2829585075378418
+      ],
+      "max": [
+        0.18740659952163696,
+        0.35142824053764343,
+        0.32515689730644226
+      ],
+      "surfaceArea": 0.4564
+    },
+    {
+      "name": "lavender",
+      "label": "Lavender spires",
+      "category": "flower",
+      "file": "lavender.glb",
+      "bytes": 45620,
+      "sha256": "d51fb47185bbbc6f71d36cc33efd9f3e76c134d11c93e7ce5bb2f9952bbde89d",
+      "triangles": 1620,
+      "vertices": 960,
+      "min": [
+        -0.2905800938606262,
+        0,
+        -0.13367131352424622
+      ],
+      "max": [
+        0.27483323216438293,
+        0.6007064580917358,
+        0.26052287220954895
+      ],
+      "surfaceArea": 0.38181
+    },
+    {
+      "name": "bush",
+      "label": "Layered bush",
+      "category": "undergrowth",
+      "file": "bush.glb",
+      "bytes": 29208,
+      "sha256": "db0cc0ac58c3b1eccdff98b406da6d3adf4d5f5d059cb3baab7e5f7023acdc9e",
+      "triangles": 1080,
+      "vertices": 594,
+      "min": [
+        -0.5993554592132568,
+        -0.017185285687446594,
+        -0.5860581994056702
+      ],
+      "max": [
+        0.5906737446784973,
+        0.4359015226364136,
+        0.6763772964477539
+      ],
+      "surfaceArea": 5.18378
+    },
+    {
+      "name": "berry_bush",
+      "label": "Berry bush",
+      "category": "undergrowth",
+      "file": "berry_bush.glb",
+      "bytes": 42760,
+      "sha256": "d066da21f048af6691f816e11055ba39473c05da0149d3d29d4f934b0ec956d2",
+      "triangles": 1416,
+      "vertices": 914,
+      "min": [
+        -0.5990262031555176,
+        -0.009646488353610039,
+        -0.5933172106742859
+      ],
+      "max": [
+        0.6383511424064636,
+        0.506177544593811,
+        0.6668074727058411
+      ],
+      "surfaceArea": 5.36213
+    },
+    {
+      "name": "flower_bush",
+      "label": "Flowering bush",
+      "category": "undergrowth",
+      "file": "flower_bush.glb",
+      "bytes": 47684,
+      "sha256": "365d017b6c7f9d9aa6c85acabd364a02d16fdf63e4e1733519c8a423561efce9",
+      "triangles": 1684,
+      "vertices": 1006,
+      "min": [
+        -0.6402033567428589,
+        -0.014494359493255615,
+        -0.5666224360466003
+      ],
+      "max": [
+        0.6581869125366211,
+        0.6849671006202698,
+        0.6216244697570801
+      ],
+      "surfaceArea": 5.46435
+    },
+    {
+      "name": "fern",
+      "label": "Woodland fern",
+      "category": "undergrowth",
+      "file": "fern.glb",
+      "bytes": 46564,
+      "sha256": "4406e600213f42ef71d4803285e01677ecb79a1ae1d752ee4e3d915a25d307cd",
+      "triangles": 1560,
+      "vertices": 996,
+      "min": [
+        -0.4232841730117798,
+        0.006741594057530165,
+        -0.47927993535995483
+      ],
+      "max": [
+        0.43222561478614807,
+        0.2353339046239853,
+        0.4986332654953003
+      ],
+      "surfaceArea": 0.6001
+    },
+    {
+      "name": "mushrooms",
+      "label": "Mushroom cluster",
+      "category": "undergrowth",
+      "file": "mushrooms.glb",
+      "bytes": 10444,
+      "sha256": "d2e1b80ee4ac0b4674fd95d8ba49daa93121d0f316b183c35caa735689392398",
+      "triangles": 186,
+      "vertices": 222,
+      "min": [
+        -0.20999999344348907,
+        0,
+        -0.12089105695486069
+      ],
+      "max": [
+        0.23172013461589813,
+        0.25999999046325684,
+        0.20431728661060333
+      ],
+      "surfaceArea": 0.31311
+    },
+    {
+      "name": "reeds",
+      "label": "River reeds",
+      "category": "waterside",
+      "file": "reeds.glb",
+      "bytes": 3668,
+      "sha256": "631d3c59c49d057d67a5212ad48f44a7d2e969f501794607254a6ad6525503e7",
+      "triangles": 56,
+      "vertices": 56,
+      "min": [
+        -0.46735382080078125,
+        0,
+        -0.4861399233341217
+      ],
+      "max": [
+        0.44728797674179077,
+        0.6658324599266052,
+        0.5079721808433533
+      ],
+      "surfaceArea": 0.36579
+    },
+    {
+      "name": "cattails",
+      "label": "Cattails",
+      "category": "waterside",
+      "file": "cattails.glb",
+      "bytes": 12812,
+      "sha256": "e51f399ce56f91afcb378de5d9f7525d0cbd2d44efa1c0087fca1bb0bcf8f8a6",
+      "triangles": 242,
+      "vertices": 278,
+      "min": [
+        -0.46735382080078125,
+        -0.0004902123473584652,
+        -0.4861399233341217
+      ],
+      "max": [
+        0.44728797674179077,
+        1.2000000476837158,
+        0.5079721808433533
+      ],
+      "surfaceArea": 0.75531
+    }
+  ]
+}
