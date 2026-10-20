@@ -2613,6 +2613,10 @@ function quietClip(root, clip, keepHops = false, keepTurns = false) {
   const ground = Math.min(...lows), typical = [...tall].sort((a, b) => a - b)[N >> 1], tol = typical * 0.08; let best = [0, -1], start = 0;
   const calm = k => (keepHops || lows[k] - ground <= tol) && tall[k] >= typical * 0.6 && !turned[k];
   lows.forEach((y, k) => { if (!calm(k)) start = k + 1; else if (k - start > best[1] - best[0]) best = [start, k]; });
+  // hops may stay inside the loop, but it starts and ends on the ground: Eevee's stretch began mid-somersault, so the
+  // model was fitted to a ball in the air and every loop snapped it back up there
+  while (best[0] < best[1] && lows[best[0]] - ground > tol) best[0]++;
+  while (best[1] > best[0] && lows[best[1]] - ground > tol) best[1]--;
   if (best[1] - best[0] >= N * 0.9) return clip; // already calm
   const fps = 30;
   if ((best[1] - best[0]) * clip.duration / N < 1) { // never calm for a second (Magikarp flops throughout): hold the best calm frame
@@ -2662,6 +2666,13 @@ function prepXY(name, scene, animated, height) { // runs after textures load, so
   });
   let calm = null;
   if (animated) { // measure the idle pose, not the rest pose
+    // ColladaLoader targets tracks by node uuid, which SkeletonUtils.clone does not keep, so clones never played the idle and froze
+    // in the template's first frame (Eevee mid-somersault, curled in a ball). Target unique node names instead.
+    const byId = {}, uses = {}; scene.traverse(o => { byId[o.uuid] = o; uses[o.name] = (uses[o.name] || 0) + 1; });
+    for (const t of scene.animations[0].tracks) {
+      const dot = t.name.indexOf('.'), o = byId[t.name.slice(0, dot)];
+      if (o?.name && uses[o.name] === 1 && !/[.\[\]:\/]/.test(o.name)) t.name = o.name + t.name.slice(dot);
+    }
     calm = quietClip(scene, scene.animations[0]); // followers: no hops, so a walking Pokémon doesn't jump on the spot
     scene.animations[0] = quietClip(scene, scene.animations[0], true); // full idle (head, arms, tail, the odd hop) so they look alive; only orb intros and turn-arounds are cut
     const m = new THREE.AnimationMixer(scene); m.clipAction(scene.animations[0]).play(); m.update(0);
