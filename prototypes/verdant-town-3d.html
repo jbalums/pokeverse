@@ -16,6 +16,8 @@
   .loc { position: fixed; top: 2.4vh; left: 1.6vw; display: flex; align-items: center; gap: 12px; padding: 10px 34px 10px 16px; background: var(--panel); color: #fff; border-radius: 999px; font-weight: 800; font-size: 20px; border: 1.5px solid rgba(255,255,255,.22); box-shadow: 0 4px 14px rgba(0,0,0,.25); }
   .obj { position: fixed; top: calc(2.4vh + 56px); left: 1.6vw; max-width: min(420px, calc(100vw - 32px)); padding: 6px 16px 6px 12px; background: var(--panel); color: #fff; border-radius: 999px; font-weight: 700; font-size: 15px; border: 1.5px solid rgba(255,255,255,.22); box-shadow: 0 4px 14px rgba(0,0,0,.25); }
   .obj:empty { display: none; }
+  .obj.side { top: calc(2.4vh + 96px); white-space: pre-line; color: #cdeeff; border-color: rgba(94, 200, 255, .55); }
+  .obj.side::before { content: none; }
   .obj::before { content: "▸ "; color: #ffd23f; }
   .loc svg { width: 22px; height: 22px; }
 
@@ -159,6 +161,7 @@
     .btns { right: 16px; gap: 10px; }
     .loc { font-size: 15px; top: 16px; left: 16px; padding: 8px 18px 8px 12px; }
     .obj { font-size: 13px; top: 58px; left: 16px; }
+    .obj.side { top: 92px; }
     .hint { display: none; }
     .dialog { bottom: 110px; }
     .bx { width: 46vw; padding: 6px 10px; } .bx .nm { font-size: 15px; } .bx.me { bottom: 186px; }
@@ -374,6 +377,7 @@
 
 <div class="loc"><svg viewBox="0 0 24 24" fill="#fff"><path d="M12 2a7 7 0 0 0-7 7c0 5.2 7 13 7 13s7-7.8 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg><span id="locName">Verdant Town</span></div>
 <div class="obj" id="obj" aria-live="polite"></div>
+<div class="obj side" id="sideObj" aria-live="polite"></div>
 <div class="mm"><canvas id="mm" width="412" height="412"></canvas><div class="n">N</div></div>
 <div class="hint" id="hint"><kbd>WASD</kbd> walk · <kbd>Shift</kbd> run · <kbd>E</kbd> talk · click to move · drag to look · <kbd>V</kbd> first person · scroll to zoom · <kbd>G</kbd> test grounds · <kbd>T</kbd> travel to Fleurville</div>
 
@@ -573,10 +577,13 @@ const heroCam = new THREE.PerspectiveCamera(CAM_FOV, REF_ASPECT, 0.1, 500);
 heroCam.position.set(0, CAM_DIST * Math.sin(CAM_PITCH), CAM_DIST * Math.cos(CAM_PITCH));
 heroCam.lookAt(0, 0, 0); heroCam.updateMatrixWorld();
 const _ray = new THREE.Raycaster(), _ndc = new THREE.Vector2();
+// Verdant is traced from the concept art, then spread out SPREAD times so the town has room to breathe: buildings keep their size,
+// the gaps between them grow. Metre literals that place things in Verdant go through VS() to follow.
+const SPREAD = 1.5, VS = v => v * SPREAD;
 function I(px, py, h = 0) {
   _ray.setFromCamera(_ndc.set(px / REF_W * 2 - 1, 1 - py / REF_H * 2), heroCam);
   const o = _ray.ray.origin, d = _ray.ray.direction, t = (h - o.y) / d.y;
-  return [o.x + d.x * t, o.z + d.z * t];
+  return [(o.x + d.x * t) * SPREAD, (o.z + d.z * t) * SPREAD];
 }
 const START = I(865, 505, 0);
 const BU = I(405, 645, 0); // wild Bulbasaur in the tall grass
@@ -655,8 +662,8 @@ function riverInfo(x, z) {
 const extend = (pts, dist) => { const a = pts[pts.length - 2], b = pts[pts.length - 1], l = Math.hypot(b[0] - a[0], b[1] - a[1]); return [...pts, [b[0] + (b[0] - a[0]) / l * dist, b[1] + (b[1] - a[1]) / l * dist]]; };
 // The old glade off the road, where the clearing first stood: the trail and the core forest fill still leave it open, so moving
 // the clearing up Route 1 doesn't reshuffle the core's shared random stream.
-const OLD_CLEAR = { x: 19, z: 3, r: 5.5 };
-const OLD_FILL = [-34, -28, 34, 18]; // where the core forest fill samples the ground: Route 1 may not reshape it (see terrainH)
+const OLD_CLEAR = { x: VS(19), z: VS(3), r: 5.5 };
+const OLD_FILL = [-34, -28, 34, 18].map(VS); // where the core forest fill samples the ground: Route 1 may not reshape it (see terrainH)
 const PATHS = [
   catmull([I(560, 450), I(655, 420), I(755, 398), I(880, 478), I(1010, 530), I(1100, 576)], 6),
   catmull(extend([I(1425, 500), I(1500, 452), I(1565, 407), I(1650, 352)], 18), 6),
@@ -688,7 +695,7 @@ const ROUTE_GRASS = [0.25, 0.5, 0.75].map((f, i) => {
   return [ROUTE1[k][0] + s * (b[1] - a[1]) / l * 2.5, ROUTE1[k][1] - s * (b[0] - a[0]) / l * 2.5, 3.5];
 });
 const inRouteGrass = (x, z) => ROUTE_GRASS.some(([gx, gz, r]) => (x - gx) ** 2 + (z - gz) ** 2 < r * r) && routeD(x, z) > PATH_W + 0.3;
-const VERDANT_WALK = [-24, -20, 26, 14]; // the town and the meadow by the road
+const VERDANT_WALK = [-24, -20, 26, 14].map(VS); // the town and the meadow by the road
 const verdantWalkable = (x, z) => inRect(x, z, VERDANT_WALK) || routeD(x, z) < ROUTE_HALF || Math.hypot(x - CLEAR.x, z - CLEAR.z) < CLEAR.r;
 const PLAZA_H = 1.0;
 // Test Grounds (testing only): a flat lot far west of Verdant, beyond the camera's far plane like Fleurville, so the story maps carry
@@ -718,7 +725,7 @@ function stairsH(x, z) {
   return PLAZA_H * (1 - Math.ceil(u / STAIR.run * STAIR.steps) / STAIR.steps);
 }
 const COBBLE_X = I(830, 200, PLAZA_H)[0] - 0.4;
-const inCobble = (x, z) => x < COBBLE_X && z > -16 && x > -22 && raised(x, z);
+const inCobble = (x, z) => x < COBBLE_X && z > VS(-16) && x > VS(-22) && raised(x, z);
 const TALL = [[170, 462], [500, 458], [630, 482], [900, 618], [865, 715], [700, 715], [560, 800], [330, 692], [250, 640], [160, 560]].map(p => I(p[0], p[1], 0));
 const inTallGrass = (x, z) => inKalos(x) ? inKField(x, z) : inPoly(x, z, TALL) && pathD(x, z) > PATH_W + 0.3 || inRouteGrass(x, z);
 const MOUND = I(1000, 372, 0.2);
@@ -1019,7 +1026,7 @@ function lodTick() { // swap each cell between full and low detail by its trees'
 }
 
 // ============================================================ terrain
-const TX0 = -36, TX1 = 36, TZ0 = -30, TZ1 = 20, TRES = 0.13;
+const TX0 = VS(-36), TX1 = VS(36), TZ0 = VS(-30), TZ1 = VS(20), TRES = 0.16;
 function groundMat(cobTex) { // vertex-coloured grass with a detail texture; vertices flagged aCob = 1 show the paving texture instead
   const tm = new THREE.MeshLambertMaterial({ vertexColors: true });
   tm.onBeforeCompile = s => {
@@ -1570,7 +1577,7 @@ function planter(x, z, s = 1, h0, flowerCols = ['#ff8a3d', '#ffd23f', '#ffffff',
 // ============================================================ buildings
 function pokeCenter() {
   const fl = I(70, 286, PLAZA_H), fr = I(460, 281, PLAZA_H);
-  const W = Math.hypot(fr[0] - fl[0], fr[1] - fl[1]), D = 4.3, H = 2.15;
+  const W = Math.hypot(fr[0] - fl[0], fr[1] - fl[1]) / SPREAD, D = 4.3, H = 2.15; // traced width, before the spread
   const cx = (fl[0] + fr[0]) / 2, fz = (fl[1] + fr[1]) / 2, cz = fz - D / 2;
   const g = new THREE.Group(); g.position.set(cx, PLAZA_H, cz); scene.add(g);
   if (ASSETS) { g.add(assetGroup('pokecenter')); g.scale.x = W / 5.3; } else {
@@ -1665,7 +1672,7 @@ const COT = cottage(CF[0] - Math.sin(0.5) * 1.7, CF[1] - Math.cos(0.5) * 1.7, 0.
 { const p = I(500, 30, PLAZA_H); cottage(p[0], p[1] - 1.8, 0, { y: PLAZA_H, w: 2.6, d: 2.8, roof: '#c7d5ff', shutter: '#3d5f8d', ridge: '#566b9a' }); }
 { const p = I(20, 320, PLAZA_H); cottage(p[0] - 1.2, p[1], Math.PI / 2, { y: PLAZA_H, w: 2.8, d: 3.2, shutter: '#7a3d3d' }); }
 { const p = I(980, 20, PLAZA_H); cottage(p[0] - 1, p[1] - 2.5, 0.25, { y: PLAZA_H, w: 2.6, d: 3, roof: '#ffe0c8' }); }
-cottage(-15, -12, 0.1, { y: PLAZA_H, w: 3, d: 3.2, shutter: '#4a6d3a' });
+cottage(VS(-15), VS(-12), 0.1, { y: PLAZA_H, w: 3, d: 3.2, shutter: '#4a6d3a' });
 cottage(17, -13, -0.4, { w: 3.2, d: 3.4, roof: '#ffd9c0' });
 
 // bridge
@@ -1782,7 +1789,7 @@ for (const [px, py, s] of [[1265, 728, 0.3], [1240, 842, 0.3], [1350, 835, 0.34]
 ROCKS_IN_WATER.forEach((r, i) => waterMat.uniforms.uRocks.value[i].copy(r));
 // rocky banks
 for (let i = 0; i < RV.length; i += 1) {
-  const p = RV[i]; if (p[1] < -9 || p[1] > 14) continue;
+  const p = RV[i]; if (p[1] < VS(-9) || p[1] > VS(14)) continue;
   for (const side of [-1, 1]) {
     const a = RV[Math.max(0, i - 1)], b = RV[Math.min(RV.length - 1, i + 1)], tx = b[0] - a[0], tz = b[1] - a[1], l = Math.hypot(tx, tz);
     const off = p[3] + rr(0.1, 0.45), x = p[0] + side * (tz / l) * off, z = p[1] - side * (tx / l) * off;
@@ -1792,7 +1799,7 @@ for (let i = 0; i < RV.length; i += 1) {
 }
 
 // forest fill outside the reference frame
-function inHeroView(x, z, h = 0) { const v = new V3(x, h, z).project(heroCam); return Math.abs(v.x) < 1.04 && Math.abs(v.y) < 1.06; }
+function inHeroView(x, z, h = 0) { const v = new V3(x / SPREAD, h, z / SPREAD).project(heroCam); return Math.abs(v.x) < 1.04 && Math.abs(v.y) < 1.06; }
 function freeSpot(x, z, r = 1) {
   const ri = riverInfo(x, z); if (ri.d < ri.hw + 1.0 || Math.hypot(x - OLD_CLEAR.x, z - OLD_CLEAR.z) < OLD_CLEAR.r) return false; // the old glade
   if (pathD(x, z) < PATH_W + 0.9 || inTallGrass(x, z) || stairsH(x, z) !== null || inCobble(x, z) || onBridge(x, z)) return false;
@@ -1802,15 +1809,15 @@ function freeSpot(x, z, r = 1) {
   for (const [dx, dz] of [[0.6, 0], [-0.6, 0], [0, 0.6], [0, -0.6]]) if (Math.abs(terrainH(x + dx, z + dz) - h) > 0.3) return false;
   return true;
 }
-for (let i = 0; i < 1500; i++) {
-  const x = rr(-34, 34), z = rr(-28, 18);
+for (let i = 0; i < 1500 * SPREAD; i++) {
+  const x = rr(VS(-34), VS(34)), z = rr(VS(-28), VS(18));
   if (inHeroView(x, z) || !freeSpot(x, z, 0.9)) continue;
   const d = Math.hypot(x - START[0], (z - START[1]) * 1.3);
-  if (rnd() > smooth(7, 16, d) * 0.9) continue;
+  if (rnd() > smooth(VS(7), VS(16), d) * 0.9) continue;
   const s = rr(0.95, 1.5);
   fillTree(x, z, s, rnd() < 0.45);
 }
-for (let i = 0; i < 160; i++) { const x = rr(-26, 26), z = rr(-20, 14); if (!inHeroView(x, z) && freeSpot(x, z, 0.4)) bush(x, z, rr(0.6, 1.1), rnd() < 0.5); }
+for (let i = 0; i < 160 * SPREAD; i++) { const x = rr(VS(-26), VS(26)), z = rr(VS(-20), VS(14)); if (!inHeroView(x, z) && freeSpot(x, z, 0.4)) bush(x, z, rr(0.6, 1.1), rnd() < 0.5); }
 // Route 1 cuts through the edge of the core forest: the fill above stays exactly as it was (its draws feed everything after it),
 // then the trees and shrubs standing in the corridor are taken out (their trunks stop blocking, the minimap drops them).
 for (const [name, list] of Object.entries(instQueue)) if (name.startsWith('kit_')) instQueue[name] = list.filter(m => routeD(m.elements[12], m.elements[14]) > ROUTE_HALF);
@@ -2291,13 +2298,13 @@ const groundFree = (x, z, pathPad) => {
 };
 // tall grass patch
 const TALL_GEO = FLORA_MODELS.grass_tall.geo;
-scatter(TALL_GEO, 1400, () => { const x = rr(-10, 2), z = rr(-1, 6); return inTallGrass(x, z) && Math.hypot(x - BU[0], z - BU[1]) > 0.55 ? [x, z] : null; },
+scatter(TALL_GEO, 1400 * SPREAD, () => { const x = rr(VS(-10), VS(2)), z = rr(VS(-1), VS(6)); return inTallGrass(x, z) && Math.hypot(x - BU[0], z - BU[1]) > 0.55 ? [x, z] : null; },
   (o, x, z) => { o.position.set(x, terrainH(x, z) - 0.03, z); o.rotation.set(0, rnd() * 6.28, 0); const s = rr(0.7, 1.15); o.scale.set(rr(1, 1.3), s, rr(1, 1.3)); },
   ['#3c8a2c', '#4a9c37', '#57ad41', '#357b28', '#62b546']);
 // short tufts everywhere (denser in view)
 const SHORT_GEO = FLORA_MODELS.grass_meadow.geo;
-scatter(SHORT_GEO, 3400, () => {
-  const x = rr(-24, 26), z = rr(-20, 14);
+scatter(SHORT_GEO, 3400 * SPREAD, () => {
+  const x = rr(VS(-24), VS(26)), z = rr(VS(-20), VS(14));
   if (!inHeroView(x, z) && rnd() < 0.55) return null;
   if (inTallGrass(x, z) || !groundFree(x, z, rnd() * 0.5)) return null;
   if (hash2(Math.floor(x * 1.3), Math.floor(z * 1.3)) < 0.24) return null; // open turf between intentional clumps
@@ -2305,15 +2312,15 @@ scatter(SHORT_GEO, 3400, () => {
 }, (o, x, z) => { o.position.set(x, terrainH(x, z) - 0.02, z); o.rotation.set(0, rnd() * 6.28, 0); const s = rr(0.22, 0.48); o.scale.set(rr(0.9, 1.3), s, rr(0.9, 1.3)); },
   ['#6fb03f', '#5a9e34', '#86c04c', '#529530', '#97c955']);
 // reeds on the far bank
-scatter(FLORA_MODELS.reeds.geo, 150, () => {
-  const x = rr(5, 16), z = rr(-7, -1.5), r = riverInfo(x, z);
+scatter(FLORA_MODELS.reeds.geo, 150 * SPREAD, () => {
+  const x = rr(VS(5), VS(16)), z = rr(VS(-7), VS(-1.5)), r = riverInfo(x, z);
   if (r.d < r.hw + 0.2 || r.d > r.hw + 2.6 || !groundFree(x, z, 0.3)) return null;
   return hillH(x, z) < 0.9 && x > HILL_A[0] - 1.5 ? [x, z] : null;
 }, (o, x, z) => { o.position.set(x, terrainH(x, z), z); o.rotation.set(0, rnd() * 6, 0); const s = rr(0.8, 1.15); o.scale.set(1, s, 1); }, ['#6db544', '#7fc24c', '#5aa23a']);
 // Three-dimensional flower CLUSTERS, not petal confetti. Species are grouped by a spatial hash into coherent beds.
 const flowerSpots = [], fo = new THREE.Object3D();
-for (let tries = 0; flowerSpots.length < 560 && tries < 35000; tries++) {
-  const x = rr(-20, 22), z = rr(-14, 10);
+for (let tries = 0; flowerSpots.length < 560 * SPREAD && tries < 35000 * SPREAD; tries++) {
+  const x = rr(VS(-20), VS(22)), z = rr(VS(-14), VS(10));
   if (inTallGrass(x, z) || !groundFree(x, z, 0.55) || !groundFree(x + 0.24, z + 0.24, 0.35) || !groundFree(x - 0.24, z - 0.24, 0.35)) continue;
   const pd = pathD(x, z), r = riverInfo(x, z), md = Math.hypot(x - MOUND[0], z - MOUND[1]);
   const w = Math.max(1 - smooth(PATH_W + 0.3, PATH_W + 2.2, pd), 1 - smooth(r.hw + 0.3, r.hw + 2.0, r.d), 1 - smooth(0.5, 2.5, md), raised(x, z) ? 0.2 : 0.1) * (inHeroView(x, z) ? 1 : 0.35);
@@ -2354,7 +2361,7 @@ for (let tries = 0; flowerSpots.length < 560 && tries < 35000; tries++) {
   };
   scatter(FLORA_MODELS.fern.geo, 100, underTree, place, neutral);
   scatter(FLORA_MODELS.clover.geo, 220, () => {
-    const x = rr(-21, 22), z = rr(-15, 12);
+    const x = rr(VS(-21), VS(22)), z = rr(VS(-15), VS(12));
     return groundFree(x, z, 0.6) && !inTallGrass(x, z) && hash2(Math.floor(x), Math.floor(z)) > 0.48 ? [x, z] : null;
   }, place, neutral);
   scatter(FLORA_MODELS.grass_fan.geo, 170, () => {
@@ -2362,7 +2369,7 @@ for (let tries = 0; flowerSpots.length < 560 && tries < 35000; tries++) {
   }, (o, x, z) => { place(o, x, z); o.scale.multiplyScalar(0.42); }, neutral);
   scatter(FLORA_MODELS.mushrooms.geo, 36, underTree, place, neutral, false);
   scatter(FLORA_MODELS.cattails.geo, 55, () => {
-    const x = rr(-8, 18), z = rr(-12, 10), r = riverInfo(x, z);
+    const x = rr(VS(-8), VS(18)), z = rr(VS(-12), VS(10)), r = riverInfo(x, z);
     return r.d > r.hw + 0.35 && r.d < r.hw + 1.0 && groundFree(x, z, 0.75) && !inTallGrass(x, z) ? [x, z] : null;
   }, place, neutral);
   // A small, labelled plant nursery alongside the existing tree specimens.
@@ -2815,7 +2822,7 @@ const interactables = [
 // ============================================================ Story: Chapter 1 "The Silent Stream"
 // Steps and clues use stable IDs (saved in flags). Dialogue, markers, NPC places, the device, the stream and the objective pill
 // all derive from this one state, so loading a save never replays a reward or strands the player between objectives.
-const QUEST_STEPS = ['meet-prof', 'investigate-stream', 'report-clues', 'find-ranger', 'investigate-clearing', 'shut-device', 'report-device', 'chapter-complete'];
+const QUEST_STEPS = ['meet-prof', 'investigate-stream', 'report-clues', 'find-ranger', 'investigate-clearing', 'shut-device', 'report-device', 'chapter-complete', 'deliver-chip', 'act1-complete'];
 const story = { step: 'meet-prof', clues: [] };
 const reached = id => QUEST_STEPS.indexOf(story.step) >= QUEST_STEPS.indexOf(id);
 const restored = () => reached('report-device'); // the device is off and the stream flows again (saved together as one step)
@@ -2832,20 +2839,20 @@ const CLUES = [ // along the stream, downstream to upstream, so the last clue po
 ];
 const clueOpen = c => story.step === 'investigate-stream' && !story.clues.includes(c.id);
 for (const c of CLUES) {
-  c.mark = new THREE.Mesh(new THREE.OctahedronGeometry(0.22), mat('#ffd23f', { emissive: '#ffb000', emissiveIntensity: 1.2 }));
-  scene.add(c.mark);
   interactables.push({ x: c.at[0], z: c.at[1], get r() { return clueOpen(c) ? 1.4 : 0; }, name: 'Stream', lines: c.lines, top: 1.2, after: () => {
     story.clues.push(c.id); SND.chime();
     if (CLUES.every(k => story.clues.includes(k.id))) story.step = 'report-clues';
     questChanged();
   } });
 }
-function questChanged() { renderObjective(); placeStoryNpcs(); saveGame(); }
+function questChanged() { renderObjective(); placeStoryNpcs(); placeRival(); saveGame(); }
 function renderObjective() {
   const n = story.clues.length;
   $('obj').textContent = { 'meet-prof': 'Talk to Prof. Sycamore', 'investigate-stream': `Inspect the quiet stream (${n}/${CLUES.length})`,
     'report-clues': 'Report to Prof. Sycamore', 'find-ranger': 'Find the apprentice ranger on Meadow Route', 'investigate-clearing': 'Investigate the woodland clearing off Meadow Route',
-    'shut-device': 'Shut down the strange device', 'report-device': 'Report to Prof. Sycamore', 'chapter-complete': 'Chapter 1 complete! Next: trace the other signals' }[story.step];
+    'shut-device': 'Shut down the strange device', 'report-device': 'Report to Prof. Sycamore', 'chapter-complete': 'Ask Prof. Sycamore about your next assignment',
+    'deliver-chip': 'Bring the signal chip to Clemont in Fleurville (press T to travel)', 'act1-complete': 'Act I complete! Follow the Halcyon signals (Act II)' }[story.step];
+  $('sideObj').textContent = sideObjectives().join('\n');
 }
 function profTalk() { // [lines, after] for the current step; each grant happens only on its own step transition
   const left = CLUES.length - story.clues.length;
@@ -2865,7 +2872,12 @@ function profTalk() { // [lines, after] for the current step; each grant happens
       () => { if (story.step !== 'report-device') return; bag.greatBall = (bag.greatBall || 0) + 5; story.step = 'chapter-complete'; SND.fanfare(); questChanged();
         const saved = chapterSave();
         say('Chapter 1', ['The Silent Stream: complete!', saved ? 'Your progress was saved to the file “Chapter 1 complete”.' : 'All save slots are full. Save from the Game Menu to keep a copy of this moment.']); }],
-    'chapter-complete': [['The signals are out there somewhere. When you are ready, your next assignment awaits!']],
+    'chapter-complete': [['Before you go, take this: the signal chip from inside the device. It has a maker’s stamp I can’t read.',
+      'Clemont in Fleurville builds machines like this for fun. If anyone can tell us who repaired it, he can.', 'You received the Signal Chip!'],
+      () => { if (story.step !== 'chapter-complete') return; story.step = 'deliver-chip'; SND.chime(); questChanged(); }],
+    'deliver-chip': [['Clemont lives by the windmill in Fleurville. Press T to travel there.']],
+    'act1-complete': [['The Halcyon Network... a company that promises to keep Pokémon away from towns.', 'If they are moving Pokémon instead of helping them, every quiet stream is a clue.',
+      'Keep training, keep observing. The League and the truth both lie down those trails.']],
   }[story.step];
 }
 function chapterSave() { // the chapter-complete save point: a save file of its own, while a slot is free
@@ -2886,11 +2898,14 @@ function rangerTalk() { // [lines, after] for the current step
       say(RANGER, ['You and your partner work well together. You passed!', 'That hum comes from the woodland clearing just off the road, to the east.', 'I’ll meet you there. Stay close once we’re inside!'], null, placeStoryNpcs); },
     onLose: () => say(RANGER, ['Don’t give up! I patched up your Pokémon.', 'Catch your breath, then talk to me when you’re ready for a rematch.']),
   })];
+  const sq = scrapsTalk(); if (sq) return sq;
   return [{
     'investigate-clearing': ['Careful: that Psyduck is guarding something, and it’s in a real state.', 'Calm it down and we can see what’s behind it.'],
     'shut-device': ['That machine... the hum is coming from it. Switch it off!'],
     'report-device': ['Listen to that stream! Hurry back and tell the Professor.', 'I’ll keep an eye on things here.'],
     'chapter-complete': ['Thanks for your help. If you ever hear that hum again, come find me.'],
+    'deliver-chip': ['Clemont will figure out that chip. He’s Fleurville’s genius inventor.'],
+    'act1-complete': ['Halcyon... I’ll tell the other rangers. Good work out there, partner.'],
   }[story.step] ?? ['Hold on! The woods past here are off-limits for now.', 'Something has the wild Pokémon spooked. Only Trainers the Professor sends may pass.']];
 }
 let rangerNpc = null;
@@ -2960,6 +2975,117 @@ function placeStoryNpcs() { // NPC places follow the story step (called on load,
   if (rangerNpc) { const [x, z] = reached('investigate-clearing') ? RANGER_CLEAR : RANGER_AT; Object.assign(rangerNpc, { x, z, baseFace: reached('investigate-clearing') ? 1.2 : -Math.PI / 2 }); }
   if (GUARD.model) { const [x, z] = restored() ? GUARD_STREAM : GUARD_AT; GUARD.model.position.set(x, walkH(x, z), z); GUARD.model.rotation.y = restored() ? 2.4 : -Math.PI / 2; }
 }
+// ============================================================ Side quests and quest markers
+// Main-story targets wear a gold "!", side quests a light-blue one. Every side quest feeds the main story or the end game:
+//  - A Rival's Promise: battles with the rival, who sets the Championship as the final goal (the League finale).
+//  - Field Notes: Hiker Mia's survey of wild Pokémon, the first step towards Master Field Researcher (post-game).
+//  - Survey Scraps: parts the device's repairers dropped on Meadow Route; their stamp backs up Clemont's Act I finding.
+// Stages: 0 not started, 1 under way, 2 done (the rival: 1 after the first battle, 2 after the rematch). Saved in flags.side.
+const SIDE = { rival: 0, notes: 0, seen: [], scraps: 0, got: [] };
+const NOTES_GOAL = 3;
+function noteWild(key) { if (SIDE.notes === 1 && !SIDE.seen.includes(key)) { SIDE.seen.push(key); questChanged(); } }
+const SCRAPS = [0.3, 0.55, 0.85].map((f, i) => { // beside the path, alternating sides, where a careless repair crew would drop things
+  const k = Math.round(f * (ROUTE1.length - 1)), a = ROUTE1[k - 1], b = ROUTE1[k + 1], l = Math.hypot(b[0] - a[0], b[1] - a[1]), sd = i % 2 ? 1 : -1;
+  const at = [ROUTE1[k][0] + sd * (b[1] - a[1]) / l * 2.2, ROUTE1[k][1] - sd * (b[0] - a[0]) / l * 2.2], g = new THREE.Group();
+  add(new THREE.CylinderGeometry(0.05, 0.05, 0.22, 8), '#d9dcd2', g, 0, 0.05, 0, { r: [0, 0, Math.PI / 2], mat: { metalness: 0.7, roughness: 0.3 } }); // a fresh bolt
+  add(new THREE.BoxGeometry(0.28, 0.04, 0.18), '#6f7d72', g, 0.12, 0.02, 0.1, { r: [0, 0.6, 0], mat: { metalness: 0.5, roughness: 0.5 } }); // a bracket
+  g.position.set(at[0], terrainH(...at), at[1]); scene.add(g);
+  return { at, g };
+});
+SCRAPS.forEach((c, i) => interactables.push({ x: c.at[0], z: c.at[1], get r() { return SIDE.scraps === 1 && !SIDE.got.includes(i) ? 1.3 : 0; }, name: 'Survey part', top: 0.9,
+  lines: ['A shiny new bolt and a bracket, half buried in the grass.', 'There is a stamp on the bracket: a sunburst over the letters HN.'],
+  after: () => { if (SIDE.scraps !== 1 || SIDE.got.includes(i)) return; SIDE.got.push(i); SND.chime(); questChanged(); } }));
+function scrapsTalk() { // Ranger Lea's side quest, offered once the stream flows again; null when she has nothing quest-related to say
+  if (!restored() || SIDE.scraps === 2) return null;
+  if (SIDE.scraps === 0) return [['Wait, before you go. Whoever fixed that device came through here with a toolbox.', 'They dropped parts all along Meadow Route. Could you collect three of them?',
+    'If we know who repaired it, we know who switched it on.'], () => { if (SIDE.scraps !== 0) return; SIDE.scraps = 1; SND.chime(); questChanged(); }];
+  const left = SCRAPS.length - SIDE.got.length;
+  if (left > 0) return [[`Any luck? ${left} more part${left === 1 ? '' : 's'} should be lying along Meadow Route.`]];
+  return [['Let me see... a sunburst over HN. I have seen that stamp on survey stations up north!', 'Somebody is turning those old stations back on. This is real evidence, partner.',
+    'Here, for your trouble. And show these to whoever reads that signal chip.', 'You received 2 Super Potions and ₽1000!'],
+    () => { if (SIDE.scraps !== 1) return; SIDE.scraps = 2; bag.superPotion = (bag.superPotion || 0) + 2; money = Math.min(999999, money + 1000); SND.fanfare(); questChanged(); }];
+}
+function notesTalk() { // Hiker Mia's survey
+  if (!reached('investigate-stream')) return null;
+  if (SIDE.notes === 0) return [['You have a Pokédex? Then you can help me!', `I am surveying which wild Pokémon still live near town. Battle ${NOTES_GOAL} different wild species for me.`,
+    'Careful notes are how real field researchers start. The Professor says the best become Master Field Researchers!'], () => { if (SIDE.notes !== 0) return; SIDE.notes = 1; SND.chime(); questChanged(); }];
+  if (SIDE.notes === 1 && SIDE.seen.length < NOTES_GOAL) return [[`So far you have recorded ${SIDE.seen.length} of ${NOTES_GOAL}. Try the tall grass: different spots hide different Pokémon.`]];
+  if (SIDE.notes === 1) return [[`${SIDE.seen.map(k => SPECIES[k].name).join(', ')}... wonderful notes!`, 'If the Pokémon are leaving, we will only know because someone wrote down who used to live here.',
+    'Keep observing everywhere you go. Here, these helped me on long surveys.', 'You received 3 Oran Berries and 2 Great Balls!'],
+    () => { if (SIDE.notes !== 1) return; SIDE.notes = 2; bag.oranBerry = (bag.oranBerry || 0) + 3; bag.greatBall = (bag.greatBall || 0) + 2; SND.fanfare(); questChanged(); }];
+  return [['My survey grows every day thanks to you. Fieldwork never really ends!']];
+}
+function clemontTalk() { // the Act I hand-off: who made the chip
+  if (story.step !== 'deliver-chip') return story.step === 'act1-complete' ? [['That Halcyon chip still bothers me. I will keep studying it!']] : null;
+  return [['A signal chip from a survey device? Let me see... the future is now, thanks to science!', 'Fascinating: it is set to push Pokémon AWAY from wherever it is installed.',
+    'And this stamp, a sunburst over HN: the Halcyon Network. A company that promises towns will be safe from wild Pokémon.',
+    ...(SIDE.scraps === 2 ? ['The parts Lea found carry the same stamp. That settles it: Halcyon repaired your device.'] : ['If you find more parts with this stamp, we will know for sure who repaired it.']),
+    'Please tell Prof. Sycamore. Here, take this as thanks for the puzzle!', 'You received a Thunder Stone!'],
+    () => { if (story.step !== 'deliver-chip') return; story.step = 'act1-complete'; bag.thunderStone = (bag.thunderStone || 0) + 1; SND.fanfare(); questChanged();
+      say('Act I', ['First Signs: complete!', 'Somebody is redirecting the region\'s Pokémon. The trail leads to the Halcyon Network.']); }];
+}
+// the rival: a childhood friend who wants the Championship and believes strength solves everything
+const RIVAL_AT = [START[0] + 3, START[1] + 2], RIVAL_COUNTER = { BULBASAUR: 'CHARMANDER', IVYSAUR: 'CHARMANDER', CHARMANDER: 'SQUIRTLE', CHARMELEON: 'SQUIRTLE', SQUIRTLE: 'BULBASAUR', WARTORTLE: 'BULBASAUR' };
+let rivalNpc = null, RIVAL = 'Calem';
+const rivalStarter = () => RIVAL_COUNTER[party.map(m => m.key).find(k => RIVAL_COUNTER[k])] ?? 'EEVEE';
+function spawnRival() { // Calem (Shauna if the player is Calem)
+  const key = XY.calem && trainer?.char !== 'calem' ? 'calem' : 'girl'; RIVAL = key === 'calem' ? 'Calem' : 'Shauna';
+  rivalNpc = npc(makeHuman(key), ...RIVAL_AT, Math.PI, RIVAL, []); rivalNpc.h.root.scale.setScalar(0.85);
+  interactables.push({ get x() { return rivalNpc.x; }, get z() { return rivalNpc.z; }, get r() { return rivalNpc.h.root.visible ? 1.6 : 0; }, name: RIVAL, lines: [], npc: rivalNpc, top: 2.5 });
+  QUEST_TALK[RIVAL] = rivalTalk; placeRival();
+}
+function placeRival() { if (rivalNpc) rivalNpc.h.root.visible = reached('investigate-stream'); } // the rival turns up once the investigation starts
+function rivalBattle(team, onWin) {
+  return () => startBattle(null, 0, { trainer: { name: `Rival ${RIVAL}`, team, prize: 400 }, onWin,
+    onLose: () => say(RIVAL, ['Ha! Strength wins every time.', 'Go heal up. I will be right here when you want a rematch.']) });
+}
+function rivalTalk() {
+  const st = rivalStarter();
+  if (SIDE.rival === 0) return [['There you are! I got my partner from the Professor too. We are going to be Champion one day!', 'Wild Pokémon running into town? Nothing a strong team can\'t fix.',
+    'Come on, our first battle. Right here, right now!'], rivalBattle([[st, 5]], () => { if (SIDE.rival !== 0) return; SIDE.rival = 1; questChanged();
+      say(RIVAL, ['Okay, okay, you won this one.', 'Promise me something: we both make it to the League, and we settle it in the Championship.', 'Until then, I am training non-stop. Find me again after you fix that stream!']); })];
+  if (SIDE.rival === 1 && !reached('chapter-complete')) return [['Still chasing that stream mystery? Fix it, then we battle again. I am getting stronger every day!']];
+  if (SIDE.rival === 1) return [['You actually stopped that device? Huh. Maybe there is more to this than strength...', 'Doesn\'t mean I will go easy on you. Rematch!'],
+    rivalBattle([['PIDGEY', 9], [st, 11]], () => { if (SIDE.rival !== 1) return; SIDE.rival = 2; bag.greatBall = (bag.greatBall || 0) + 3; SND.fanfare(); questChanged();
+      say(RIVAL, ['Two in a row... You read your Pokémon like a field researcher reads a trail.', 'I will remember that. The promise stands: the Championship, you and me.', 'Take these. You will need them on the road to the League.', 'You received 3 Great Balls!']); })];
+  return [['The League is waiting. See you in the Championship!']];
+}
+const QUEST_TALK = { 'Hiker Mia': notesTalk, Clemont: clemontTalk }; // NPC name -> () => [lines, after] | null; act() asks it before the everyday lines
+function sideObjectives() {
+  const out = [];
+  if (SIDE.rival === 1) out.push(reached('chapter-complete') ? `▸ A Rival's Promise: rematch ${RIVAL} in town` : `▸ A Rival's Promise: restore the stream, then meet ${RIVAL}`);
+  if (SIDE.notes === 1) out.push(SIDE.seen.length >= NOTES_GOAL ? '▸ Field Notes: report to Hiker Mia' : `▸ Field Notes: battle different wild Pokémon (${SIDE.seen.length}/${NOTES_GOAL})`);
+  if (SIDE.scraps === 1) out.push(SIDE.got.length >= SCRAPS.length ? '▸ Survey Scraps: bring the parts to Ranger Lea' : `▸ Survey Scraps: collect parts on Meadow Route (${SIDE.got.length}/${SCRAPS.length})`);
+  return out;
+}
+function questMarks() { // everything that should wear a "!" right now: [x, z, height above the ground, side?]
+  const m = [], npcMark = (name, side) => { const n = npcs.find(k => k.name === name && k.h.root.visible); if (n) m.push([n.x, n.z, 2.9, side]); };
+  const st = story.step;
+  if (['meet-prof', 'report-clues', 'report-device', 'chapter-complete'].includes(st)) npcMark(PROF, false);
+  if (st === 'investigate-stream') for (const c of CLUES) if (clueOpen(c)) m.push([c.at[0], c.at[1], 1.4, false]);
+  if (st === 'find-ranger') npcMark(RANGER, false);
+  if (st === 'investigate-clearing') m.push([GUARD_AT[0], GUARD_AT[1], 1.9, false]);
+  if (st === 'shut-device') m.push([DEV_AT[0], DEV_AT[1], 2.9, false]);
+  if (st === 'deliver-chip') npcMark('Clemont', false);
+  if (reached('investigate-stream') && (SIDE.rival === 0 || SIDE.rival === 1 && reached('chapter-complete'))) npcMark(RIVAL, true);
+  if (reached('investigate-stream') && (SIDE.notes === 0 || SIDE.notes === 1 && SIDE.seen.length >= NOTES_GOAL)) npcMark('Hiker Mia', true);
+  if (restored() && (SIDE.scraps === 0 || SIDE.scraps === 1 && SIDE.got.length >= SCRAPS.length)) npcMark(RANGER, true);
+  if (SIDE.scraps === 1) SCRAPS.forEach((c, i) => { if (!SIDE.got.includes(i)) m.push([c.at[0], c.at[1], 1.2, true]); });
+  return m;
+}
+const MARK_COL = { main: ['#ffc21a', '#7a4a00'], side: ['#5ec8ff', '#0b4f7a'] }; // [fill, ink]: gold for the main story, light blue for side quests
+const markMat = ([fill, ink]) => new THREE.SpriteMaterial({ depthTest: false, fog: false, toneMapped: false, map: canvasTex(64, 64, (c, w, h) => {
+  c.fillStyle = ink; c.beginPath(); c.arc(w / 2, h / 2, 30, 0, 7); c.fill(); c.fillStyle = fill; c.beginPath(); c.arc(w / 2, h / 2, 25, 0, 7); c.fill();
+  c.fillStyle = ink; c.font = '900 40px Nunito, sans-serif'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('!', w / 2, h / 2 + 2);
+}) });
+const MARK_MATS = { main: markMat(MARK_COL.main), side: markMat(MARK_COL.side) }, MARKS = [];
+function markTick(t) { // drawn through walls and fog, so a quest is never lost behind a house
+  const list = questMarks();
+  while (MARKS.length < list.length) { const sp = new THREE.Sprite(MARK_MATS.main); sp.scale.setScalar(0.75); sp.renderOrder = 10; scene.add(sp); MARKS.push(sp); }
+  MARKS.forEach((sp, i) => { const q = list[i]; sp.visible = !!q; if (!q) return;
+    sp.material = MARK_MATS[q[3] ? 'side' : 'main']; sp.position.set(q[0], walkH(q[0], q[1]) + q[2] + Math.sin(t * 3 + i) * 0.08, q[1]); });
+}
+
 // the stream: still and silent until the device is off; then it flows, splashes and burbles, and Magikarp leap from it
 const STREAM = { k: 0, fish: [] };
 function streamTick(dt, t) {
@@ -3058,7 +3184,7 @@ function tryMove(pos, dx, dz) {
 }
 
 // ============================================================ HUD: minimap
-const MAP_X0 = -30, MAP_Z0 = -24, MAP_W = 60, MAP_H = 42, MPU = 6;
+const MAP_X0 = VS(-30), MAP_Z0 = VS(-24), MAP_W = VS(60), MAP_H = VS(42), MPU = 6;
 const hexRGB = s => [parseInt(s.slice(1, 3), 16), parseInt(s.slice(3, 5), 16), parseInt(s.slice(5, 7), 16)];
 const MINI_C = { river: hexRGB('#3d9fe0'), path: hexRGB('#e8d6a2'), cob: hexRGB('#d6cebe'), high: hexRGB('#7db35a'), low: hexRGB('#8fc366'), tall: hexRGB('#5a964a') };
 function miniColor(x, z) { // the minimap's ground colour at a point (the town map and the streamed cells' tiles)
@@ -3122,7 +3248,14 @@ function drawMinimap() {
   }
   const sp = (x, z) => [c + (x - P.pos.x) * k, c + (z - P.pos.z) * k];
   if (inKalos(P.pos.x)) { ballIcon(...sp(...K(705, 430)), 20); houseIcon(...sp(...K(532, 178))); }
-  else { ballIcon(...sp(PC.cx, PC.cz), 20); ballIcon(...sp(17, -9), 17); houseIcon(...sp(COT.door[0] - 3, COT.door[1] + 1.5)); }
+  else { ballIcon(...sp(PC.cx, PC.cz), 20); ballIcon(...sp(VS(17), VS(-9)), 17); houseIcon(...sp(COT.door[0] - 3, COT.door[1] + 1.5)); }
+  for (const [x, z, , side] of questMarks()) { // quest markers; one out of range waits on the rim, pointing the way
+    if (inKalos(x) !== inKalos(P.pos.x)) continue;
+    let [a, b] = sp(x, z); const dx = a - c, dy = b - c, d = Math.hypot(dx, dy), R = c - 14; if (d > R) { a = c + dx / d * R; b = c + dy / d * R; }
+    const [fill, ink] = MARK_COL[side ? 'side' : 'main'];
+    mctx.fillStyle = ink; mctx.beginPath(); mctx.arc(a, b, 12, 0, 7); mctx.fill(); mctx.fillStyle = fill; mctx.beginPath(); mctx.arc(a, b, 9.5, 0, 7); mctx.fill();
+    mctx.fillStyle = ink; mctx.font = '900 16px Nunito, sans-serif'; mctx.textAlign = 'center'; mctx.textBaseline = 'middle'; mctx.fillText('!', a, b + 1);
+  }
   mctx.translate(c, c); mctx.rotate(Math.atan2(Math.cos(P.face), Math.sin(P.face)));
   mctx.fillStyle = '#2f8cff'; mctx.strokeStyle = '#fff'; mctx.lineWidth = 5;
   mctx.beginPath(); mctx.moveTo(26, 0); mctx.lineTo(-16, -18); mctx.lineTo(-7, 0); mctx.lineTo(-16, 18); mctx.closePath(); mctx.stroke(); mctx.fill();
@@ -3199,7 +3332,7 @@ async function kProp(path, px, py, size, ry = 0, fade = null) { // a static X/Y 
 }
 function startKalos() { // after the first frame: stream the townsfolk and the X/Y fountain and Pokémon Center in the background
   KAL.started = true;
-  loadFolk(['sycamore', 'backpacker']).then(() => { for (const f of [spawnProf, spawnRanger]) try { f(); } catch (e) { console.warn('Story NPC failed:', e); } spawnGuardian(); return loadFolk(); }).then(spawnFolk); // the story NPCs first: the quest runs through them
+  loadFolk(['sycamore', 'backpacker']).then(() => { for (const f of [spawnProf, spawnRanger, spawnRival]) try { f(); } catch (e) { console.warn('Story NPC failed:', e); } spawnGuardian(); return loadFolk(); }).then(spawnFolk); // the story NPCs first: the quest runs through them
   kProp('Roselia Fountain/c01_bm_hunsui.dae', 532, 357, 3.3).then(h => (KAL.spray.y = h * 0.92), e => console.warn('Fountain model failed:', e));
   kProp('Pokemon Center/com_bm_pokecen.dae', 705, 432, 4.7, 0, kRect(662, 386, 748, 474)).catch(e => {
     console.warn('Pokémon Center model failed, using a built one:', e);
@@ -3379,7 +3512,9 @@ function act() {
     if (++ui.dialog.i >= ui.dialog.lines.length) { const after = ui.dialog.after; ui.dialog = null; $('dialog').classList.remove('show'); after?.(); return; }
     return showLine();
   }
-  if (nearest) say(nearest.name, nearest.lines, nearest.npc, nearest.after);
+  if (!nearest) return;
+  const q = QUEST_TALK[nearest.name]?.(); // a quest's own lines and outcome win over the NPC's everyday ones
+  say(nearest.name, q ? q[0] : nearest.lines, nearest.npc, q ? q[1] : nearest.after);
 }
 function say(name, lines, npcRef, after) {
   ui.dialog = { name: name || '…', lines, i: 0, npc: npcRef, after }; moveTarget = null;
@@ -3998,7 +4133,7 @@ const cleanNick = (s, max = 12) => String(s).replace(/[^\p{L}\p{N} .'-]/gu, '').
 const packMon = m => ({ key: m.key, level: m.level, exp: m.exp, hp: m.hp, nick: m.nick, gender: m.gender, moves: m.moves.map(x => ({ id: x.id, pp: x.pp })) });
 let playTime = 0, curSlot = null; // seconds played; id of the save file this game was loaded from / last saved to
 const snapshot = () => ({ trainer, party:party.map(packMon), pc: pcBox.map(packMon), bag, money, pos: [P.pos.x, P.pos.z, P.face].map(n => Math.round(n * 100) / 100),
-  flags: { bulbasaur: !bulba.visible, quest: story.step, clues: story.clues }, loc: $('locName').textContent, time: Math.floor(playTime), slot: curSlot });
+  flags: { bulbasaur: !bulba.visible, quest: story.step, clues: story.clues, side: { ...SIDE, seen: [...SIDE.seen], got: [...SIDE.got] } }, loc: $('locName').textContent, time: Math.floor(playTime), slot: curSlot });
 function saveGame() { try { localStorage.setItem(SAVE_KEY, JSON.stringify(snapshot())); } catch (e) { console.warn('Save failed:', e); } }
 function unpackMon(s) { // saved data is untrusted: unknown species and moves are dropped, numbers are clamped
   if (!Object.hasOwn(SPECIES, s?.key)) return null;
@@ -4027,6 +4162,12 @@ function loadGame() {
   if (s.flags?.bulbasaur === true) retireBulbasaur();
   if (QUEST_STEPS.includes(s.flags?.quest)) story.step = s.flags.quest;
   if (Array.isArray(s.flags?.clues)) story.clues = CLUES.map(c => c.id).filter(id => s.flags.clues.includes(id));
+  const sd = s.flags?.side; // saved data is untrusted: stages are clamped, lists keep only known entries
+  if (sd && typeof sd === 'object') {
+    for (const k of ['rival', 'notes', 'scraps']) SIDE[k] = clamp(Math.floor(+sd[k]) || 0, 0, 2);
+    SIDE.seen = Array.isArray(sd.seen) ? [...new Set(sd.seen.filter(k => typeof k === 'string' && Object.hasOwn(SPECIES, k)))] : [];
+    SIDE.got = Array.isArray(sd.got) ? [...new Set(sd.got.filter(i => Number.isInteger(i) && i >= 0 && i < SCRAPS.length))] : [];
+  }
   STREAM.k = restored() ? 1 : 0; // a loaded restored stream is already flowing: no swell
   if (Number.isFinite(s.time)) playTime = Math.max(0, s.time);
   if (typeof s.slot === 'string') curSlot = s.slot;
@@ -4047,7 +4188,7 @@ window.debug = { // testing hooks, from the console or the ` key: debug.give('KI
     renderParty(); saveGame();
     return m;
   },
-  warp: (x, z) => placePlayer(+x, +z, 0), quest: () => ({ story, CLUES, START, RANGER_AT, CLEAR, DEV_AT, GUARD_AT, STREAM }), clue: i => placePlayer(...(i === 'ranger' ? [RANGER_AT[0] - 1.2, RANGER_AT[1]] : CLUES[i].at), 0), // debug.clue(0) stands on a stream clue spot, debug.clue('ranger') beside the ranger
+  warp: (x, z) => placePlayer(+x, +z, 0), quest: () => ({ story, SIDE, CLUES, START, RANGER_AT, CLEAR, DEV_AT, GUARD_AT, STREAM, RIVAL_AT, SCRAPS: SCRAPS.map(c => c.at), marks: questMarks() }), clue: i => placePlayer(...(i === 'ranger' ? [RANGER_AT[0] - 1.2, RANGER_AT[1]] : CLUES[i].at), 0), // debug.clue(0) stands on a stream clue spot, debug.clue('ranger') beside the ranger
   battle: (key = 'PIDGEY', level = 3) => Object.hasOwn(SPECIES, key = String(key).toUpperCase()) && startBattle(key, Math.floor(+level) || 3),
   shop: () => openShop(), // the Fleurville Poké Mart counter, without walking there
   follower: () => ({ key: followKey, at: pika.position.toArray().map(n => +n.toFixed(2)), size: +new THREE.Box3().setFromObject(pika).getSize(new V3()).y.toFixed(2), player: P.pos.toArray().map(n => +n.toFixed(2)) }),
@@ -4082,7 +4223,7 @@ window.debug = { // testing hooks, from the console or the ` key: debug.give('KI
   },
 };
 // Recorded before the world moved into cells (START, zoom 1, 1024x768): the core must keep this hash; triangles must not exceed it
-const BASELINE_HASH = '421/486/50/159487.282', BASELINE_STATS = { calls: 615, triangles: 4083393, geometries: 213 };
+const BASELINE_HASH = '698/763/50/158078.844', BASELINE_STATS = { calls: 615, triangles: 4083393, geometries: 213 };
 const CHECKS = [
   ['coreHashUnchanged', () => debug.coreHash() === BASELINE_HASH],
   ['groundIsCells', () => GROUND.length >= 20 && GROUND.every(m => m.userData.cell)],
@@ -4098,7 +4239,7 @@ const CHECKS = [
   }],
   ['fogAtZoom1', () => viewFog(CAM_DIST, false).map(v => v.toFixed(1)) + '' === '34.0,70.0'],
   ['fogFpv', () => viewFog(99, true) + '' === '34,70'],
-  ['farFollowsFog', () => Math.abs(camera.far - (scene.fog.far + 1)) < 1e-6],
+  ['farFollowsFog', async () => { await frames(1); return Math.abs(camera.far - (scene.fog.far + 1)) < 1e-6; }],
   ['zoomClamped', () => { const z0 = zoom; for (let i = 0; i < 60; i++) dispatchEvent(new WheelEvent('wheel', { deltaY: 1 })); const ok = zoom === ZOOM_MAX; zoom = z0; return ok; }],
   ['snapLoadsAll', async () => { await debug.go(40, -60); const w = wantedCells(); return w.length > 0 && w.every(k => CELLS.cells.has(k)); }],
   ['farCellsDisposed', async () => { await debug.go(40, -60); await debug.go(...START); return [...CELLS.cells.values()].every(c => cellDist(c) <= scene.fog.far + 2 * CHUNK); }],
@@ -4123,6 +4264,17 @@ const CHECKS = [
   ['farLodNormals', () => FAR_GEO.size > 0 && [...FAR_GEO.values()].every(g => { // a zero normal is NaN in the shader, and bloom smears one NaN pixel over the frame
     const n = g.attributes.normal; for (let i = 0; i < n.count; i++) if (Math.hypot(n.getX(i), n.getY(i), n.getZ(i)) < 0.5) return false; return true;
   })],
+  ['questMarkersFollowStory', () => { // gold on the current main target only
+    const st = story.step, has = (at, side) => questMarks().some(m => Math.hypot(m[0] - at[0], m[1] - at[1]) < 0.01 && m[3] === side);
+    story.step = 'investigate-clearing'; const a = has(GUARD_AT, false) && !has(DEV_AT, false);
+    story.step = 'shut-device'; const b = has(DEV_AT, false) && !has(GUARD_AT, false);
+    story.step = st; return a && b;
+  }],
+  ['sideMarkersBlue', () => { const s0 = { ...SIDE, got: [...SIDE.got] }; SIDE.scraps = 1; SIDE.got = []; const ok = SCRAPS.every(c => questMarks().some(m => m[0] === c.at[0] && m[1] === c.at[1] && m[3] === true)); Object.assign(SIDE, s0); return ok; }],
+  ['sideQuestsSaved', () => JSON.stringify(snapshot().flags.side) === JSON.stringify(SIDE)],
+  ['scrapsOnRoute', () => SCRAPS.every(c => routeD(...c.at) < ROUTE_HALF && !debug.blocked(...c.at))],
+  ['rivalSpotWalkable', () => !blockedAt(...RIVAL_AT, walkH(...RIVAL_AT), rivalNpc) && !inTallGrass(...RIVAL_AT)],
+  ['rivalHasTeam', () => !!SPECIES[rivalStarter()]],
 ];
 
 // overworld party HUD (portraits rendered from the 3D models, cached per species)
@@ -6306,6 +6458,7 @@ async function startBattle(key, level, opts = {}) {
   if (!BT.scene) buildArena();
   resizeBattle();
   const T = opts.trainer, foe = T ? T.team[0] : makeMon(key, level);
+  if (!T) noteWild(key);
   BT.me = party.find(m => m.hp > 0); BT.me.disp = BT.me.hp; BT.me.expDisp = BT.me.exp;
   renderPass.scene = BT.scene; renderPass.camera = BT.cam;
   document.body.classList.add('in-battle'); $('meBox').classList.add('hide'); $('foeBox').classList.add('hide');
@@ -6522,7 +6675,7 @@ function update(dt, t) {
     charm.userData.flame.scale.set(1 + Math.sin(t * 23) * 0.12, 1 + Math.sin(t * 17) * 0.2, 1);
   }
   bulba.position.y = terrainH(BU[0], BU[1]) + Math.abs(Math.sin(t * 2)) * 0.03;
-  for (const c of CLUES) { c.mark.visible = clueOpen(c); if (c.mark.visible) { c.mark.position.set(c.at[0], walkH(...c.at) + 1.1 + Math.sin(t * 2.5) * 0.12, c.at[1]); c.mark.rotation.y = t * 1.5; } }
+  markTick(t);
   faceTowards(bulba, Math.hypot(P.pos.x - BU[0], P.pos.z - BU[1]) < 4 ? Math.atan2(P.pos.x - BU[0], P.pos.z - BU[1]) : 0.5 + Math.sin(t * 0.5) * 0.5, dt, 3);
 
   kalosTick(dt, t); portalTick(); streamTick(dt, t); lodTick();
@@ -6595,7 +6748,7 @@ function update(dt, t) {
   sun.target.position.set(Math.round(camLook.x), 0, Math.round(camLook.z));
   sun.position.copy(sun.target.position).addScaledVector(SUN_DIR, 30);
 
-  const loc = roomAt(P.pos.x, P.pos.z)?.name ?? (inTest(P.pos.x) ? 'Test Grounds' : inKalos(P.pos.x) ? 'Fleurville Town' : Math.hypot(P.pos.x - CLEAR.x, P.pos.z - CLEAR.z) < CLEAR.r + 1 ? 'Woodland Clearing' : P.pos.x > 8.5 || !inRect(P.pos.x, P.pos.z, VERDANT_WALK) ? 'Meadow Route' : 'Verdant Town');
+  const loc = roomAt(P.pos.x, P.pos.z)?.name ?? (inTest(P.pos.x) ? 'Test Grounds' : inKalos(P.pos.x) ? 'Fleurville Town' : Math.hypot(P.pos.x - CLEAR.x, P.pos.z - CLEAR.z) < CLEAR.r + 1 ? 'Woodland Clearing' : P.pos.x > VS(8.5) || !inRect(P.pos.x, P.pos.z, VERDANT_WALK) ? 'Meadow Route' : 'Verdant Town');
   if ($('locName').textContent !== loc) $('locName').textContent = loc;
   if (!BT.active) music(ui.onboard ? 'gallery' : locMusic(loc)); // the title theme plays through onboarding
 }

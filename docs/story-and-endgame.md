@@ -1,6 +1,6 @@
 # Story and end-game
 
-Status: narrative direction accepted by the user on 2026-10-15. Detailed quests, dialogue, regional content, and balance remain to be designed. No story systems are implemented.
+Status: narrative direction accepted by the user on 2026-10-15. The first map (Act I) is implemented, see "Implemented first map"; later acts, regional content and balance remain to be designed.
 
 Working title: **Pokémon: Verdant Trails**. The title remains provisional.
 
@@ -37,6 +37,18 @@ This is the narrative for the first playable town, route, and clearing. It has a
 7. **A wider mystery.** Report to the professor. The device was recently repaired, and similar signals have been reported elsewhere. Receive the next field assignment and a chapter-complete save point.
 
 The first playable ends here. It does not include the regional League, the central station, or postgame facilities. Finishing the ranger battle alone does not complete the chapter; the player must resolve the device and report back.
+
+### Implemented first map (2026-10-21)
+
+The playable Verdant map (town, Route 1 / Meadow Route, Woodland Clearing) runs the full Chapter 1 above, then two more main steps that close Act I: the Professor hands over the device's signal chip (`deliver-chip`), and Clemont in Fleurville identifies its maker's stamp as the **Halcyon Network**, the company of Act III (`act1-complete`). Main-story targets wear a gold "!", side quests a light-blue one, in the world and on the minimap.
+
+| Side quest | Giver | Goal | Connects to |
+| --- | --- | --- | --- |
+| A Rival's Promise | Rival (Calem; Shauna if the player is Calem), from the start of the investigation | Win a battle, then a rematch after Chapter 1 | The rival's Championship promise (Act V finale) |
+| Field Notes | Hiker Mia | Battle 3 different wild species | Master Field Researcher (post-game) |
+| Survey Scraps | Ranger Lea, once the stream is restored | Collect 3 stamped parts along Route 1 | Evidence that Halcyon repaired the device; Clemont acknowledges it |
+
+Side-quest progress saves in `flags.side` (`rival`, `notes`, `seen`, `scraps`, `got`).
 
 ## Full-game arc
 
