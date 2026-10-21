@@ -3461,7 +3461,9 @@ async function loadFolk(keys = Object.keys(FOLK).filter(k => !PLAYABLE.has(k))) 
   const got = await Promise.all(keys.filter(k => !XY[k]).map(k => loader.loadAsync('models/xy/' + FOLK[k][0].split('/').map(encodeURIComponent).join('/')).then(c => {
     const names = {}; for (const d of Object.values(c.library.nodes)) if (d.type === 'JOINT' && d.sid) names[d.sid] = d.name;
     c.scene.traverse(o => o.isBone && names[o.name] && (o.name = names[o.name]));
-    c.scene.quaternion.identity(); // the Blender 2.77 re-exports declare Z_UP but kept the rip's Y-up data, so the loader's turn laid them flat
+    // the Blender 2.77 re-exports declare Z_UP but kept the rip's Y-up data, so the loader's turn laid them flat; the 2.72 ones
+    // (Sycamore, Clerk, Calem...) counter-turn their Armature node instead and need the loader's turn to stand up
+    if (!c.scene.children.some(o => !o.isMesh && Math.abs(o.rotation.x) > 1)) c.scene.quaternion.identity();
     return [k, c.scene];
   }, e => (console.warn('Townsfolk model failed:', k, e), null))));
   await Promise.race([texDone, new Promise(r => setTimeout(r, 15000))]);
