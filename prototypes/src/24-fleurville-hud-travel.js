@@ -176,7 +176,7 @@ function fadeTo(move) { // fade to black, move the player, fade back in
   if (KAL.busy || ui.dialog || BT.active) return; KAL.busy = true;
   const el = $('fade') || document.body.appendChild(Object.assign(document.createElement('div'), { id: 'fade' }));
   el.style.cssText = 'position:fixed;inset:0;background:#000;opacity:0;pointer-events:none;transition:opacity .35s;z-index:6';
-  requestAnimationFrame(() => (el.style.opacity = 1));
+  void el.offsetWidth; el.style.opacity = 1; // a reflow commits opacity 0 so this fades in; a rAF here could fire after the timeout below in a throttled tab and leave the screen black
   setTimeout(() => {
     move(); setMoveTarget(null); setFirstFrame(true); el.style.opacity = 0; KAL.busy = false;
   }, 400);
