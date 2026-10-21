@@ -4,7 +4,7 @@ Workspace for a single-player, stylized 3D Pokémon browser adventure.
 
 The retained game is [Verdant Town 3D](prototypes/verdant-town-3d.html), with its scripts, models, and Blender sources in `prototypes/`. The separate Unreal project in `Game/` and its older packaged build in `output/Windows/` have been removed. Existing Unreal delivery reports are historical. The concept image below is a visual reference.
 
-Open `Play Town.cmd` to launch the browser game, or open `prototypes/verdant-town-3d.html` directly. Internet access is needed for its Three.js CDN imports. Controls: WASD to walk, Shift to run, E to talk, click to move, and scroll to zoom.
+Run `Verdant Town.exe` (the Tauri shell in `src-tauri/`), or serve `prototypes/` over HTTP and open `verdant-town-3d.html`: the game is ES modules (`prototypes/src/`), which browsers do not load from `file://`. Three.js is bundled in `prototypes/vendor/`, so no internet is needed. Controls: WASD to walk, Shift to run, E to talk, click to move, and scroll to zoom.
 
 Start with the [documentation index](docs/README.md), then review the [decisions](docs/decisions.md) and [game design](docs/game-design.md).
 

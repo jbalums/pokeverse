@@ -1,7 +1,8 @@
 ## Active project scope
 
-- Work only on `prototypes/verdant-town-3d.html` unless the user explicitly requests a scope change. This is the project's retained game.
-- `prototypes/battle-rules.js` (pure battle rules: type chart, move table, formulas; no DOM or three.js) and its tests in `prototypes/tests/` are part of the game, split out at the user's request (2026-10-21). Keep rules there and presentation in the HTML; run `node --test "prototypes/tests/*.test.mjs"` after changing them.
+- Work only on the game, `prototypes/verdant-town-3d.html` and its ES modules in `prototypes/src/`, unless the user explicitly requests a scope change. This is the project's retained game.
+- The page holds the markup and styles; `prototypes/src/main.js` loads `NN-*.js`, one module per former section banner, which run in file-number order (main.js explains the import chain). A module assigns another module's top-level `let` only through the owner's `setX()`. Keep new code in the module whose section it belongs to.
+- `prototypes/battle-rules.js` (pure battle rules: type chart, move table, formulas; no DOM or three.js) and its tests in `prototypes/tests/` are part of the game, split out at the user's request (2026-10-21). Keep rules there and presentation in `prototypes/src/`; run `node --test "prototypes/tests/*.test.mjs"` after changing them.
 - `src-tauri/` is the Tauri desktop shell for that page (added at the user's request). It only serves the page and its assets from disk; keep game logic in the page and its modules.
 - Do not create, restore, or develop another game implementation or the removed Unreal project. The former `Game/` and `output/Windows/` folders were intentionally deleted.
 - Preserve the existing supporting scripts, models, and Blender sources; changes to those files require an explicit user request extending the scope.

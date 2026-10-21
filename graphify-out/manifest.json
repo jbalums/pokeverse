@@ -114,9 +114,9 @@
     "semantic_hash": ""
   },
   "prototypes/verdant-town-3d.html": {
-    "mtime": 1792593836.9605224,
-    "seen": 1792594036.9076312,
-    "ast_hash": "c0dc433ecd6b8fecbd03749a7d57c331",
+    "mtime": 1792594657.3481894,
+    "seen": 1792594971.8994267,
+    "ast_hash": "5470218db45a53f6fa866c678c4d9dff",
     "semantic_hash": ""
   },
   "prototypes/blender/build_characters.py": {
@@ -309,6 +309,282 @@
     "mtime": 1792593898.3401322,
     "seen": 1792594036.9076312,
     "ast_hash": "397a69c35b180a188c096940d23d91f6",
+    "semantic_hash": ""
+  },
+  "prototypes/src/01-helpers.js": {
+    "mtime": 1792594657.2934794,
+    "seen": 1792594971.8994267,
+    "ast_hash": "c17a5614271d2402fbab2cd8101ff1e6",
+    "semantic_hash": ""
+  },
+  "prototypes/src/02-hero-camera.js": {
+    "mtime": 1792594657.2944794,
+    "seen": 1792594971.8994267,
+    "ast_hash": "8fefed7bcccd98443e171f6341e15a2e",
+    "semantic_hash": ""
+  },
+  "prototypes/src/03-fleurville-map.js": {
+    "mtime": 1792594657.2955422,
+    "seen": 1792594971.8994267,
+    "ast_hash": "d2c3b08bbcd388a0da9272a4236dafd9",
+    "semantic_hash": ""
+  },
+  "prototypes/src/04-river.js": {
+    "mtime": 1792594657.2955422,
+    "seen": 1792594971.8994267,
+    "ast_hash": "413efcdfb8983a87569d6e46f4e4625b",
+    "semantic_hash": ""
+  },
+  "prototypes/src/05-paths-raised-plaza-stairs-tall-grass.js": {
+    "mtime": 1792594657.2955422,
+    "seen": 1792594971.8994267,
+    "ast_hash": "c3b795f2e75c6a6ed78bee4c9afd83bd",
+    "semantic_hash": ""
+  },
+  "prototypes/src/06-renderer-scene-post.js": {
+    "mtime": 1792594657.2965524,
+    "seen": 1792594971.8994267,
+    "ast_hash": "80957a5099aa575ec806d405caebc9f7",
+    "semantic_hash": ""
+  },
+  "prototypes/src/07-materials-textures.js": {
+    "mtime": 1792594657.2965524,
+    "seen": 1792594971.8994267,
+    "ast_hash": "d5e6a118c291fa73a53df26b228908b2",
+    "semantic_hash": ""
+  },
+  "prototypes/src/08-blender-assets.js": {
+    "mtime": 1792594657.2975583,
+    "seen": 1792594971.8994267,
+    "ast_hash": "702caba0cb4e5102519384cfbff59483",
+    "semantic_hash": ""
+  },
+  "prototypes/src/09-terrain.js": {
+    "mtime": 1792594657.2975583,
+    "seen": 1792594971.8994267,
+    "ast_hash": "44f023f22c48504dd67d38b94c7b2a38",
+    "semantic_hash": ""
+  },
+  "prototypes/src/10-streaming.js": {
+    "mtime": 1792594657.2987761,
+    "seen": 1792594971.8994267,
+    "ast_hash": "b2e83b4c40ca58415a006f3b5689b583",
+    "semantic_hash": ""
+  },
+  "prototypes/src/11-water.js": {
+    "mtime": 1792594657.2987761,
+    "seen": 1792594971.8994267,
+    "ast_hash": "a1e0f14d70148e42bcbc9534d1324580",
+    "semantic_hash": ""
+  },
+  "prototypes/src/12-batched-props.js": {
+    "mtime": 1792594657.2997763,
+    "seen": 1792594971.8994267,
+    "ast_hash": "acaf1acebaef2d2f1f2c797ea626a334",
+    "semantic_hash": ""
+  },
+  "prototypes/src/13-flora.js": {
+    "mtime": 1792594657.3002794,
+    "seen": 1792594971.8994267,
+    "ast_hash": "248b4eadeb09e1993f4f2b35032f353f",
+    "semantic_hash": ""
+  },
+  "prototypes/src/14-buildings.js": {
+    "mtime": 1792594657.3007817,
+    "seen": 1792594971.8994267,
+    "ast_hash": "4f3a3b756a1943d217b8930fc08213b2",
+    "semantic_hash": ""
+  },
+  "prototypes/src/15-hand-placement.js": {
+    "mtime": 1792594657.3007817,
+    "seen": 1792594971.8994267,
+    "ast_hash": "dce7d80ed84ff60f12f37d7b364393f7",
+    "semantic_hash": ""
+  },
+  "prototypes/src/16-fleurville-world.js": {
+    "mtime": 1792594657.30185,
+    "seen": 1792594971.8994267,
+    "ast_hash": "54d776816a581254e4634ab2cd6e84ea",
+    "semantic_hash": ""
+  },
+  "prototypes/src/17-instanced-grass-reeds-flowers.js": {
+    "mtime": 1792594657.30185,
+    "seen": 1792594971.8994267,
+    "ast_hash": "f0df982bd92802aa44a69cf7bcb2094d",
+    "semantic_hash": ""
+  },
+  "prototypes/src/18-cell-content.js": {
+    "mtime": 1792594657.3028502,
+    "seen": 1792594971.8994267,
+    "ast_hash": "d2e44af12a5fe5b5bb9ea227ce89597f",
+    "semantic_hash": ""
+  },
+  "prototypes/src/19-characters.js": {
+    "mtime": 1792594657.3033533,
+    "seen": 1792594971.8994267,
+    "ast_hash": "eb38f35b96652ae3fba997854f1d7597",
+    "semantic_hash": ""
+  },
+  "prototypes/src/20-story-chapter-1.js": {
+    "mtime": 1792594657.3033533,
+    "seen": 1792594971.8994267,
+    "ast_hash": "3ef73865993975e9f059b2bf5bf58332",
+    "semantic_hash": ""
+  },
+  "prototypes/src/21-side-quests.js": {
+    "mtime": 1792594657.3053546,
+    "seen": 1792594971.8994267,
+    "ast_hash": "9ad23406348965a7d738578b284e4f75",
+    "semantic_hash": ""
+  },
+  "prototypes/src/22-collision.js": {
+    "mtime": 1792594657.3053546,
+    "seen": 1792594971.8994267,
+    "ast_hash": "307b4d25dac0b37553e42ef957c96841",
+    "semantic_hash": ""
+  },
+  "prototypes/src/23-hud-minimap.js": {
+    "mtime": 1792594657.306355,
+    "seen": 1792594971.8994267,
+    "ast_hash": "5f3fe8b1ab4b32a37b7f9f5855ed0b0f",
+    "semantic_hash": ""
+  },
+  "prototypes/src/24-fleurville-hud-travel.js": {
+    "mtime": 1792594657.306355,
+    "seen": 1792594971.8994267,
+    "ast_hash": "2bf76b75fe23ae554b9c255a9457c256",
+    "semantic_hash": ""
+  },
+  "prototypes/src/25-input.js": {
+    "mtime": 1792594657.307355,
+    "seen": 1792594971.8994267,
+    "ast_hash": "1ebef126f2f9c796a49888d1fb2d83f2",
+    "semantic_hash": ""
+  },
+  "prototypes/src/26-key-bindings.js": {
+    "mtime": 1792594657.307355,
+    "seen": 1792594971.8994267,
+    "ast_hash": "97eea76144835e36c5b97462aee6d8b5",
+    "semantic_hash": ""
+  },
+  "prototypes/src/27-pokemon-data.js": {
+    "mtime": 1792594657.3083553,
+    "seen": 1792594971.8994267,
+    "ast_hash": "a60586fe811ba1b462446cdc3267993a",
+    "semantic_hash": ""
+  },
+  "prototypes/src/28-evolution-data.js": {
+    "mtime": 1792594657.3093557,
+    "seen": 1792594971.8994267,
+    "ast_hash": "11fe9837b1fddb28c691edccc652785a",
+    "semantic_hash": ""
+  },
+  "prototypes/src/29-save.js": {
+    "mtime": 1792594657.3118727,
+    "seen": 1792594971.8994267,
+    "ast_hash": "6829f0ee3f5ae9c8365879a90efac0bc",
+    "semantic_hash": ""
+  },
+  "prototypes/src/30-backpack.js": {
+    "mtime": 1792594657.3128731,
+    "seen": 1792594971.8994267,
+    "ast_hash": "c9d302738159024a5223a52f7cc94f89",
+    "semantic_hash": ""
+  },
+  "prototypes/src/31-poke-mart.js": {
+    "mtime": 1792594657.3128731,
+    "seen": 1792594971.8994267,
+    "ast_hash": "5ac78cd7b4814d74fdc49525df48957e",
+    "semantic_hash": ""
+  },
+  "prototypes/src/32-pokedex.js": {
+    "mtime": 1792594657.3138747,
+    "seen": 1792594971.8994267,
+    "ast_hash": "1be1b98f3284bff8c85b011bf290e0e5",
+    "semantic_hash": ""
+  },
+  "prototypes/src/33-wild-pokemon-models.js": {
+    "mtime": 1792594657.336266,
+    "seen": 1792594971.8994267,
+    "ast_hash": "29f49b3015dac469bc171738ccd82c70",
+    "semantic_hash": ""
+  },
+  "prototypes/src/34-battle-tweens-effects-arena.js": {
+    "mtime": 1792594657.336266,
+    "seen": 1792594971.8994267,
+    "ast_hash": "1e9d4fda1c31039d3a920953bd04435c",
+    "semantic_hash": ""
+  },
+  "prototypes/src/35-battle-hud-messages-menus.js": {
+    "mtime": 1792594657.3377688,
+    "seen": 1792594971.8994267,
+    "ast_hash": "4c224b315d29a7047f7841ad518883a6",
+    "semantic_hash": ""
+  },
+  "prototypes/src/36-battle-animations.js": {
+    "mtime": 1792594657.3381667,
+    "seen": 1792594971.8994267,
+    "ast_hash": "54e56a6eeb1c96fd5d9616e67bd9d7e7",
+    "semantic_hash": ""
+  },
+  "prototypes/src/37-battle-sound-effects.js": {
+    "mtime": 1792594657.3411703,
+    "seen": 1792594971.8994267,
+    "ast_hash": "30cf033cd221f20d73f1c4a3e6f8b2bd",
+    "semantic_hash": ""
+  },
+  "prototypes/src/38-battle-moves.js": {
+    "mtime": 1792594657.3421867,
+    "seen": 1792594971.8994267,
+    "ast_hash": "e3338f3eeab0646396f5ff7448b780d7",
+    "semantic_hash": ""
+  },
+  "prototypes/src/39-evolution-scene.js": {
+    "mtime": 1792594657.3421867,
+    "seen": 1792594971.8994267,
+    "ast_hash": "2771e5d70f929a6ac3dff4a275b99485",
+    "semantic_hash": ""
+  },
+  "prototypes/src/40-battle-flow.js": {
+    "mtime": 1792594657.343188,
+    "seen": 1792594971.8994267,
+    "ast_hash": "4efe730c00dc0e490b68a56dc8164875",
+    "semantic_hash": ""
+  },
+  "prototypes/src/41-loop.js": {
+    "mtime": 1792594657.3441885,
+    "seen": 1792594971.8994267,
+    "ast_hash": "b1e0e3ccf8bd881cb4759f6fd1eb1d50",
+    "semantic_hash": ""
+  },
+  "prototypes/src/42-background-music.js": {
+    "mtime": 1792594657.3451886,
+    "seen": 1792594971.8994267,
+    "ast_hash": "9d57805d68c2192b706b6fa71302ddb3",
+    "semantic_hash": ""
+  },
+  "prototypes/src/43-settings.js": {
+    "mtime": 1792594657.3461888,
+    "seen": 1792594971.8994267,
+    "ast_hash": "476f549a122f147cf45311e97eda45dd",
+    "semantic_hash": ""
+  },
+  "prototypes/src/44-game-menu.js": {
+    "mtime": 1792594657.3461888,
+    "seen": 1792594971.8994267,
+    "ast_hash": "66bebcd4034b90a1fce43d3ffce12319",
+    "semantic_hash": ""
+  },
+  "prototypes/src/45-onboarding.js": {
+    "mtime": 1792594657.3471887,
+    "seen": 1792594971.8994267,
+    "ast_hash": "94d4e4daf14987e7f4bee3685016c4cd",
+    "semantic_hash": ""
+  },
+  "prototypes/src/main.js": {
+    "mtime": 1792594657.3471887,
+    "seen": 1792594971.8994267,
+    "ast_hash": "af5647e75a55f0460f4be904b1cd4f24",
     "semantic_hash": ""
   }
 }
