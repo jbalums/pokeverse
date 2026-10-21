@@ -45,7 +45,12 @@
   .mm .n { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); width: 30px; height: 30px; border-radius: 50%; background: #26303a; color: #fff; display: grid; place-items: center; font-weight: 900; font-size: 14px; border: 2px solid #fff; }
 
   .party { position: fixed; left: 1.9vw; bottom: 3vh; display: flex; gap: 22px; }
-  .mon { width: 86px; }
+  .mon { width: 86px; position: relative; }
+  /* status badge (PSN / PAR / SLP): on a party portrait, and beside the level in the battle boxes */
+  .st { font: 900 12px Nunito, sans-serif; font-style: normal; color: #fff; border-radius: 6px; padding: 1px 6px; letter-spacing: .04em; text-shadow: 0 1px 0 rgba(0,0,0,.3); }
+  .mon .st { position: absolute; top: -4px; right: -6px; border: 2px solid #fff; }
+  .bx .st { margin: 0 8px 0 auto; align-self: center; }
+  .bx .st:empty { display: none; }
   .mon .pic { width: 86px; height: 86px; border-radius: 50%; border: 4px solid #fff; background: radial-gradient(circle at 50% 30%, #3e5468, #172230 75%); box-shadow: 0 4px 14px rgba(0,0,0,.35); overflow: hidden; }
   .mon img { width: 100%; height: 100%; display: block; }
   .hp { margin: 8px auto 0; width: 82px; height: 10px; border-radius: 10px; background: rgba(0,0,0,.5); border: 2px solid #fff; overflow: hidden; }
@@ -59,6 +64,18 @@
   kbd { font-family: inherit; background: #e9e4d4; border-radius: 6px; padding: 0 6px; border-bottom: 2px solid #bdb59c; color: var(--ink); }
 
   .hint { position: fixed; top: 22px; left: 50%; transform: translateX(-50%); background: var(--panel); color: #fff; padding: 8px 18px; border-radius: 999px; font-weight: 700; font-size: 14px; transition: opacity 1s; white-space: nowrap; }
+
+  /* chapter title card: shown over the world when a chapter or act begins or ends; never takes input */
+  .chapter { position: fixed; left: 50%; top: 18%; transform: translateX(-50%); z-index: 30; pointer-events: none; text-align: center; color: #fff; opacity: 0; visibility: hidden;
+    width: min(560px, calc(100vw - 32px)); text-shadow: 0 3px 0 #2a3540, 0 6px 18px rgba(0,0,0,.45); transition: opacity .6s, visibility .6s; }
+  .chapter.show { opacity: 1; visibility: visible; }
+  .chapter small { display: block; font-size: 15px; font-weight: 900; letter-spacing: .22em; text-transform: uppercase; color: #ffc21a; }
+  .chapter b { display: block; font-size: clamp(30px, 6vw, 50px); font-weight: 1000; line-height: 1.05; margin: 6px 0 8px; text-wrap: balance; }
+  .chapter span { display: inline-block; font-size: 15px; font-weight: 800; background: var(--panel); border-radius: 999px; padding: 4px 16px; text-shadow: none; }
+  .chapter.show b { animation: chapterIn .9s cubic-bezier(.2,.9,.3,1.2); }
+  @keyframes chapterIn { from { transform: scale(.85); letter-spacing: .12em; } }
+  @media (prefers-reduced-motion: reduce) { .chapter.show b { animation: none; } }
+  .chapter.still.show b { animation: none; } /* the Reduce motion setting */
 
   .prompt { position: fixed; left: 0; top: 0; transform: translate(-50%, -100%); background: #fff; color: var(--ink); font-weight: 900; font-size: 14px; padding: 4px 10px; border-radius: 10px; border: 3px solid #2a3540; display: none; pointer-events: none; }
   .prompt::after { content: ""; position: absolute; left: 50%; bottom: -9px; transform: translateX(-50%); border: 6px solid transparent; border-top-color: #2a3540; }
@@ -277,6 +294,9 @@
   .gm-set input[type=checkbox] { width: 22px; height: 22px; accent-color: #2c6fb3; }
   .gm-keys li { list-style: none; display: flex; justify-content: space-between; gap: 10px; padding: 6px 0; border-bottom: 1px dashed #d8d2c0; font-size: 16px; }
   .gm-keys li:last-child { border: 0; }
+  .gm-keys li { align-items: center; }
+  .gm-bind { min-width: 64px; padding: 4px 12px; font-size: 15px; }
+  .gm-bind.wait { background: #ffc21a; }
   .gm-ask { position: absolute; inset: 0; display: none; place-items: center; background: rgba(20, 28, 36, .55); border-radius: 26px; }
   .gm-ask.show { display: grid; }
   .gm-ask .sheet { width: min(440px, 92%); background: #fffdf6; border: 5px solid #2a3540; border-radius: 22px; padding: 18px; display: flex; flex-direction: column; gap: 12px; color: var(--ink); }
@@ -396,9 +416,10 @@
 <div class="loc"><svg viewBox="0 0 24 24" fill="#fff"><path d="M12 2a7 7 0 0 0-7 7c0 5.2 7 13 7 13s7-7.8 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg><span id="locName">Verdant Town</span></div>
 <nav class="quests" id="quests" aria-label="Quests" aria-live="polite"></nav>
 <div class="mm"><canvas id="mm" width="412" height="412"></canvas><div class="n">N</div></div>
-<div class="hint" id="hint"><kbd>WASD</kbd> walk · <kbd>Shift</kbd> run · <kbd>E</kbd> talk · click to move · drag to look · <kbd>Q</kbd> track quest · <kbd>V</kbd> first person · scroll to zoom · <kbd>G</kbd> test grounds · <kbd>T</kbd> travel to Fleurville</div>
+<div class="hint" id="hint"></div>
 
 <div class="party" id="party"></div>
+<div class="chapter" id="chapter" role="status" aria-live="polite"><small id="chKicker"></small><b id="chTitle"></b><span id="chSub"></span></div>
 
 <div class="btns">
   <button class="btn" id="viewBtn" aria-label="First-person view (V)" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linejoin="round"><path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></button>
@@ -494,8 +515,8 @@
 <div class="prompt" id="prompt">E</div>
 <div class="dialog" id="dialog"><span class="who" id="who"></span><p id="dtext"></p><span class="more">▼</span></div>
 <div class="battle" id="battle">
-  <div class="bx foe hide" id="foeBox"><div class="nm"><b id="foeName"></b><span id="foeLv"></span></div><div class="hpbar"><span>HP</span><i><b id="foeHp"></b></i></div></div>
-  <div class="bx me hide" id="meBox"><div class="nm"><b id="meName"></b><span id="meLv"></span></div><div class="hpbar"><span>HP</span><i><b id="meHp"></b></i></div><div class="hpnum" id="meHpNum"></div><div class="exp"><b id="meExp"></b></div></div>
+  <div class="bx foe hide" id="foeBox"><div class="nm"><b id="foeName"></b><em class="st" id="foeSt"></em><span id="foeLv"></span></div><div class="hpbar"><span>HP</span><i><b id="foeHp"></b></i></div></div>
+  <div class="bx me hide" id="meBox"><div class="nm"><b id="meName"></b><em class="st" id="meSt"></em><span id="meLv"></span></div><div class="hpbar"><span>HP</span><i><b id="meHp"></b></i></div><div class="hpnum" id="meHpNum"></div><div class="exp"><b id="meExp"></b></div></div>
   <div class="bpanel"><div class="bmsg" id="bmsg"></div><div class="bmenu" id="bmenu"></div></div>
 </div>
 <div class="btrans" id="btrans"></div>
@@ -622,7 +643,8 @@ const kDirt = (x, z) => K_DIRT.some(r => inRect(x, z, r));
 const inKField = (x, z) => K_FIELDS.some(r => inRect(x, z, r)); // the wheat fields are Fleurville's tall grass
 const kalosH = (x, z) => kPaved(x, z) || kDirt(x, z) ? 0.03 : 0.03 + noise(x, z) * 0.3;
 // townsfolk: X/Y field models in models/xy/<folder>/, sized like the named sculpt (see prepXY), then scaled (default 0.85, as in Verdant).
-// (the Blender 2.77 re-exports, e.g. Schoolgirl and Artist, have broken skin weights, so other rips stand in for them)
+// (the Blender 2.77 re-exports, e.g. Schoolgirl and Artist, were thought to have broken skin weights; they were laid flat by a wrong Z_UP
+// tag, which loadFolk now undoes. Other rips still stand in for the townsfolk ones)
 const FOLK = {
   chef: ['Chef/tr0127_00_fi.dae', 'nurse'], waitress: ['Waitress/tr0106_00_fi.dae', 'nurse'], garcon: ['Garçon/tr0147_00_fi.dae', 'nurse'],
   butler: ['Monsieur Butler/tr0068_00_fi.dae', 'nurse'], maid: ['Maid/tr0135_00_fi.dae', 'nurse'], madame: ['Madame/tr0067_00_fi.dae', 'nurse'],
@@ -631,7 +653,7 @@ const FOLK = {
   clerk: ['Poke Mart Clerk/tr0073_00_fi.dae', 'nurse'], sycamore: ['Professor Sycamore/tr0006_00_fi.dae', 'nurse', 0.93],
   clemont: ['Clemont/tr0019_00_fi.dae', 'girl', 0.8], bonnie: ['Bonnie/tr0169_00_fi.dae', 'kid', 0.62],
   // shopkeepers and visitors inside the buildings
-  youngster: ['Youngster/tr0100_00_fi.dae', 'girl', 0.72], breederM: ['Pokemon Breeder Male/tr0119_00_fi.dae', 'nurse'], backpacker: ['Backpacker/tr0066_00_fi.dae', 'nurse'],
+  youngster: ['Youngster/tr0100_00_fi.dae', 'girl', 0.72], breederM: ['Pokemon Breeder Male/tr0119_00_fi.dae', 'nurse'], backpacker: ['Backpacker/tr0066_00_fi.dae', 'nurse'], rangerF: ['Pokemon Ranger Female/tr0126_00_fi.dae', 'nurse'],
   alexa: ['Alexa/tr0168_00_fi.dae', 'nurse'], pokefan: ['Poke Fan Female Tourist/tr0102_00_fi.dae', 'nurse'], roller: ['Roller Skater Female/tr0108_00_fi.dae', 'girl', 0.8],
   grace: ['Grace/tr0007_00_fi.dae', 'nurse'], scientistF: ['Scientist Female/tr0129_00_fi.dae', 'nurse'], mable: ['Mable/tr0029_00_fi.dae', 'nurse'],
   hiker: ['Hiker/tr0145_00_fi.dae', 'nurse', 0.9], richboy: ['Rich Boy/tr0063_00_fi.dae', 'girl', 0.72], twins: ['Twins/tr0103_00_fi.dae', 'kid', 0.6],
@@ -2012,7 +2034,7 @@ const ROOM_SPEC = {
       ['breederM', 2.8, 1.2, -0.6, 'Pokémon Breeder', ['Rest is part of training too.', 'A happy Pokémon fights twice as hard!']]] },
   mart: { name: 'Poké Mart', W: 8, D: 6, floor: 'tile', wall: '#eef3fb', trim: '#2a62c4',
     build(cx) { counter(cx - 2.6, 0.2, 0.7, 2.4, '#3f6fb8'); shelf(cx + 0.6, -2.65, 5.2, GOODS); shelf(cx + 1.2, 0.3, 3.2, GOODS, { h: 1.3, rows: 2 }); plant(cx + 3.5, 2.4); },
-    npcs: [['clerk', -3.35, 0.2, Math.PI / 2, 'Poké Mart clerk', ['Bienvenue to the Poké Mart!', 'Evolution stones just came in. Take a look!'], { after: () => { if (KAL.gift) return openShop(); KAL.gift = true; bag.ball += 3; say('', ['You received 3 Poké Balls! A welcome gift for our first customer.'], null, openShop); } }],
+    npcs: [['clerk', -3.35, 0.2, Math.PI / 2, 'Poké Mart clerk', ['Bienvenue to the Poké Mart!', 'Evolution stones just came in, and we stock medicine for poison, paralysis and sleep. Take a look!'], { after: () => { if (KAL.gift) return openShop(); KAL.gift = true; bag.ball = (bag.ball || 0) + 3; /* a new game's bag has no Poké Balls yet */ say('', ['You received 3 Poké Balls! A welcome gift for our first customer.'], null, openShop); } }],
       ['backpacker', 1.4, 1.35, Math.PI, 'Backpacker', ['Potions, Repels, Escape Ropes... check.', "I'm hiking all the way to Lumiose!"]]] },
   cafe: { name: 'Café Soleil', W: 8, D: 6, floor: 'check', wall: '#f3e6cf', trim: '#6d4527', paintings: [[-2, 1.8, 1]], windows: [1.8],
     build(cx) {
@@ -2702,7 +2724,7 @@ function prepXY(name, scene, animated, height) { // runs after textures load, so
   if (nFire) g.userData.fire = fire.divideScalar(nFire).add(scene.position).multiplyScalar(k);
   // bone names in the rips are generic (Bone14, joint21), so tail and wing chains are found by position:
   // the tip furthest out, then its parents while they stay out there. Stored as traversal indices so clones can find them.
-  if (animated) { g.userData.clips = scene.animations; g.userData.calm = calm; g.userData.chains = {}; return g; } // Pokédex 3D Pro idle clip moves tail and wings itself
+  if (animated) { g.userData.clips = scene.animations; g.userData.calm = calm; g.userData.chains = { legs: legChains(g) }; return g; } // Pokédex 3D Pro idle clip moves tail and wings itself
   const bones = []; g.traverse(o => o.isBone && bones.push(o));
   for (const b of bones) if (XY_HIDE[name]?.includes(b.name)) b.scale.setScalar(1e-4);
   g.updateMatrixWorld(true);
@@ -2718,8 +2740,20 @@ function prepXY(name, scene, animated, height) { // runs after textures load, so
     wingL: chain(p => p.x, p => p.x > 0.1 * H, new V3(0, 0, 1)),
     wingR: chain(p => -p.x, p => p.x < -0.1 * H, new V3(0, 0, 1)), // same axis: the caller already mirrors the angle per side
     ears: chain(p => p.y, p => p.y > 0.8 * H, new V3(1, 0, 0)), // the highest tip (an ear on Pikachu), twitched forward and back
+    legs: legChains(g),
   };
   return g;
+}
+function legChains(g) { // walkers: thigh and knee joints by name (both rip sources call them LThigh/LLeg), bent about the side axis;
+  // when the hands rest on the ground (Bulbasaur) the arms are front legs too
+  const bones = []; g.traverse(o => o.isBone && bones.push(o)); g.updateMatrixWorld(true);
+  const find = names => { const idx = names.map(n => bones.findIndex(b => b.name === n)); return idx.includes(-1) ? null : idx; };
+  const q = new THREE.Quaternion(), side = new V3(1, 0, 0), y = i => bones[i].getWorldPosition(new V3()).y;
+  const joints = idx => idx.map(i => ({ idx: [i], axis: [side.clone().applyQuaternion(bones[i].getWorldQuaternion(q).invert()).toArray()] }));
+  const hind = find(['LThigh', 'LLeg', 'RThigh', 'RLeg']), front = find(['LArm', 'LForeArm', 'RArm', 'RForeArm']), hand = find(['LHand']);
+  if (!hind) return null;
+  const len = y(hind[0]); // hip height, with the feet on the ground
+  return { len, j: joints(hind), front: front && hand && y(hand[0]) < len * 0.5 ? joints(front) : null };
 }
 { // the manager also tracks the textures, so party portraits are not drawn before they arrive
   const mgr = new THREE.LoadingManager(), texDone = new Promise(r => (mgr.onLoad = mgr.onError = r)), loader = new ColladaLoader(mgr);
@@ -2751,8 +2785,8 @@ function xy(name, follower = false) {
   const t = XY[name]; if (!t) return null;
   const g = SkeletonUtils.clone(t), bones = []; g.traverse(o => o.isBone && bones.push(o));
   const live = c => c && { userData: { chain: c.idx.map((i, k) => ({ b: bones[i], rest: bones[i].quaternion.clone(), axis: new V3().fromArray(c.axis[k]) })) } };
-  const { tail, wingL, wingR, ears } = t.userData.chains;
-  g.userData = { fire: t.userData.fire, chains: { tail: live(tail), wingL: live(wingL), wingR: live(wingR), ears: live(ears) } };
+  const { tail, wingL, wingR, ears, legs } = t.userData.chains;
+  g.userData = { fire: t.userData.fire, chains: { tail: live(tail), wingL: live(wingL), wingR: live(wingR), ears: live(ears), legs: legs && { len: legs.len, j: legs.j.map(c => live(c).userData.chain[0]), front: legs.front?.map(c => live(c).userData.chain[0]) } } };
   if (t.userData.clips?.length) { // Pokédex 3D Pro idle, started at a random point so a group doesn't move in sync
     const clip = (follower && t.userData.calm) || t.userData.clips[0];
     const m = new THREE.AnimationMixer(g); m.clipAction(clip).play(); m.setTime(Math.random() * clip.duration); XY_MIXERS.add(m);
@@ -2763,6 +2797,10 @@ const _swingQ = new THREE.Quaternion();
 function swing(o, a) { // sculpt parts turn as one piece; X/Y bone chains bend a share of the angle at each joint
   const ch = o.userData.chain; if (!ch) { o.rotation.z = a; return; }
   for (const c of ch) c.b.quaternion.copy(c.rest).multiply(_swingQ.setFromAxisAngle(c.axis, a / ch.length));
+}
+function bend(c, a) { // one joint, on top of the pose the idle clip set this frame (or the last one, when no mixer is running)
+  const q = c.b.quaternion; if (!c.out?.equals(q)) (c.base ??= new THREE.Quaternion()).copy(q);
+  q.copy(c.base).multiply(_swingQ.setFromAxisAngle(c.axis, a)); (c.out ??= new THREE.Quaternion()).copy(q);
 }
 
 function makePikachu() { const x = xy('pikachu', true); if (x) { x.userData.tail = x.userData.chains.tail || new THREE.Group(); return x; } const { root, parts } = rig('pikachu'); root.userData.tail = parts.tail; return root; }
@@ -2842,8 +2880,8 @@ const interactables = [
   ...npcs.map(n => ({ get x() { return n.x; }, get z() { return n.z; }, r: 1.6, name: n.name, lines: n.lines, npc: n, after: n.after, top: 2.5 })),
   { x: SIGN[0], z: SIGN[1], r: 1.3, name: 'Sign', lines: ['POKéMON CENTER', 'Heal your Pokémon! Open all day, every day.'], top: 1.5 },
   { x: POST[0], z: POST[1], r: 1.4, name: 'Signpost', lines: ['← Verdant Town      Meadow Route →', 'Mind the tall grass. Wild Pokémon live there!'], top: 2 },
-  { x: BU[0], z: BU[1], r: 1.8, name: 'Bulbasaur', lines: ['Bulba! Bulbasaur!', 'The wild Bulbasaur looks ready for a battle!'], top: 1.4,
-    after: () => startBattle('BULBASAUR', 5, { intro: 'The wild BULBASAUR wants to battle!', onWin: retireBulbasaur }) },
+  { x: BU[0], z: BU[1], r: 1.8, name: 'Bulbasaur', lines: ['Bulba... Bulbasaur!', 'This wild Bulbasaur fled here from the stream. It is trembling, and lashes out at anyone who comes close!'], top: 1.4,
+    after: () => startBattle('BULBASAUR', 5, { intro: 'The frightened wild BULBASAUR attacks!', onWin: retireBulbasaur }) },
   { x: COT.door[0], z: COT.door[1], r: 1.1, name: 'Door', lines: ["It's locked. Smells like fresh bread inside..."], top: 2.2 },
 ];
 
@@ -2867,20 +2905,30 @@ const CLUES = [ // along the stream, downstream to upstream, so the last clue po
 ];
 const clueOpen = c => story.step === 'investigate-stream' && !story.clues.includes(c.id);
 for (const c of CLUES) {
-  interactables.push({ x: c.at[0], z: c.at[1], get r() { return clueOpen(c) ? 1.4 : 0; }, name: 'Stream', lines: c.lines, top: 1.2, after: () => {
+  interactables.push({ x: c.at[0], z: c.at[1], get r() { return clueOpen(c) ? 1.4 : 0; }, name: 'Stream', top: 1.2,
+    get lines() { const n = story.clues.length + 1; return [...c.lines, n < CLUES.length ? `You noted it in your field journal. (Clue ${n} of ${CLUES.length})` : `That makes ${n} clues. Time to report to Prof. Sycamore!`]; },
+    after: () => {
     story.clues.push(c.id); SND.chime();
     if (CLUES.every(k => story.clues.includes(k.id))) story.step = 'report-clues';
     questChanged();
   } });
 }
-function questChanged() { renderObjective(); placeStoryNpcs(); placeRival(); saveGame(); }
+let chapterT = 0;
+function chapterCard(kicker, title, sub) { // the title card over the world for a few seconds (the dialog below carries the details)
+  $('chKicker').textContent = kicker; $('chTitle').textContent = title; $('chSub').textContent = sub; $('chSub').hidden = !sub;
+  $('chapter').classList.remove('show'); void $('chapter').offsetWidth; $('chapter').classList.toggle('still', !!SET.calm); $('chapter').classList.add('show');
+  clearTimeout(chapterT); chapterT = setTimeout(() => $('chapter').classList.remove('show'), 4500);
+}
+function questChanged() { syncKeyItems(); renderObjective(); placeStoryNpcs(); placeRival(); saveGame(); }
+function syncKeyItems() { if (story.step === 'deliver-chip') bag.signalChip = 1; else delete bag.signalChip; } // story items follow the step, so a save can neither lose nor keep them
 function renderObjective() { renderTracker(); } // the quest tracker card (see questList)
 function profTalk() { // [lines, after] for the current step; each grant happens only on its own step transition
   const left = CLUES.length - story.clues.length;
   return {
     'meet-prof': [['Ah, there you are! I have a favour to ask: your first field assignment.', 'The stream east of town has gone silent, and the wild Pokémon are restless.',
       'Follow the bank and inspect anything unusual. Here, these will help on the way.', 'You received 5 Poké Balls and 3 Potions!'],
-      () => { if (story.step !== 'meet-prof') return; bag.ball = (bag.ball || 0) + 5; bag.potion = (bag.potion || 0) + 3; story.step = 'investigate-stream'; SND.chime(); questChanged(); }],
+      () => { if (story.step !== 'meet-prof') return; bag.ball = (bag.ball || 0) + 5; bag.potion = (bag.potion || 0) + 3; story.step = 'investigate-stream'; SND.chime(); questChanged();
+        chapterCard('Chapter 1', 'The Silent Stream', 'Inspect the quiet stream east of town'); }],
     'investigate-stream': [[`Follow the stream east of town. ${left === 1 ? 'One more spot' : `${left} spots`} still need a look.`]],
     'report-clues': [['Still water, fleeing footprints and a strange hum from upstream...', 'Something along Meadow Route is driving the Pokémon away from the water.',
       'An apprentice ranger is posted out there. Find her: she knows the woods better than anyone.'],
@@ -2891,12 +2939,12 @@ function profTalk() { // [lines, after] for the current step; each grant happens
     'report-device': [['Lea told me everything! Listen: the stream is singing again, and the Pokémon are coming home.', 'But a survey device with fresh repairs... someone switched it on deliberately.',
       'And it is not the only one. Similar signals have been reported in other places across the region.', 'You did wonderful field work. Take these for your next assignment: following those signals.', 'You received 5 Great Balls!'],
       () => { if (story.step !== 'report-device') return; bag.greatBall = (bag.greatBall || 0) + 5; story.step = 'chapter-complete'; SND.fanfare(); questChanged();
-        const saved = chapterSave();
+        const saved = chapterSave(); chapterCard('Chapter 1 complete', 'The Silent Stream', saved ? 'Saved as “Chapter 1 complete”' : '');
         say('Chapter 1', ['The Silent Stream: complete!', saved ? 'Your progress was saved to the file “Chapter 1 complete”.' : 'All save slots are full. Save from the Game Menu to keep a copy of this moment.']); }],
     'chapter-complete': [['Before you go, take this: the signal chip from inside the device. It has a maker’s stamp I can’t read.',
       'Clemont in Fleurville builds machines like this for fun. If anyone can tell us who repaired it, he can.', 'You received the Signal Chip!'],
       () => { if (story.step !== 'chapter-complete') return; story.step = 'deliver-chip'; SND.chime(); questChanged(); }],
-    'deliver-chip': [['Clemont lives by the windmill in Fleurville. Press T to travel there.']],
+    'deliver-chip': [[`Clemont lives by the windmill in Fleurville. Press ${kb('travel')} to travel there.`]],
     'act1-complete': [['The Halcyon Network... a company that promises to keep Pokémon away from towns.', 'If they are moving Pokémon instead of helping them, every quiet stream is a clue.',
       'Keep training, keep observing. The League and the truth both lie down those trails.']],
   }[story.step];
@@ -2912,12 +2960,15 @@ function chapterSave() { // the chapter-complete save point: a save file of its 
 // Ranger Lea: posted on Meadow Route; after her battle she waits at the clearing's edge
 const PROF = 'Prof. Sycamore';
 const RANGER = 'Ranger Lea', RANGER_AT = I(1560, 330, 0), RANGER_CLEAR = [CLEAR.x - 3.4, CLEAR.z + 1.6];
-const RANGER_TEAM = [['PIDGEY', 3], ['ODDISH', 4]]; // beatable by a lone Lv5 starter without items
+const RANGER_TEAM = [['RATTATA', 3], ['PIDGEY', 2]]; // the first Trainer battle: a lone Lv5 starter without items wins 95%+ even spamming its own type's move
+// (Pidgey and Oddish both resist Grass, and Oddish's Absorb hits Squirtle hard: Bulbasaur won 4% and Squirtle 23% that way)
 function rangerTalk() { // [lines, after] for the current step
   if (story.step === 'find-ranger') return [['So Prof. Sycamore sent you? I’m Lea, apprentice ranger.', 'The clearing ahead is no place for a beginner. Show me you can handle yourself!'], () => startBattle(null, 0, {
     trainer: { name: 'Apprentice Ranger Lea', team: RANGER_TEAM, prize: 300 },
-    onWin: () => { if (story.step !== 'find-ranger') return; story.step = 'investigate-clearing'; renderObjective(); saveGame(); // she walks to the clearing once she has spoken
-      say(RANGER, ['You and your partner work well together. You passed!', 'That hum comes from the woodland clearing just off the road, to the east.', 'I’ll meet you there. Stay close once we’re inside!'], null, placeStoryNpcs); },
+    onWin: () => { if (story.step !== 'find-ranger') return; story.step = 'investigate-clearing'; healParty(); renderObjective(); // she walks to the clearing once she has spoken
+      say(RANGER, ['You and your partner work well together. You passed!', 'Here, let me patch up your Pokémon. Your team was healed!',
+        'That hum comes from the woodland clearing at the end of the road. A Psyduck there attacks anyone who comes near.',
+        'Psyduck is a Water type. If Water moves hurt your partner, catch a teammate in the tall grass and keep Potions handy.', 'I’ll meet you there. Stay close once we’re inside!'], null, placeStoryNpcs); },
     onLose: () => say(RANGER, ['Don’t give up! I patched up your Pokémon.', 'Catch your breath, then talk to me when you’re ready for a rematch.']),
   })];
   const sq = scrapsTalk(); if (sq) return sq;
@@ -2931,8 +2982,8 @@ function rangerTalk() { // [lines, after] for the current step
   }[story.step] ?? ['Hold on! The woods past here are off-limits for now.', 'Something has the wild Pokémon spooked. Only Trainers the Professor sends may pass.']];
 }
 let rangerNpc = null;
-function spawnRanger() { // the Backpacker rip stands in (both Pokémon Ranger rips are broken Blender 2.77 re-exports); the girl sculpt if it fails to load
-  const key = XY.backpacker ? 'backpacker' : 'girl';
+function spawnRanger() { // the Pokémon Ranger (Female) rip; the Backpacker, then the girl sculpt, if it fails to load
+  const key = XY.rangerF ? 'rangerF' : XY.backpacker ? 'backpacker' : 'girl';
   const n = rangerNpc = npc(makeHuman(key), ...RANGER_AT, -Math.PI / 2, RANGER, []);
   n.h.root.scale.setScalar(0.85); placeStoryNpcs();
   interactables.push({ get x() { return n.x; }, get z() { return n.z; }, r: 1.6, name: RANGER, get lines() { return rangerTalk()[0]; }, npc: n, get after() { return rangerTalk()[1]; }, top: 2.5 });
@@ -2947,6 +2998,8 @@ function spawnProf() { // the professor waits by the spawn; the Verdant elder sc
 
 // The woodland clearing: an old survey device pulsing a signal, and the Psyduck it torments standing guard in front of it
 const DEV_AT = [CLEAR.x + 1.4, CLEAR.z - 0.6], GUARD_AT = [CLEAR.x - 0.6, CLEAR.z + 0.2], GUARD_STREAM = bankAt(1205, 520, 1, 0.2);
+const GUARD_REST = [CLEAR.x - 1.4, CLEAR.z - 2.2]; // beaten, it slumps aside: standing in front of the device, it took the E press meant for the switch
+const guardSpot = () => restored() ? GUARD_STREAM : story.step === 'shut-device' ? GUARD_REST : GUARD_AT;
 const DEV = new THREE.Group();
 {
   DEV.position.set(DEV_AT[0], terrainH(...DEV_AT), DEV_AT[1]); DEV.rotation.y = -Math.PI / 2 + 0.3; scene.add(DEV);
@@ -2980,7 +3033,7 @@ function shutDevice() {
 }
 const GUARD = { model: null, hop: 0 };
 function spawnGuardian() { return loadSpeciesModel('PSYDUCK').then(() => { GUARD.model = SPECIES.PSYDUCK.make(); GUARD.model.scale.multiplyScalar(0.8); scene.add(GUARD.model); placeStoryNpcs(); }); }
-interactables.push({ get x() { return (restored() ? GUARD_STREAM : GUARD_AT)[0]; }, get z() { return (restored() ? GUARD_STREAM : GUARD_AT)[1]; }, r: 1.6, name: 'Psyduck', top: 1.5,
+interactables.push({ get x() { return guardSpot()[0]; }, get z() { return guardSpot()[1]; }, r: 1.6, name: 'Psyduck', top: 1.5,
   get lines() {
     if (restored()) return ['Psyduck paddles happily in the stream.', 'Psy-yy... duck!'];
     if (story.step === 'shut-device') return ['Psyduck is tired out, but it still clutches its head.', 'The hum from the machine behind it is getting to everyone...'];
@@ -2988,14 +3041,14 @@ interactables.push({ get x() { return (restored() ? GUARD_STREAM : GUARD_AT)[0];
   },
   get after() { return story.step === 'investigate-clearing' ? fightGuardian : undefined; } });
 function fightGuardian() {
-  startBattle('PSYDUCK', 5, { intro: 'The distressed PSYDUCK attacks!', noCatch: true,
+  startBattle('PSYDUCK', 4, { intro: 'The distressed PSYDUCK attacks!', foeTitle: 'The distressed ', noCatch: true, // Lv4: Charmander, the weak matchup, wins 60-78% alone at Lv6 (Lea warns about it and heals first)
     onWin: () => { if (story.step !== 'investigate-clearing') return; story.step = 'shut-device'; questChanged();
       say(RANGER, ['Well done! It’s too worn out to fight now.', 'Look, behind it: that rusty machine. The hum is coming from there. Switch it off!']); },
     onLose: () => say(RANGER, ['I’ve got you! Your Pokémon are patched up.', 'That Psyduck isn’t evil, just hurting. Try again when you’re ready.']) });
 }
 function placeStoryNpcs() { // NPC places follow the story step (called on load, on spawn and on every step change)
   if (rangerNpc) { const [x, z] = reached('investigate-clearing') ? RANGER_CLEAR : RANGER_AT; Object.assign(rangerNpc, { x, z, baseFace: reached('investigate-clearing') ? 1.2 : -Math.PI / 2 }); }
-  if (GUARD.model) { const [x, z] = restored() ? GUARD_STREAM : GUARD_AT; GUARD.model.position.set(x, walkH(x, z), z); GUARD.model.rotation.y = restored() ? 2.4 : -Math.PI / 2; }
+  if (GUARD.model) { const [x, z] = guardSpot(); GUARD.model.position.set(x, walkH(x, z), z); GUARD.model.rotation.y = restored() ? 2.4 : story.step === 'shut-device' ? 0.4 : -Math.PI / 2; }
 }
 // ============================================================ Side quests and quest markers
 // Main-story targets wear a gold "!", side quests a light-blue one. Every side quest feeds the main story or the end game:
@@ -3044,12 +3097,15 @@ function clemontTalk() { // the Act I hand-off: who made the chip
     ...(SIDE.scraps === 2 ? ['The parts Lea found carry the same stamp. That settles it: Halcyon repaired your device.'] : ['If you find more parts with this stamp, we will know for sure who repaired it.']),
     'Please tell Prof. Sycamore. Here, take this as thanks for the puzzle!', 'You received a Thunder Stone!'],
     () => { if (story.step !== 'deliver-chip') return; story.step = 'act1-complete'; bag.thunderStone = (bag.thunderStone || 0) + 1; SND.fanfare(); questChanged();
+      chapterCard('Act I complete', 'First Signs', 'The trail leads to the Halcyon Network');
       say('Act I', ['First Signs: complete!', 'Somebody is redirecting the region\'s Pokémon. The trail leads to the Halcyon Network.']); }];
 }
 // the rival: a childhood friend who wants the Championship and believes strength solves everything
 const RIVAL_AT = [START[0] + 3, START[1] + 2], RIVAL_COUNTER = { BULBASAUR: 'CHARMANDER', IVYSAUR: 'CHARMANDER', CHARMANDER: 'SQUIRTLE', CHARMELEON: 'SQUIRTLE', SQUIRTLE: 'BULBASAUR', WARTORTLE: 'BULBASAUR' };
 let rivalNpc = null, RIVAL = 'Calem';
 const rivalStarter = () => RIVAL_COUNTER[party.map(m => m.key).find(k => RIVAL_COUNTER[k])] ?? 'EEVEE';
+// a partner received today only knows the basics; with its full learnset the type counter beat a lone starter 83-97% of the time
+const RIVAL_FIRST_MOVES = { BULBASAUR: ['TACKLE', 'GROWL'], CHARMANDER: ['SCRATCH', 'GROWL'], SQUIRTLE: ['TACKLE', 'TAIL_WHIP'], EEVEE: ['TACKLE', 'TAIL_WHIP'] };
 function spawnRival() { // Calem (Shauna if the player is Calem)
   const key = XY.calem && trainer?.char !== 'calem' ? 'calem' : 'girl'; RIVAL = key === 'calem' ? 'Calem' : 'Shauna';
   rivalNpc = npc(makeHuman(key), ...RIVAL_AT, Math.PI, RIVAL, []); rivalNpc.h.root.scale.setScalar(0.85);
@@ -3064,15 +3120,23 @@ function rivalBattle(team, onWin) {
 function rivalTalk() {
   const st = rivalStarter();
   if (SIDE.rival === 0) return [['There you are! I got my partner from the Professor too. We are going to be Champion one day!', 'Wild Pokémon running into town? Nothing a strong team can\'t fix.',
-    'Come on, our first battle. Right here, right now!'], rivalBattle([[st, 5]], () => { if (SIDE.rival !== 0) return; SIDE.rival = 1; questChanged();
+    ...(st === 'EEVEE' ? [] : [`I picked ${SPECIES[st].name} because it has the type advantage over yours. Moves it resists will barely scratch it!`]),
+    'Come on, our first battle. Right here, right now!'], rivalBattle([[st, 5, RIVAL_FIRST_MOVES[st]]], () => { if (SIDE.rival !== 0) return; SIDE.rival = 1; questChanged();
       say(RIVAL, ['Okay, okay, you won this one.', 'Promise me something: we both make it to the League, and we settle it in the Championship.', 'Until then, I am training non-stop. Find me again after you fix that stream!']); })];
   if (SIDE.rival === 1 && !reached('chapter-complete')) return [['Still chasing that stream mystery? Fix it, then we battle again. I am getting stronger every day!']];
+  // the rematch is the type counter at Lv6 (simulated: a lone Lv9 Bulbasaur, the worst case, wins 63% with 3 Potions; a caught teammate helps)
   if (SIDE.rival === 1) return [['You actually stopped that device? Huh. Maybe there is more to this than strength...', 'Doesn\'t mean I will go easy on you. Rematch!'],
-    rivalBattle([['PIDGEY', 9], [st, 11]], () => { if (SIDE.rival !== 1) return; SIDE.rival = 2; bag.greatBall = (bag.greatBall || 0) + 3; SND.fanfare(); questChanged();
+    rivalBattle([['PIDGEY', 5], [st, 6]], () => { if (SIDE.rival !== 1) return; SIDE.rival = 2; bag.greatBall = (bag.greatBall || 0) + 3; SND.fanfare(); questChanged();
       say(RIVAL, ['Two in a row... You read your Pokémon like a field researcher reads a trail.', 'I will remember that. The promise stands: the Championship, you and me.', 'Take these. You will need them on the road to the League.', 'You received 3 Great Balls!']); })];
   return [['The League is waiting. See you in the Championship!']];
 }
-const QUEST_TALK = { 'Hiker Mia': notesTalk, Clemont: clemontTalk }; // NPC name -> () => [lines, after] | null; act() asks it before the everyday lines
+// townsfolk notice the silent stream (the chapter's opening beat) and its return
+const townTalk = (before, after) => () => [restored() ? after : before];
+const QUEST_TALK = { 'Hiker Mia': notesTalk, Clemont: clemontTalk, // NPC name -> () => [lines, after] | null; act() asks it before the everyday lines
+  'Old man': townTalk(['That river has babbled every day of my life. Since this morning: nothing. Not a peep.', 'Even the Pokémon that drink there ran off. Something is wrong, mark my words.'],
+    ['Hear that? The river is singing again!', 'Back in my day there was no bridge here. We hopped across the river stones. Builds character!']),
+  Kid: townTalk(['A wild Bulbasaur ran out of the grass by the river. It looked so scared!', 'Grandpa says the Pokémon are running away from the stream. Is my egg going to be okay?'],
+    ['The Magikarp are splashing in the river again!', 'My egg wiggled when it heard them. It’s going to hatch any day now!']) };
 // The quest log: one entry per quest under way, with what to do next and where ([x, z, marker height] targets; none when the goal
 // is "anywhere", like battling wild Pokémon). Markers, the tracker card and the guide arrow all read it.
 const MAIN_TEXT = { 'meet-prof': 'Talk to Prof. Sycamore', 'investigate-stream': 'Inspect the quiet stream', 'report-clues': 'Report to Prof. Sycamore',
@@ -3105,7 +3169,7 @@ function questMarks() { // everything that should wear a "!" right now: [x, z, h
   if (restored() && SIDE.scraps === 0) offer(RANGER, 'scraps');
   return m;
 }
-// ---- quest tracker: the card top-left. Click a quest (or press Q) to track it; the guide arrow then points the way.
+// ---- quest tracker: the card top-left. Click a quest (or press the quest key, Q by default) to track it; the guide arrow then points the way.
 let tracked = 'main', trackerMin = false;
 const sameMap = (x, x2) => inKalos(x) === inKalos(x2);
 function nearestTarget(q) { // the closest target on this map, or null; [x, z, distance]
@@ -3116,7 +3180,7 @@ function nearestTarget(q) { // the closest target on this map, or null; [x, z, d
 function distLabel(q) {
   if (!q.targets.length) return '';
   const t = nearestTarget(q); if (t) return t[2] < 3 ? 'here' : `${Math.round(t[2])} m`;
-  return inKalos(q.targets[0][0]) ? 'Fleurville · T' : 'Verdant · T'; // the target is on the other map: T travels
+  return `${inKalos(q.targets[0][0]) ? 'Fleurville' : 'Verdant'} · ${kb('travel')}`; // the target is on the other map: the travel key goes there
 }
 function renderTracker() {
   const list = questList(); if (!list.some(q => q.id === tracked)) tracked = 'main';
@@ -3397,6 +3461,7 @@ async function loadFolk(keys = Object.keys(FOLK).filter(k => !PLAYABLE.has(k))) 
   const got = await Promise.all(keys.filter(k => !XY[k]).map(k => loader.loadAsync('models/xy/' + FOLK[k][0].split('/').map(encodeURIComponent).join('/')).then(c => {
     const names = {}; for (const d of Object.values(c.library.nodes)) if (d.type === 'JOINT' && d.sid) names[d.sid] = d.name;
     c.scene.traverse(o => o.isBone && names[o.name] && (o.name = names[o.name]));
+    c.scene.quaternion.identity(); // the Blender 2.77 re-exports declare Z_UP but kept the rip's Y-up data, so the loader's turn laid them flat
     return [k, c.scene];
   }, e => (console.warn('Townsfolk model failed:', k, e), null))));
   await Promise.race([texDone, new Promise(r => setTimeout(r, 15000))]);
@@ -3417,7 +3482,7 @@ async function kProp(path, px, py, size, ry = 0, fade = null) { // a static X/Y 
 }
 function startKalos() { // after the first frame: stream the townsfolk and the X/Y fountain and Pokémon Center in the background
   KAL.started = true;
-  loadFolk(['sycamore', 'backpacker']).then(() => { for (const f of [spawnProf, spawnRanger, spawnRival]) try { f(); } catch (e) { console.warn('Story NPC failed:', e); } spawnGuardian(); return loadFolk(); }).then(spawnFolk); // the story NPCs first: the quest runs through them
+  loadFolk(['sycamore', 'backpacker', 'rangerF']).then(() => { for (const f of [spawnProf, spawnRanger, spawnRival]) try { f(); } catch (e) { console.warn('Story NPC failed:', e); } spawnGuardian(); return loadFolk(); }).then(spawnFolk); // the story NPCs first: the quest runs through them
   kProp('Roselia Fountain/c01_bm_hunsui.dae', 532, 357, 3.3).then(h => (KAL.spray.y = h * 0.92), e => console.warn('Fountain model failed:', e));
   kProp('Pokemon Center/com_bm_pokecen.dae', 705, 432, 4.7, 0, kRect(662, 386, 748, 474)).catch(e => {
     console.warn('Pokémon Center model failed, using a built one:', e);
@@ -3489,12 +3554,12 @@ function portalTick() { // the corner hint shows the X prompt while the player s
   const pad = PORTALS.find(p => Math.hypot(P.pos.x - p.x, P.pos.z - p.z) < 0.5) || null;
   if (pad === (KAL.pad ?? null)) return; // ?? null: leave the start-up controls hint alone until a pad is touched
   KAL.pad = pad; const h = $('hint');
-  if (pad) h.innerHTML = `<kbd>X</kbd> enter ${pad.name}`;
+  if (pad) h.innerHTML = `<kbd>${kb('warp')}</kbd> enter ${pad.name}`;
   h.style.opacity = pad ? 1 : 0;
 }
 function portalKey() {
   if (ui.dialog?.portal) { const go = ui.dialog.portal.go; ui.dialog = null; $('dialog').classList.remove('show'); fadeTo(go); }
-  else if (KAL.pad && !ui.dialog) { say('Portal', [`Warp to ${KAL.pad.name}? Press X to go, E to cancel.`]); ui.dialog.portal = KAL.pad; }
+  else if (KAL.pad && !ui.dialog) { say('Portal', [`Warp to ${KAL.pad.name}? Press ${kb('warp')} to go, ${kb('act')} to cancel.`]); ui.dialog.portal = KAL.pad; }
 }
 function travel(toKalos) { fadeTo(() => { const [x, z] = toKalos ? K_SPAWN : START; placePlayer(x, z, toKalos ? Math.PI : Math.PI / 2 + 0.25); }); }
 function fadeTo(move) { // fade to black, move the player, fade back in
@@ -3518,6 +3583,120 @@ addEventListener('click', e => { // replay the .pop animation on whichever butto
   b.classList.remove('pop'); void b.offsetWidth; b.classList.add('pop');
 }, true);
 addEventListener('animationend', e => e.animationName === 'btnPop' && e.target.classList.remove('pop'));
+// ============================================================ key bindings (per browser) and gamepad
+// A rebound key is translated into the default key it stands for before any other listener sees it, so every screen (bag, battle,
+// Pokédex) follows the bindings without knowing about them; the default key it replaced goes quiet. The gamepad sends the same keys.
+const BIND_KEY = 'verdant-keys-v1';
+const BIND_ACTIONS = [['up', 'Walk forward', 'KeyW'], ['left', 'Walk left', 'KeyA'], ['down', 'Walk back', 'KeyS'], ['right', 'Walk right', 'KeyD'],
+  ['act', 'Talk / read / confirm', 'KeyE'], ['bag', 'Bag', 'KeyB'], ['quest', 'Track the next quest', 'KeyQ'], ['view', 'First-person view', 'KeyV'],
+  ['travel', 'Travel to Fleurville / Verdant', 'KeyT'], ['warp', 'Use a warp pad', 'KeyX']];
+const BIND = {}, bindDefaults = () => { for (const [a, , d] of BIND_ACTIONS) BIND[a] = d; };
+bindDefaults();
+try { // stored bindings are untrusted: letters and digits only, each key used once, else the defaults
+  const s = JSON.parse(localStorage.getItem(BIND_KEY)) || {}, v = BIND_ACTIONS.map(([a]) => s[a] ?? BIND[a]);
+  if (v.every(c => /^(Key[A-Z]|Digit\d)$/.test(c)) && new Set(v).size === v.length) BIND_ACTIONS.forEach(([a], i) => (BIND[a] = v[i]));
+} catch {}
+let REMAP = new Map(), binding = null; // binding: the action waiting for its new key in the Controls page
+function buildRemap() { // physical key -> the default key it now plays (null: a default key whose action moved elsewhere)
+  REMAP = new Map();
+  for (const [a, , d] of BIND_ACTIONS) if (BIND[a] !== d) { REMAP.set(BIND[a], d); if (!REMAP.has(d)) REMAP.set(d, null); }
+}
+buildRemap();
+const kb = a => BIND[a].replace(/^(Key|Digit)/, ''); // the label of an action's key
+const typing = el => el?.matches?.('input:not([type]), input[type=text], input[type=search], textarea');
+for (const type of ['keydown', 'keyup']) addEventListener(type, e => {
+  if (!e.isTrusted || typing(e.target)) return; // synthetic keys (the gamepad, our own remaps) are already the default keys
+  if (binding && type === 'keydown') { e.preventDefault(); e.stopImmediatePropagation(); return bindKey(e.code); }
+  if (!REMAP.has(e.code)) return;
+  e.preventDefault(); e.stopImmediatePropagation();
+  const to = REMAP.get(e.code);
+  if (to) e.target.dispatchEvent(new KeyboardEvent(type, { code: to, key: to.slice(3).toLowerCase(), repeat: e.repeat, shiftKey: e.shiftKey, bubbles: true, cancelable: true }));
+}, true); // capture: before every other key listener
+function bindKey(code) {
+  const a = binding; binding = null;
+  if (code === 'Escape' || code === 'Tab') {} // cancel
+  else if (!/^(Key[A-Z]|Digit\d)$/.test(code)) gmToast('Use a letter or number key.', true);
+  else if (code === 'KeyG') gmToast('G is taken: it goes to the Test Grounds.', true); // a fixed shortcut, not in BIND_ACTIONS
+  else {
+    const other = BIND_ACTIONS.find(([o]) => o !== a && BIND[o] === code)?.[0];
+    if (other) BIND[other] = BIND[a]; // the two actions swap keys
+    BIND[a] = code; buildRemap(); saveBindings(); renderHint();
+    gmToast(other ? `Swapped with “${BIND_ACTIONS.find(x => x[0] === other)[1]}”.` : 'Key changed.');
+  }
+  gmRender(); $('gmView').querySelector(`[data-bind="${a}"]`)?.focus(); // the re-render dropped the focus
+}
+function saveBindings() { try { localStorage.setItem(BIND_KEY, JSON.stringify(BIND)); } catch { gmToast('Keys work now but can’t be remembered: browser storage is blocked.', true); } }
+function renderHint() {
+  $('hint').innerHTML = KAL.pad ? `<kbd>${kb('warp')}</kbd> enter ${KAL.pad.name}` : `<kbd>${kb('up')}${kb('left')}${kb('down')}${kb('right')}</kbd> walk · <kbd>Shift</kbd> run · <kbd>${kb('act')}</kbd> talk · click to move · drag to look · <kbd>${kb('quest')}</kbd> track quest · <kbd>${kb('view')}</kbd> first person · scroll to zoom · <kbd>G</kbd> test grounds · <kbd>${kb('travel')}</kbd> travel to Fleurville`;
+  // other text that names a key reads kb() when it is shown; these labels are set up front, so they follow a change here
+  $('viewBtn').setAttribute('aria-label', `First-person view (${kb('view')})`); $('bagBtn').setAttribute('aria-label', `Bag (${kb('bag')})`);
+  if ($('quests').childElementCount) renderTracker(); // the "· T" on a quest on the other map (once the tracker is up)
+}
+renderHint();
+
+// Gamepad (standard mapping): the left stick or d-pad walks, B held runs, the right stick turns the camera. Buttons become key presses:
+// A = E, X = Bag, Y = next quest, Start = Game Menu, Back = first person, LB = travel, RB = warp pad. In menus the stick moves
+// between items: screens with their own arrow keys (battle, bag, Pokédex) get arrows; dialogs with plain buttons move the focus.
+const GP = { x: 0, z: 0, run: false, prev: [], dir: null, rep: 0 };
+const padSend = code => { const t = document.activeElement || document.body; // a key press as if typed (down, then up)
+  for (const type of ['keydown', 'keyup']) t.dispatchEvent(new KeyboardEvent(type, { code, key: code === 'Escape' ? code : code.replace(/^Key|^Arrow/, ''), bubbles: true, cancelable: true })); };
+function padRoot() { // the dialog whose buttons the gamepad walks through, if any
+  if (ui.menu) return $('gmAsk').classList.contains('show') ? $('gmAsk') : $('gameMenu');
+  if (ui.shop) return $('shop');
+  if (ui.quit) return $('quitScreen');
+  if (ui.bag && $('bpParty').classList.contains('show')) return $('bpParty');
+  if (ui.onboard && OB.stage !== 'title' && !ui.dialog) return $('obForm');
+  return null;
+}
+function padFocus(root, d) { // up/down (and left/right off a slider or list) step through the focusable controls
+  const el = document.activeElement;
+  if (root.contains(el) && (d === 'ArrowLeft' || d === 'ArrowRight')) {
+    const k = d === 'ArrowRight' ? 1 : -1;
+    if (el.type === 'range') { el.value = +el.value + k * 5; return el.dispatchEvent(new Event('input', { bubbles: true })); }
+    if (el.tagName === 'SELECT') { el.selectedIndex = clamp(el.selectedIndex + k, 0, el.options.length - 1); el.dispatchEvent(new Event('input', { bubbles: true })); return el.dispatchEvent(new Event('change', { bubbles: true })); }
+  }
+  const all = [...root.querySelectorAll('button, input, select, [tabindex="0"]')].filter(x => !x.disabled && x.offsetParent && !x.closest('[inert], [hidden]'));
+  if (!all.length) return;
+  const i = all.indexOf(el), k = d === 'ArrowDown' || d === 'ArrowRight' ? 1 : -1;
+  all[i < 0 ? 0 : (i + k + all.length) % all.length].focus();
+}
+function padBack() { // B: back out of whatever is open
+  if (ui.menu) return binding ? bindKey('Escape') : askRes ? answer(false) : closeMenu();
+  if (ui.shop) return $('shop').close();
+  if (ui.quit) return $('quitBack').click();
+  if (ui.dialog && !ui.onboard && !BT.active) return padSend('KeyE'); // B also moves overworld text on (Esc would open the Game Menu)
+  padSend(BT.active && EVO.canCancel ? 'KeyB' : 'Escape'); // bag, Pokédex, battle menus, skipping the intro
+}
+function pollPad(dt) {
+  const pad = [...(navigator.getGamepads?.() ?? [])].find(p => p?.connected && p.mapping === 'standard') || null;
+  if (!pad) { GP.x = GP.z = 0; GP.run = false; GP.prev = []; return; }
+  const dz = v => Math.abs(v) < 0.25 ? 0 : v, b = i => !!pad.buttons[i]?.pressed, hit = i => b(i) && !GP.prev[i];
+  const sx = dz(pad.axes[0] ?? 0) + b(15) - b(14), sz = dz(pad.axes[1] ?? 0) + b(13) - b(12);
+  const free = !ui.dialog && !ui.battle && !ui.pokedex && !ui.onboard && !ui.bag && !ui.menu && !ui.shop && !ui.quit;
+  GP.x = free ? sx : 0; GP.z = free ? sz : 0; GP.run = b(1);
+  if (free) { // the right stick turns the camera like a mouse drag
+    const rx = dz(pad.axes[2] ?? 0), ry = dz(pad.axes[3] ?? 0);
+    VIEW.yaw = wrapAngle(VIEW.yaw - rx * 2.4 * dt);
+    if (VIEW.fpv) VIEW.look = clamp(VIEW.look - ry * 1.6 * dt, -1.2, 0.6); else VIEW.pitch = clamp(VIEW.pitch + ry * 1.6 * dt, 0.35, 1.4);
+  }
+  // menus: the stick or d-pad steps once, then repeats while held
+  const dir = free ? null : Math.abs(sx) > Math.abs(sz) ? (sx > 0.5 ? 'ArrowRight' : sx < -0.5 ? 'ArrowLeft' : null) : (sz > 0.5 ? 'ArrowDown' : sz < -0.5 ? 'ArrowUp' : null);
+  if (dir !== GP.dir) { GP.dir = dir; GP.rep = 0.4; if (dir) padDir(dir); }
+  else if (dir && (GP.rep -= dt) <= 0) { GP.rep = 0.12; padDir(dir); }
+  const root = padRoot();
+  if (hit(0)) root ? (root.contains(document.activeElement) ? document.activeElement.click() : padFocus(root, 'ArrowDown')) : padSend('KeyE');
+  if (hit(1) && !free) padBack();
+  if (hit(2) && (free || ui.bag)) padSend('KeyB');
+  if (hit(3) && free) padSend('KeyQ');
+  if (hit(9)) free ? openMenu() : ui.menu && closeMenu();
+  if (hit(8) && free) padSend('KeyV');
+  if (hit(4) && free) padSend('KeyT');
+  if (hit(5) && (free || ui.dialog?.portal)) padSend('KeyX');
+  GP.prev = pad.buttons.map(x => x.pressed);
+}
+function padDir(d) { const root = padRoot(); root ? padFocus(root, d) : padSend(d); }
+function flashHint(html, ms) { const h = $('hint'); h.innerHTML = html; h.style.opacity = 1; clearTimeout(h._t); h._t = setTimeout(() => (h.style.opacity = 0), ms); } // the top pill, briefly
+addEventListener('gamepadconnected', e => e.gamepad.mapping === 'standard' && flashHint('Controller connected · <kbd>A</kbd> talk · <kbd>B</kbd> run / back · <kbd>X</kbd> bag · <kbd>Y</kbd> quest · <kbd>Start</kbd> menu', 6000));
 addEventListener('keydown', e => {
   if (ui.onboard) return obKey(e);
   if (ui.menu || ui.quit || ui.shop) return; // the Game Menu and shop dialogs handle their own keys (Esc closes them)
@@ -3635,12 +3814,12 @@ const MOVES = {
   TACKLE: { name: 'Tackle', type: 'NORMAL', power: 40, acc: 100, pp: 35, cat: 'phys' },
   SCRATCH: { name: 'Scratch', type: 'NORMAL', power: 40, acc: 100, pp: 35, cat: 'phys' },
   QUICK_ATTACK: { name: 'Quick Attack', type: 'NORMAL', power: 40, acc: 100, pp: 30, cat: 'phys', prio: 1 },
-  THUNDER_SHOCK: { name: 'Thunder Shock', type: 'ELECTRIC', power: 40, acc: 100, pp: 30, cat: 'spec' },
+  THUNDER_SHOCK: { name: 'Thunder Shock', type: 'ELECTRIC', power: 40, acc: 100, pp: 30, cat: 'spec', par: 10 },
   EMBER: { name: 'Ember', type: 'FIRE', power: 40, acc: 100, pp: 25, cat: 'spec' },
   VINE_WHIP: { name: 'Vine Whip', type: 'GRASS', power: 45, acc: 100, pp: 25, cat: 'phys' },
   ABSORB: { name: 'Absorb', type: 'GRASS', power: 20, acc: 100, pp: 25, cat: 'spec', drain: 0.5 },
   GUST: { name: 'Gust', type: 'FLYING', power: 40, acc: 100, pp: 35, cat: 'spec' },
-  POISON_STING: { name: 'Poison Sting', type: 'POISON', power: 15, acc: 100, pp: 35, cat: 'phys' },
+  POISON_STING: { name: 'Poison Sting', type: 'POISON', power: 15, acc: 100, pp: 35, cat: 'phys', psn: 30 },
   ACID: { name: 'Acid', type: 'POISON', power: 40, acc: 100, pp: 30, cat: 'spec' },
   GROWL: { name: 'Growl', type: 'NORMAL', acc: 100, pp: 40, cat: 'status', stat: ['atk', -1, 'foe'] },
   TAIL_WHIP: { name: 'Tail Whip', type: 'NORMAL', acc: 100, pp: 30, cat: 'status', stat: ['def', -1, 'foe'] },
@@ -3648,9 +3827,9 @@ const MOVES = {
   SAND_ATTACK: { name: 'Sand Attack', type: 'GROUND', acc: 100, pp: 15, cat: 'status', stat: ['acc', -1, 'foe'] },
   SMOKESCREEN: { name: 'Smokescreen', type: 'NORMAL', acc: 100, pp: 20, cat: 'status', stat: ['acc', -1, 'foe'] },
   GROWTH: { name: 'Growth', type: 'NORMAL', pp: 20, cat: 'status', stat: ['spa', 1, 'self'] },
-  // showcase moves: one or two per type, usable from FIGHT → "★ Test all moves" (no Pokémon learns them yet)
+  // showcase moves: one or two per type, usable from FIGHT → "★ Test all moves" (some are in learnsets too)
   FLAMETHROWER: { name: 'Flamethrower', type: 'FIRE', power: 90, acc: 100, pp: 15, cat: 'spec', show: 1 },
-  THUNDERBOLT: { name: 'Thunderbolt', type: 'ELECTRIC', power: 90, acc: 100, pp: 15, cat: 'spec', show: 1 },
+  THUNDERBOLT: { name: 'Thunderbolt', type: 'ELECTRIC', power: 90, acc: 100, pp: 15, cat: 'spec', show: 1, par: 10 },
   WATER_GUN: { name: 'Water Gun', type: 'WATER', power: 40, acc: 100, pp: 25, cat: 'spec', show: 1 },
   HYDRO_PUMP: { name: 'Hydro Pump', type: 'WATER', power: 110, acc: 80, pp: 5, cat: 'spec', show: 1 },
   ICE_BEAM: { name: 'Ice Beam', type: 'ICE', power: 90, acc: 100, pp: 10, cat: 'spec', show: 1 },
@@ -3660,27 +3839,313 @@ const MOVES = {
   EARTHQUAKE: { name: 'Earthquake', type: 'GROUND', power: 100, acc: 100, pp: 10, cat: 'phys', show: 1 },
   PSYCHIC: { name: 'Psychic', type: 'PSYCHIC', power: 90, acc: 100, pp: 10, cat: 'spec', show: 1 },
   SHADOW_BALL: { name: 'Shadow Ball', type: 'GHOST', power: 80, acc: 100, pp: 15, cat: 'spec', show: 1 },
-  DRAGON_BREATH: { name: 'Dragon Breath', type: 'DRAGON', power: 60, acc: 100, pp: 20, cat: 'spec', show: 1 },
+  DRAGON_BREATH: { name: 'Dragon Breath', type: 'DRAGON', power: 60, acc: 100, pp: 20, cat: 'spec', show: 1, par: 30 },
   DARK_PULSE: { name: 'Dark Pulse', type: 'DARK', power: 80, acc: 100, pp: 15, cat: 'spec', show: 1 },
   FLASH_CANNON: { name: 'Flash Cannon', type: 'STEEL', power: 80, acc: 100, pp: 10, cat: 'spec', show: 1 },
   MOONBLAST: { name: 'Moonblast', type: 'FAIRY', power: 95, acc: 100, pp: 15, cat: 'spec', show: 1 },
   KARATE_CHOP: { name: 'Karate Chop', type: 'FIGHTING', power: 50, acc: 100, pp: 25, cat: 'phys', show: 1 },
   AIR_SLASH: { name: 'Air Slash', type: 'FLYING', power: 75, acc: 95, pp: 15, cat: 'spec', show: 1 },
-  SLUDGE_BOMB: { name: 'Sludge Bomb', type: 'POISON', power: 90, acc: 100, pp: 10, cat: 'spec', show: 1 },
+  SLUDGE_BOMB: { name: 'Sludge Bomb', type: 'POISON', power: 90, acc: 100, pp: 10, cat: 'spec', show: 1, psn: 30 },
   BUG_BUZZ: { name: 'Bug Buzz', type: 'BUG', power: 90, acc: 100, pp: 10, cat: 'spec', show: 1 },
   HYPER_BEAM: { name: 'Hyper Beam', type: 'NORMAL', power: 150, acc: 90, pp: 5, cat: 'spec', show: 1 },
 };
+// Learnset moves, one per line: ID TYPE power accuracy PP category [extras]. "-" accuracy never misses; "-" power is a status move.
+// Extras: prio=N, drain=F (heals that share of the damage), recoil=F (hurts the user by that share), heal=F (of max HP),
+// spare (leaves the foe at 1 HP), stat=STAT:DELTA:self|foe, psn= / par= / slp=N (N% chance to poison, paralyse or put the foe to
+// sleep; a status move always does it once it hits), powder (Grass types are immune), x2=psn|any (double power against a foe with
+// that status), rest (Rest: full heal, then sleep two turns). Simplified Gen rules: multi-hit moves are one hit of their usual
+// total, Toxic is plain poison, and side effects the battle system doesn't have (burns, freezing, flinching, two-turn charging,
+// weather) are left out; moves that are nothing but such an effect aren't listed, so the learnsets skip them.
+const MOVE_LIST = `BITE DARK 60 100 25 phys
+SLASH NORMAL 70 100 20 phys
+WATER_PULSE WATER 60 100 20 spec
+CRUNCH DARK 80 100 15 phys
+BODY_SLAM NORMAL 85 100 15 phys par=30
+AERIAL_ACE FLYING 60 - 20 phys
+FURY_CUTTER BUG 40 95 20 phys
+MUD_SHOT GROUND 55 95 15 spec
+CONFUSION PSYCHIC 50 100 25 spec
+FLAME_CHARGE FIRE 50 100 20 phys
+LEAF_BLADE GRASS 90 100 15 phys
+HURRICANE FLYING 110 70 10 spec
+DOUBLE_KICK FIGHTING 60 100 30 phys
+DOUBLE_HIT NORMAL 70 90 10 phys
+DRAGON_PULSE DRAGON 85 100 10 spec
+FURY_ATTACK NORMAL 45 85 20 phys
+PETAL_DANCE GRASS 120 100 10 spec
+AIR_CUTTER FLYING 60 95 25 spec
+NIGHT_SLASH DARK 70 100 15 phys
+LEAF_STORM GRASS 130 90 5 spec
+ICY_WIND ICE 55 95 15 spec
+PETAL_BLIZZARD GRASS 90 100 15 phys
+METAL_CLAW STEEL 50 95 35 phys
+SUPERPOWER FIGHTING 120 100 5 phys
+MEGAHORN BUG 120 85 10 phys
+HAMMER_ARM FIGHTING 100 90 10 phys
+SAND_TOMB GROUND 35 85 15 phys
+STOMP NORMAL 65 100 20 phys
+TRI_ATTACK NORMAL 80 100 10 spec par=7
+ACID_SPRAY POISON 40 100 20 spec
+POWER_GEM ROCK 80 100 20 spec
+HEX GHOST 65 100 10 spec x2=any
+ICICLE_SPEAR ICE 75 100 30 phys
+THUNDER_PUNCH ELECTRIC 75 100 15 phys par=10
+EXTREME_SPEED NORMAL 80 100 5 phys prio=2
+BLAZE_KICK FIRE 85 90 10 phys
+MYSTICAL_FIRE FIRE 75 100 10 spec
+ARM_THRUST FIGHTING 45 100 20 phys
+DYNAMIC_PUNCH FIGHTING 100 50 5 phys
+SNARL DARK 55 95 15 spec
+DAZZLING_GLEAM FAIRY 80 100 10 spec
+WATER_SHURIKEN WATER 45 100 20 spec prio=1
+TAKE_DOWN NORMAL 90 85 20 phys recoil=0.25
+DOUBLE_EDGE NORMAL 120 100 15 phys recoil=0.33
+FURY_SWIPES NORMAL 55 80 15 phys
+ROLLOUT ROCK 30 90 20 phys
+GIGA_DRAIN GRASS 75 100 10 spec drain=0.5
+BULLDOZE GROUND 60 100 20 phys
+POUND NORMAL 40 100 35 phys
+MEGA_DRAIN GRASS 40 100 15 spec drain=0.5
+HEADBUTT NORMAL 70 100 15 phys
+SWIFT NORMAL 60 - 20 spec
+MUD_SLAP GROUND 20 100 10 spec
+BRINE WATER 65 100 10 spec
+FLARE_BLITZ FIRE 120 100 15 phys recoil=0.33
+PECK FLYING 35 100 35 phys
+WRAP NORMAL 15 90 20 phys
+ICE_FANG ICE 65 95 15 phys
+PLAY_ROUGH FAIRY 90 90 10 phys
+BUBBLE_BEAM WATER 65 100 20 spec
+FIRE_FANG FIRE 65 95 15 phys
+PSYBEAM PSYCHIC 65 100 20 spec
+COVET NORMAL 60 100 25 phys
+ASTONISH GHOST 30 100 15 phys
+RETALIATE NORMAL 70 100 5 phys
+SMACK_DOWN ROCK 50 100 15 phys
+DISCHARGE ELECTRIC 80 100 15 spec par=30
+EARTH_POWER GROUND 90 100 10 spec
+AQUA_JET WATER 40 100 20 phys prio=1
+DIG GROUND 80 100 10 phys
+RAPID_SPIN NORMAL 50 100 40 phys
+POISON_JAB POISON 80 100 20 phys psn=30
+MAGICAL_LEAF GRASS 60 - 20 spec
+SEED_BOMB GRASS 80 100 15 phys
+PIN_MISSILE BUG 75 95 20 phys
+WING_ATTACK FLYING 60 100 35 phys
+GYRO_BALL STEEL 60 100 5 phys
+HYPER_VOICE NORMAL 90 100 10 spec
+SURF WATER 90 100 15 spec
+BUG_BITE BUG 60 100 20 phys
+TWISTER DRAGON 40 100 20 spec
+THUNDER_FANG ELECTRIC 65 95 15 phys par=10
+FEINT NORMAL 30 100 10 phys prio=2
+HORN_ATTACK NORMAL 65 100 25 phys
+DISARMING_VOICE FAIRY 40 - 15 spec
+ROCK_THROW ROCK 50 90 15 phys
+DRAINING_KISS FAIRY 50 100 10 spec drain=0.75
+PAYBACK DARK 50 100 10 phys
+EXTRASENSORY PSYCHIC 80 100 20 spec
+FAKE_OUT NORMAL 40 100 10 phys prio=3
+FLAME_WHEEL FIRE 60 100 25 phys
+ICE_SHARD ICE 40 100 30 phys prio=1
+WHIRLPOOL WATER 35 85 15 spec
+LICK GHOST 30 100 30 phys par=30
+THUNDER ELECTRIC 110 70 10 spec par=30
+SLUDGE_WAVE POISON 95 100 10 spec psn=10
+KNOCK_OFF DARK 65 100 20 phys
+UPROAR NORMAL 90 100 10 spec
+SMOG POISON 30 70 20 spec psn=40
+SHADOW_SNEAK GHOST 40 100 30 phys prio=1
+HEAD_SMASH ROCK 150 80 5 phys recoil=0.5
+ELECTRO_BALL ELECTRIC 60 100 10 spec
+SPARK ELECTRIC 65 100 20 phys par=30
+AURORA_BEAM ICE 65 100 20 spec
+FALSE_SWIPE NORMAL 40 100 40 phys spare
+BIND NORMAL 15 85 20 phys
+IRON_HEAD STEEL 80 100 15 phys
+DRAGON_CLAW DRAGON 80 100 15 phys
+DRILL_RUN GROUND 80 95 10 phys
+METEOR_MASH STEEL 90 90 10 phys
+ECHOED_VOICE NORMAL 40 100 15 spec
+ROUND NORMAL 60 100 15 spec
+BULLET_PUNCH STEEL 40 100 30 phys prio=1
+PSYSHOCK PSYCHIC 80 100 10 spec
+WOOD_HAMMER GRASS 120 100 15 phys recoil=0.33
+FAIRY_WIND FAIRY 40 100 30 spec
+POWDER_SNOW ICE 40 100 25 spec
+SACRED_SWORD FIGHTING 90 100 15 phys
+FELL_STINGER BUG 50 100 25 phys
+PLUCK FLYING 60 100 20 phys
+CRUSH_CLAW NORMAL 75 95 10 phys
+STORED_POWER PSYCHIC 20 100 10 spec
+ICICLE_CRASH ICE 85 90 10 phys
+BULLET_SEED GRASS 75 100 30 phys
+ERUPTION FIRE 150 100 5 spec
+LEAFAGE GRASS 40 100 40 phys
+U_TURN BUG 70 100 20 phys
+VICE_GRIP NORMAL 55 100 30 phys
+HEAT_WAVE FIRE 95 90 10 spec
+STRUGGLE_BUG BUG 50 100 20 spec
+FREEZE_DRY ICE 70 100 20 spec
+SCALD WATER 80 100 15 spec
+VOLT_SWITCH ELECTRIC 70 100 20 spec
+PARABOLIC_CHARGE ELECTRIC 65 100 20 spec drain=0.5
+IRON_TAIL STEEL 100 75 15 phys
+NUZZLE ELECTRIC 20 100 20 phys par=100
+FIRE_PUNCH FIRE 75 100 15 phys
+THIEF DARK 60 100 25 phys
+AQUA_CUTTER WATER 70 100 20 phys
+GRASS_KNOT GRASS 60 100 20 spec
+RAZOR_SHELL WATER 75 95 10 phys
+ZEN_HEADBUTT PSYCHIC 80 90 15 phys
+ROCK_SMASH FIGHTING 40 100 15 phys
+ASSURANCE DARK 60 100 10 phys
+LOW_KICK FIGHTING 60 100 20 phys
+INFESTATION BUG 20 100 20 spec
+SLAM NORMAL 80 75 20 phys
+CHARGE_BEAM ELECTRIC 50 90 10 spec
+PAY_DAY NORMAL 40 100 20 phys
+SLUDGE POISON 65 100 20 spec psn=30
+VENOSHOCK POISON 65 100 10 spec x2=psn
+DRAGON_TAIL DRAGON 60 90 10 phys
+ANCIENT_POWER ROCK 60 100 5 spec
+AVALANCHE ICE 60 100 10 phys
+INCINERATE FIRE 60 100 15 spec
+SHOCK_WAVE ELECTRIC 60 - 20 spec
+STOMPING_TANTRUM GROUND 75 100 10 phys
+PSYCHO_CUT PSYCHIC 70 100 20 phys
+AQUA_TAIL WATER 90 90 10 phys
+SUCKER_PUNCH DARK 70 100 5 phys prio=1
+FIRE_SPIN FIRE 35 85 15 spec
+ACROBATICS FLYING 55 100 15 phys
+HEAVY_SLAM STEEL 80 100 10 phys
+WATERFALL WATER 80 100 15 phys
+CROSS_CHOP FIGHTING 100 80 5 phys
+MACH_PUNCH FIGHTING 40 100 30 phys prio=1
+CROSS_POISON POISON 70 100 20 phys psn=10
+FORCE_PALM FIGHTING 60 100 10 phys par=30
+POISON_TAIL POISON 50 100 25 phys psn=10
+HEAT_CRASH FIRE 80 100 10 phys
+THRASH NORMAL 120 100 10 phys
+FIRE_BLAST FIRE 110 85 5 spec
+BONE_RUSH GROUND 75 90 10 phys
+ROCK_BLAST ROCK 75 90 10 phys
+X_SCISSOR BUG 80 100 15 phys
+ENERGY_BALL GRASS 90 100 10 spec
+DIVE WATER 80 100 10 phys
+FROST_BREATH ICE 60 90 10 spec
+MUDDY_WATER WATER 90 85 10 spec
+GEAR_GRIND STEEL 100 85 15 phys
+STONE_EDGE ROCK 100 80 5 phys
+CLOSE_COMBAT FIGHTING 120 100 5 phys
+DRAGON_RUSH DRAGON 100 75 10 phys
+LEECH_LIFE BUG 80 100 10 phys drain=0.5
+LIQUIDATION WATER 85 100 10 phys
+DRAIN_PUNCH FIGHTING 75 100 10 phys drain=0.5
+RAGE_FIST GHOST 50 100 10 phys
+WAVE_CRASH WATER 120 100 10 phys recoil=0.33
+DRILL_PECK FLYING 80 100 20 phys
+LAVA_PLUME FIRE 80 100 15 spec
+BLIZZARD ICE 110 70 5 spec
+GUNK_SHOT POISON 120 80 5 phys psn=30
+AURA_SPHERE FIGHTING 80 - 20 spec
+STEEL_WING STEEL 70 90 25 phys
+BONEMERANG GROUND 100 90 10 phys
+WILD_CHARGE ELECTRIC 90 100 15 phys recoil=0.25
+NIGHT_DAZE DARK 85 95 10 spec
+OUTRAGE DRAGON 120 100 10 phys
+POISON_FANG POISON 50 100 15 phys psn=50
+HORN_LEECH GRASS 75 100 10 phys drain=0.5
+ZAP_CANNON ELECTRIC 120 50 5 spec par=100
+CRABHAMMER WATER 100 90 10 phys
+POWER_WHIP GRASS 120 85 10 phys
+INFERNO FIRE 100 50 5 spec
+FOUL_PLAY DARK 95 100 15 phys
+HIGH_HORSEPOWER GROUND 95 95 10 phys
+OVERHEAT FIRE 130 90 5 spec
+BRAVE_BIRD FLYING 120 100 15 phys recoil=0.33
+BOOMBURST NORMAL 140 100 10 spec
+FLY FLYING 90 95 15 phys
+WEATHER_BALL NORMAL 50 100 10 spec
+HIGH_JUMP_KICK FIGHTING 130 90 10 phys
+LEER NORMAL - 100 30 status stat=def:-1:foe
+SCREECH NORMAL - 85 40 status stat=def:-2:foe
+SCARY_FACE NORMAL - 100 10 status stat=spe:-2:foe
+CHARM FAIRY - 100 20 status stat=atk:-2:foe
+BABY_DOLL_EYES FAIRY - 100 30 status prio=1 stat=atk:-1:foe
+FEATHER_DANCE FLYING - 100 15 status stat=atk:-2:foe
+FAKE_TEARS DARK - 100 20 status stat=spd:-2:foe
+METAL_SOUND STEEL - 85 40 status stat=spd:-2:foe
+EERIE_IMPULSE ELECTRIC - 100 15 status stat=spa:-2:foe
+NOBLE_ROAR NORMAL - 100 30 status stat=atk:-1:foe
+PLAY_NICE NORMAL - - 20 status stat=atk:-1:foe
+HARDEN NORMAL - - 30 status stat=def:1:self
+WITHDRAW WATER - - 40 status stat=def:1:self
+DEFENSE_CURL NORMAL - - 40 status stat=def:1:self
+IRON_DEFENSE STEEL - - 15 status stat=def:2:self
+ACID_ARMOR POISON - - 20 status stat=def:2:self
+COSMIC_POWER PSYCHIC - - 20 status stat=def:1:self
+AGILITY PSYCHIC - - 30 status stat=spe:2:self
+ROCK_POLISH ROCK - - 20 status stat=spe:2:self
+AUTOTOMIZE STEEL - - 15 status stat=spe:2:self
+SHIFT_GEAR STEEL - - 10 status stat=spe:2:self
+SWORDS_DANCE NORMAL - - 20 status stat=atk:2:self
+HOWL NORMAL - - 40 status stat=atk:1:self
+HONE_CLAWS DARK - - 15 status stat=atk:1:self
+WORK_UP NORMAL - - 30 status stat=atk:1:self
+BULK_UP FIGHTING - - 20 status stat=atk:1:self
+COIL POISON - - 20 status stat=atk:1:self
+DRAGON_DANCE DRAGON - - 20 status stat=atk:1:self
+GEAR_UP STEEL - - 20 status stat=atk:1:self
+CALM_MIND PSYCHIC - - 20 status stat=spa:1:self
+QUIVER_DANCE BUG - - 20 status stat=spa:1:self
+NASTY_PLOT DARK - - 20 status stat=spa:2:self
+AMNESIA PSYCHIC - - 20 status stat=spd:2:self
+CHARGE ELECTRIC - - 20 status stat=spd:1:self
+RECOVER NORMAL - - 5 status heal=0.5
+ROOST FLYING - - 5 status heal=0.5
+SYNTHESIS GRASS - - 5 status heal=0.5
+MOONLIGHT FAIRY - - 5 status heal=0.5
+SLACK_OFF NORMAL - - 5 status heal=0.5
+MILK_DRINK NORMAL - - 5 status heal=0.5
+LIFE_DEW WATER - - 10 status heal=0.25
+SLEEP_POWDER GRASS - 75 15 status slp=100 powder
+STUN_SPORE GRASS - 75 30 status par=100 powder
+POISON_POWDER POISON - 75 35 status psn=100 powder
+SPORE GRASS - 100 15 status slp=100 powder
+THUNDER_WAVE ELECTRIC - 90 20 status par=100
+GLARE NORMAL - 100 30 status par=100
+HYPNOSIS PSYCHIC - 60 20 status slp=100
+SING NORMAL - 55 15 status slp=100
+POISON_GAS POISON - 90 40 status psn=100
+TOXIC POISON - 90 10 status psn=100
+REST PSYCHIC - - 5 status heal=1 rest`;
+const MOVE_NAMES = { DOUBLE_EDGE: 'Double-Edge', MUD_SLAP: 'Mud-Slap', U_TURN: 'U-turn', X_SCISSOR: 'X-Scissor', BABY_DOLL_EYES: 'Baby-Doll Eyes' };
+for (const line of MOVE_LIST.split('\n')) {
+  const [id, type, power, acc, pp, cat, ...ex] = line.trim().split(' ');
+  if (MOVES[id]) continue;
+  const mv = MOVES[id] = { name: MOVE_NAMES[id] ?? id.split('_').map(w => w[0] + w.slice(1).toLowerCase()).join(' '), type, pp: +pp, cat };
+  if (power !== '-') mv.power = +power;
+  if (acc !== '-') mv.acc = +acc;
+  for (const e of ex) { const [k, v] = e.split('='); mv[k] = k === 'stat' ? v.split(':').map((x, i) => i === 1 ? +x : x) : v === undefined ? 1 : k === 'x2' ? v : +v; }
+}
+// status conditions: [badge, colour, "is ___", what the inflicting line says]. A condition stays after the battle (saved with the
+// Pokémon) until a cure item, the Pokémon Center or fainting clears it
+const STATUS = { psn: ['PSN', '#a65ac8', 'poisoned', 'was poisoned!'], par: ['PAR', '#d9a514', 'paralyzed', 'is paralyzed! It may be unable to move!'], slp: ['SLP', '#7d8798', 'asleep', 'fell asleep!'] };
+const AILS = Object.keys(STATUS), ailOf = mv => AILS.find(s => mv[s]);
 // base stats: HP, Atk, Def, SpA, SpD, Spe
 const SPECIES = {
-  PIKACHU: { name: 'PIKACHU', types: ['ELECTRIC'], base: [35, 55, 40, 50, 50, 90], moves: ['THUNDER_SHOCK', 'QUICK_ATTACK', 'TAIL_WHIP', 'GROWL'], exp: 112, rate: 190, gr: 4, make: makePikachu, face: 0.82, scale: 1 },
-  BULBASAUR: { name: 'BULBASAUR', types: ['GRASS', 'POISON'], base: [45, 49, 49, 65, 65, 45], moves: ['TACKLE', 'VINE_WHIP', 'GROWL', 'ABSORB'], exp: 64, rate: 45, gr: 1, make: makeBulbasaur, face: 0.62, scale: 1 },
-  CHARMANDER: { name: 'CHARMANDER', types: ['FIRE'], base: [39, 52, 43, 60, 50, 65], moves: ['SCRATCH', 'EMBER', 'GROWL', 'SMOKESCREEN'], exp: 62, rate: 45, gr: 1, make: makeCharmander, face: 0.92, scale: 1 },
-  PIDGEY: { name: 'PIDGEY', types: ['NORMAL', 'FLYING'], base: [40, 45, 40, 35, 35, 56], moves: ['TACKLE', 'GUST', 'SAND_ATTACK', 'QUICK_ATTACK'], exp: 50, rate: 255, gr: 4, make: makePidgey, face: 0.8, scale: 1.1 },
-  RATTATA: { name: 'RATTATA', types: ['NORMAL'], base: [30, 56, 35, 25, 35, 72], moves: ['TACKLE', 'TAIL_WHIP', 'QUICK_ATTACK'], exp: 51, rate: 255, gr: 4, make: makeRattata, face: 0.52, scale: 1.1 },
-  CATERPIE: { name: 'CATERPIE', types: ['BUG'], base: [45, 30, 35, 20, 20, 45], moves: ['TACKLE', 'STRING_SHOT'], exp: 39, rate: 255, gr: 4, make: makeCaterpie, face: 0.46, scale: 1.25 },
-  WEEDLE: { name: 'WEEDLE', types: ['BUG', 'POISON'], base: [40, 35, 30, 20, 20, 50], moves: ['POISON_STING', 'STRING_SHOT'], exp: 39, rate: 255, gr: 4, make: makeWeedle, face: 0.46, scale: 1.25 },
-  ODDISH: { name: 'ODDISH', types: ['GRASS', 'POISON'], base: [45, 50, 55, 75, 65, 30], moves: ['ABSORB', 'ACID', 'GROWTH'], exp: 64, rate: 255, gr: 4, make: makeOddish, face: 0.5, scale: 1.15 },
+  PIKACHU: { name: 'PIKACHU', types: ['ELECTRIC'], base: [35, 55, 40, 50, 50, 90], learn: '1 THUNDER_SHOCK 1 GROWL 1 TAIL_WHIP 1 QUICK_ATTACK 12 ELECTRO_BALL 16 FEINT 20 SPARK 24 AGILITY 28 IRON_TAIL 32 DISCHARGE 36 THUNDERBOLT 44 THUNDER', exp: 112, rate: 190, gr: 4, make: makePikachu, face: 0.82, scale: 1 },
+  BULBASAUR: { name: 'BULBASAUR', types: ['GRASS', 'POISON'], base: [45, 49, 49, 65, 65, 45], learn: '1 TACKLE 1 GROWL 1 ABSORB 3 VINE_WHIP 6 GROWTH 12 RAZOR_LEAF 18 SEED_BOMB 21 TAKE_DOWN 27 SYNTHESIS 33 POWER_WHIP 36 SOLAR_BEAM', exp: 64, rate: 45, gr: 1, make: makeBulbasaur, face: 0.62, scale: 1 },
+  CHARMANDER: { name: 'CHARMANDER', types: ['FIRE'], base: [39, 52, 43, 60, 50, 65], learn: '1 SCRATCH 1 GROWL 4 EMBER 8 SMOKESCREEN 12 DRAGON_BREATH 17 FIRE_FANG 20 SLASH 24 FLAMETHROWER 28 SCARY_FACE 32 FIRE_SPIN 40 FLARE_BLITZ', exp: 62, rate: 45, gr: 1, make: makeCharmander, face: 0.92, scale: 1 },
+  PIDGEY: { name: 'PIDGEY', types: ['NORMAL', 'FLYING'], base: [40, 45, 40, 35, 35, 56], learn: '1 TACKLE 5 SAND_ATTACK 9 GUST 13 QUICK_ATTACK 21 TWISTER 25 FEATHER_DANCE 29 AGILITY 33 WING_ATTACK 37 ROOST 45 AIR_SLASH 49 HURRICANE', exp: 50, rate: 255, gr: 4, make: makePidgey, face: 0.8, scale: 1.1 },
+  RATTATA: { name: 'RATTATA', types: ['NORMAL'], base: [30, 56, 35, 25, 35, 72], learn: '1 TACKLE 1 TAIL_WHIP 4 QUICK_ATTACK 10 BITE 16 TAKE_DOWN 19 ASSURANCE 22 CRUNCH 25 SUCKER_PUNCH 31 DOUBLE_EDGE', exp: 51, rate: 255, gr: 4, make: makeRattata, face: 0.52, scale: 1.1 },
+  CATERPIE: { name: 'CATERPIE', types: ['BUG'], base: [45, 30, 35, 20, 20, 45], learn: '1 TACKLE 1 STRING_SHOT 9 BUG_BITE', exp: 39, rate: 255, gr: 4, make: makeCaterpie, face: 0.46, scale: 1.25 },
+  WEEDLE: { name: 'WEEDLE', types: ['BUG', 'POISON'], base: [40, 35, 30, 20, 20, 50], learn: '1 POISON_STING 1 STRING_SHOT 9 BUG_BITE', exp: 39, rate: 255, gr: 4, make: makeWeedle, face: 0.46, scale: 1.25 },
+  ODDISH: { name: 'ODDISH', types: ['GRASS', 'POISON'], base: [45, 50, 55, 75, 65, 30], learn: '1 ABSORB 1 GROWTH 4 ACID 12 MEGA_DRAIN 20 GIGA_DRAIN 28 MOONBLAST 36 MOONLIGHT 40 PETAL_DANCE', exp: 64, rate: 255, gr: 4, make: makeOddish, face: 0.5, scale: 1.15 },
 };
+const parseLearn = s => { const learn = []; s.split(' ').forEach((x, i, a) => i % 2 || learn.push([+x, a[i + 1]])); return learn; }; // '1 TACKLE 3 VINE_WHIP' -> [[1, 'TACKLE'], [3, 'VINE_WHIP']]
+for (const sp of Object.values(SPECIES)) sp.learn = parseLearn(sp.learn);
 
 // ============================================================ Evolution data
 /**
@@ -4157,8 +4622,7 @@ const evoFor = (m, item) => EVOLUTIONS.find(e => e.from === m.key && EVO_CHECK[e
 const CHARM_H = (() => { const b = new THREE.Box3().setFromObject(rig('charmander').root); return b.max.y - b.min.y; })();
 for (const [key, d] of Object.entries(EVO_SPECIES)) if (!SPECIES[key]) {
   const H = CHARM_H * Math.sqrt(d.h / 6); // ponytail: √ of the official height against Charmander's 6 dm, so a Charizard doesn't dwarf the arena; add per-species scale if one looks off
-  const learn = []; d.learn.split(' ').forEach((x, i, a) => i % 2 || learn.push([+x, a[i + 1]]));
-  SPECIES[key] = { ...d, learn, H, face: H * SPECIES.CHARMANDER.face / CHARM_H, scale: 1, auto: true, make: () => xy(key) || dexPlane(d.dex, H) };
+  SPECIES[key] = { ...d, learn: parseLearn(d.learn), H, face: H * SPECIES.CHARMANDER.face / CHARM_H, scale: 1, auto: true, make: () => xy(key) || dexPlane(d.dex, H) };
 }
 function movesAt(sp, level) { // the last four distinct level-up moves known by `level` that the game has
   const ids = [...new Set(sp.learn.filter(([l, id]) => l <= level && MOVES[id]).map(x => x[1]).reverse())].slice(0, 4).reverse();
@@ -4198,7 +4662,7 @@ function calcStats(m) {
   ['atk', 'def', 'spa', 'spd', 'spe'].forEach((s, i) => (m[s] = Math.floor((2 * b[i + 1] + 15) * m.level / 100) + 5));
 }
 function makeMon(key, level) {
-  const sp = SPECIES[key], m = { key, level, exp: level ** 3, moves: (sp.learn ? movesAt(sp, level) : sp.moves).map(id => ({ id, pp: MOVES[id].pp })) };
+  const sp = SPECIES[key], m = { key, level, exp: level ** 3, moves: movesAt(sp, level).map(id => ({ id, pp: MOVES[id].pp })) };
   calcStats(m); m.hp = m.maxHp;
   if (sp.gr >= 0) m.gender = Math.random() * 8 < sp.gr ? 'female' : 'male'; // Math.random: makeMon also runs during world generation, which must not shift rnd()
   loadSpeciesModel(key);
@@ -4207,16 +4671,17 @@ function makeMon(key, level) {
 const party = [makeMon('PIKACHU', 6), makeMon('BULBASAUR', 5), makeMon('CHARMANDER', 5)]; // placeholder: a new game swaps it for the starter picked at onboarding
 let freshGame = true; // false once a save supplies the party; only a fresh game picks a starter
 const pcBox = [];
-const bag = { potion: 3, superPotion: 1, antidote: 2, ball: 5, greatBall: 2, oranBerry: 2, pechaBerry: 1, townMap: 1 }; // battle reads potion / ball
+const bag = { potion: 3, superPotion: 1, antidote: 2, ball: 5, greatBall: 2, oranBerry: 2, pechaBerry: 1, townMap: 1 }; // battle offers the healers, cures and balls in it
 let money = 3000; // ₽, saved with the bag
 const nm = m => m.nick || SPECIES[m.key].name;
-function healParty() { for (const m of party) { m.hp = m.maxHp; m.moves.forEach(x => (x.pp = MOVES[x.id].pp)); } renderParty(); saveGame(); }
+const aOr = name => (/^[AEIOU]/.test(name) ? 'an ' : 'a ') + name; // "an Antidote", "a Potion"
+function healParty() { for (const m of party) { m.hp = m.maxHp; delete m.status; delete m.sleep; m.moves.forEach(x => (x.pp = MOVES[x.id].pp)); } renderParty(); saveGame(); }
 
 // ============================================================ Save (localStorage autosave: party, PC box, bag, position, story flags)
 // The autosave is the running game; the Game Menu's save files (verdant-slots-v1) hold copies of it.
 const SAVE_KEY = 'verdant-save-v1';
 const cleanNick = (s, max = 12) => String(s).replace(/[^\p{L}\p{N} .'-]/gu, '').slice(0, max); // nicknames end up in innerHTML
-const packMon = m => ({ key: m.key, level: m.level, exp: m.exp, hp: m.hp, nick: m.nick, gender: m.gender, moves: m.moves.map(x => ({ id: x.id, pp: x.pp })) });
+const packMon = m => ({ key: m.key, level: m.level, exp: m.exp, hp: m.hp, nick: m.nick, gender: m.gender, status: m.status, sleep: m.sleep, moves: m.moves.map(x => ({ id: x.id, pp: x.pp })) });
 let playTime = 0, curSlot = null; // seconds played; id of the save file this game was loaded from / last saved to
 const snapshot = () => ({ trainer, party:party.map(packMon), pc: pcBox.map(packMon), bag, money, pos: [P.pos.x, P.pos.z, P.face].map(n => Math.round(n * 100) / 100),
   flags: { bulbasaur: !bulba.visible, quest: story.step, clues: story.clues, side: { ...SIDE, seen: [...SIDE.seen], got: [...SIDE.got] } }, loc: $('locName').textContent, time: Math.floor(playTime), slot: curSlot });
@@ -4228,6 +4693,7 @@ function unpackMon(s) { // saved data is untrusted: unknown species and moves ar
   const moves = (Array.isArray(s.moves) ? s.moves : []).filter(x => Object.hasOwn(MOVES, x?.id)).slice(0, 4).map(x => ({ id: x.id, pp: clamp(Math.floor(+x.pp) || 0, 0, MOVES[x.id].pp) }));
   if (moves.length) m.moves = moves;
   m.hp = clamp(Math.floor(+s.hp) || 0, 0, m.maxHp);
+  if (m.hp > 0 && Object.hasOwn(STATUS, s.status)) { m.status = s.status; if (m.status === 'slp') m.sleep = clamp(Math.floor(+s.sleep) || 0, 0, 3); }
   if (s.nick) m.nick = cleanNick(s.nick) || undefined;
   if (m.gender && (s.gender === 'male' || s.gender === 'female')) m.gender = s.gender; // older saves keep the fresh roll
   return m;
@@ -4254,6 +4720,7 @@ function loadGame() {
     SIDE.seen = Array.isArray(sd.seen) ? [...new Set(sd.seen.filter(k => typeof k === 'string' && Object.hasOwn(SPECIES, k)))] : [];
     SIDE.got = Array.isArray(sd.got) ? [...new Set(sd.got.filter(i => Number.isInteger(i) && i >= 0 && i < SCRAPS.length))] : [];
   }
+  syncKeyItems();
   STREAM.k = restored() ? 1 : 0; // a loaded restored stream is already flowing: no swell
   if (Number.isFinite(s.time)) playTime = Math.max(0, s.time);
   if (typeof s.slot === 'string') curSlot = s.slot;
@@ -4277,7 +4744,8 @@ window.debug = { // testing hooks, from the console or the ` key: debug.give('KI
   warp: (x, z) => placePlayer(+x, +z, 0), quest: () => ({ story, SIDE, CLUES, START, RANGER_AT, CLEAR, DEV_AT, GUARD_AT, STREAM, RIVAL_AT, SCRAPS: SCRAPS.map(c => c.at), marks: questMarks() }), clue: i => placePlayer(...(i === 'ranger' ? [RANGER_AT[0] - 1.2, RANGER_AT[1]] : CLUES[i].at), 0), // debug.clue(0) stands on a stream clue spot, debug.clue('ranger') beside the ranger
   battle: (key = 'PIDGEY', level = 3) => Object.hasOwn(SPECIES, key = String(key).toUpperCase()) && startBattle(key, Math.floor(+level) || 3),
   shop: () => openShop(), // the Fleurville Poké Mart counter, without walking there
-  follower: () => ({ key: followKey, at: pika.position.toArray().map(n => +n.toFixed(2)), size: +new THREE.Box3().setFromObject(pika).getSize(new V3()).y.toFixed(2), player: P.pos.toArray().map(n => +n.toFixed(2)) }),
+  follower: () => ({ key: followKey, at: pika.position.toArray().map(n => +n.toFixed(2)), size: +new THREE.Box3().setFromObject(pika).getSize(new V3()).y.toFixed(2),
+    feet: ['LFoot', 'RFoot', 'LHand', 'RHand'].map(n => { const b = pika.getObjectByName(n); return b && pika.worldToLocal(b.getWorldPosition(new V3())).toArray().map(v => +v.toFixed(2)); }), player: P.pos.toArray().map(n => +n.toFixed(2)) }),
   go: (x, z) => { placePlayer(+x, +z, 0); firstFrame = true; return frames(2); }, // warp and snap the camera and cells there (resolves once drawn)
   stream: () => ({ loaded: [...CELLS.cells.keys()], built: CELLS.built, disposed: CELLS.disposed }),
   view: () => ({ ...VIEW, zoom, fog: [scene.fog.near, scene.fog.far], far: camera.far }),
@@ -4295,6 +4763,13 @@ window.debug = { // testing hooks, from the console or the ` key: debug.give('KI
       }
     }
     return false;
+  },
+  npc: name => { const i = interactables.find(i => i.name === name); return i && { x: +i.x.toFixed(2), z: +i.z.toFixed(2) }; }, // where a named NPC stands
+  pos: () => ({ x: +P.pos.x.toFixed(2), z: +P.pos.z.toFixed(2), face: +P.face.toFixed(2), ui: Object.keys(ui).filter(k => ui[k]) }), // where the player is and which screens are open
+  bench: (n = 60) => { // ms per frame, GPU included (a 1-pixel read waits for each frame to finish), for checking the 60 FPS target in a hidden pane
+    const gl = renderer.getContext(), px = new Uint8Array(4), ms = [];
+    for (let i = 0; i < n; i++) { const t0 = performance.now(); tick(); gl.readPixels(0, 0, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, px); ms.push(performance.now() - t0); }
+    ms.sort((a, b) => a - b); return { median: +ms[n >> 1].toFixed(1), p95: +ms[Math.floor(n * 0.95)].toFixed(1), ...debug.stats() };
   },
   stats: () => { const r = renderer.info; return { calls: r.render.calls, triangles: r.render.triangles, geometries: r.memory.geometries }; },
   coreHash: () => { // fingerprint of the core world's placements: any reshuffle of the shared rnd() stream changes it
@@ -4399,7 +4874,7 @@ const hpClass = f => f > 0.5 ? '' : f > 0.2 ? 'mid' : 'low';
 function renderParty() {
   $('party').innerHTML = party.map(m => {
     const f = m.hp / m.maxHp;
-    return `<div class="mon${m.hp <= 0 ? ' out' : ''}" title="${nm(m)} Lv${m.level} · HP ${m.hp}/${m.maxHp}"><div class="pic"><img alt="${nm(m)}" src="${portrait(m.key)}"></div><div class="hp"><i class="${hpClass(f)}" style="width:${f * 100}%"></i></div></div>`;
+    return `<div class="mon${m.hp <= 0 ? ' out' : ''}" title="${nm(m)} Lv${m.level} · HP ${m.hp}/${m.maxHp}${m.status ? ' · ' + STATUS[m.status][2] : ''}"><div class="pic"><img alt="${nm(m)}" src="${portrait(m.key)}"></div>${m.status ? `<em class="st" style="background:${STATUS[m.status][1]}">${STATUS[m.status][0]}</em>` : ''}<div class="hp"><i class="${hpClass(f)}" style="width:${f * 100}%"></i></div></div>`;
   }).join('');
   setFollower(party[0]?.key);
 }
@@ -4410,6 +4885,7 @@ const ICON = { // small hand-drawn SVG item icons
   berry: (fruit, leaf) => `<svg viewBox="0 0 48 48"><path d="M24 12q-2-6 4-9" stroke="#5a3a20" stroke-width="2.5" fill="none" stroke-linecap="round"/><path d="M26 8q8-4 12 2q-7 4-12-2z" fill="${leaf}" stroke="#2a3540" stroke-width="2"/><circle cx="24" cy="28" r="15" fill="${fruit}" stroke="#2a3540" stroke-width="2.5"/><circle cx="18" cy="23" r="4" fill="#fff" opacity=".55"/></svg>`,
   map: () => `<svg viewBox="0 0 48 48"><path d="M6 10l11-4 14 4 11-4v32l-11 4-14-4-11 4z" fill="#f2e2b8" stroke="#2a3540" stroke-width="2.5" stroke-linejoin="round"/><path d="M17 6v32M31 10v32" stroke="#2a3540" stroke-width="2" opacity=".5"/><path d="M9 30q8-8 14-2t16-8" stroke="#4f8ef0" stroke-width="3" fill="none"/><circle cx="24" cy="18" r="3" fill="#e2473b"/></svg>`,
   stone: (fill, core) => `<svg viewBox="0 0 48 48"><path d="M24 5l14 10-4 23-10 6-10-6-4-23z" fill="${fill}" stroke="#2a3540" stroke-width="2.5" stroke-linejoin="round"/><path d="M24 9l-6 11 6 20 6-20z" fill="${core}" opacity=".55"/><path d="M15 16q3-5 8-7" stroke="#fff" stroke-width="2.5" opacity=".6" fill="none" stroke-linecap="round"/></svg>`,
+  chip: () => `<svg viewBox="0 0 48 48"><path d="M14 10v-5M24 10v-5M34 10v-5M14 43v-5M24 43v-5M34 43v-5M10 14h-5M10 24h-5M10 34h-5M43 14h-5M43 24h-5M43 34h-5" stroke="#c9a03a" stroke-width="3" stroke-linecap="round"/><rect x="10" y="10" width="28" height="28" rx="4" fill="#3f5a4a" stroke="#2a3540" stroke-width="2.5"/><circle cx="24" cy="24" r="7" fill="#ffcf5a" stroke="#2a3540" stroke-width="2"/><path d="M24 13v3M24 32v3M13 24h3M32 24h3" stroke="#ffcf5a" stroke-width="2.5" stroke-linecap="round"/></svg>`,
   pocket: k => ({ med: ICON.spray('#a874e0', '#e2473b'), items: ICON.stone('#f2652b', '#ffd23f'), balls: ICON.ball('#e2473b'), berries: ICON.berry('#4a78d8', '#4caf50'), key: ICON.map() })[k],
 };
 const stoneItem = (name, fill, core, what, price) => ({ name, pocket: 'items', icon: ICON.stone(fill, core), stone: true, price,
@@ -4417,12 +4893,16 @@ const stoneItem = (name, fill, core, what, price) => ({ name, pocket: 'items', i
 const ITEMS = {
   potion: { name: 'Potion', pocket: 'med', icon: ICON.spray('#a874e0', '#e2473b'), heal: 20, desc: 'A spray-type medicine for treating wounds. It restores the HP of one Pokémon by 20 points.' },
   superPotion: { name: 'Super Potion', pocket: 'med', icon: ICON.spray('#f08a3a', '#e2473b'), heal: 60, desc: 'A spray-type medicine for treating wounds. It restores the HP of one Pokémon by 60 points.' },
-  antidote: { name: 'Antidote', pocket: 'med', icon: ICON.spray('#f2c12e', '#3fae4a'), cure: true, desc: 'A spray-type medicine for poisoning. It lifts the effect of poison from one Pokémon.' },
-  ball: { name: 'Poké Ball', pocket: 'balls', icon: ICON.ball('#e2473b'), battle: true, desc: 'A device for catching wild Pokémon. It is thrown like a ball at a Pokémon, comfortably encapsulating its target.' },
-  greatBall: { name: 'Great Ball', pocket: 'balls', icon: ICON.ball('#3f7fd8', '#e2473b'), battle: true, desc: 'A good, high-performance Poké Ball that provides a higher success rate for catching Pokémon than a standard Poké Ball.' },
+  antidote: { name: 'Antidote', pocket: 'med', icon: ICON.spray('#f2c12e', '#3fae4a'), cure: 'psn', price: 200, desc: 'A spray-type medicine for poisoning. It lifts the effect of poison from one Pokémon.' },
+  paralyzeHeal: { name: 'Paralyze Heal', pocket: 'med', icon: ICON.spray('#f2d23a', '#3f7fd8'), cure: 'par', price: 300, desc: 'A spray-type medicine for paralysis. It can be used once to free a Pokémon that has been paralyzed.' },
+  awakening: { name: 'Awakening', pocket: 'med', icon: ICON.spray('#5ab8e8', '#2a3540'), cure: 'slp', price: 100, desc: 'A spray-type medicine used against sleep. It can be used once to rouse a Pokémon from the clutches of sleep.' },
+  ball: { name: 'Poké Ball', pocket: 'balls', icon: ICON.ball('#e2473b'), battle: true, catch: 1, desc: 'A device for catching wild Pokémon. It is thrown like a ball at a Pokémon, comfortably encapsulating its target.' },
+  greatBall: { name: 'Great Ball', pocket: 'balls', icon: ICON.ball('#3f7fd8', '#e2473b'), battle: true, catch: 1.5, desc: 'A good, high-performance Poké Ball that provides a higher success rate for catching Pokémon than a standard Poké Ball.' },
   oranBerry: { name: 'Oran Berry', pocket: 'berries', icon: ICON.berry('#4a78d8', '#4caf50'), heal: 10, desc: 'A Berry to be consumed by Pokémon. If a Pokémon holds one, it can restore its own HP by 10 points during battle.' },
-  pechaBerry: { name: 'Pecha Berry', pocket: 'berries', icon: ICON.berry('#f48ab8', '#4caf50'), cure: true, desc: 'A Berry to be consumed by Pokémon. If a Pokémon holds one, it can recover from poisoning on its own in battle.' },
+  pechaBerry: { name: 'Pecha Berry', pocket: 'berries', icon: ICON.berry('#f48ab8', '#4caf50'), cure: 'psn', desc: 'A Berry to be consumed by Pokémon. If a Pokémon holds one, it can recover from poisoning on its own in battle.' },
   townMap: { name: 'Town Map', pocket: 'key', icon: ICON.map(), map: true, desc: 'A very convenient map that can be viewed anytime. It even shows where you are right now.' },
+  signalChip: { name: 'Signal Chip', pocket: 'key', icon: ICON.chip(), get check() { return `A sunburst over two letters is stamped on it. Clemont in Fleurville can read it. Press ${kb('travel')} to travel there.`; },
+    desc: 'A chip from inside the survey device in the woodland clearing. It still feels faintly warm. Prof. Sycamore asked you to bring it to Clemont.' }, // held only while it is being delivered (syncKeyItems)
   // evolution stones; price = what the Poké Mart asks (only the Gen 1 five are sold there)
   fireStone: stoneItem('Fire Stone', '#f2652b', '#ffd23f', 'An orange stone that stays warm, with a flame trapped at its heart.', 2100),
   waterStone: stoneItem('Water Stone', '#3f8de0', '#bfe6ff', 'A clear blue stone with ripples that seem to move inside it.', 2100),
@@ -4449,18 +4929,19 @@ function renderBag() {
   $('bpList').querySelectorAll('.bp-item').forEach(b => (b.onclick = () => { BP.idx = +b.dataset.i; renderBag(); }));
   const it = BP.item && ITEMS[BP.item];
   $('bpDetail').innerHTML = it ? `<div class="art">${it.icon}</div><div class="cat">${POCKETS.find(p => p[0] === it.pocket)[1]}</div><h3>${it.name} <span style="opacity:.55;font-size:17px">×${bag[BP.item]}</span></h3><p>${it.desc}</p>
-    <div class="bp-actions"><button class="use" id="bpUse"${it.battle ? ' disabled title="Use it in battle"' : ''}>${it.map ? 'Check' : 'Use'}</button><button id="bpToss"${it.map ? ' disabled' : ''}>Toss</button></div>` : '<div class="bp-empty">Pick an item to see what it does.</div>';
+    <div class="bp-actions"><button class="use" id="bpUse"${it.battle ? ' disabled title="Use it in battle"' : ''}>${it.pocket === 'key' ? 'Check' : 'Use'}</button><button id="bpToss"${it.pocket === 'key' ? ' disabled title="Key items can’t be thrown away"' : ''}>Toss</button></div>` : '<div class="bp-empty">Pick an item to see what it does.</div>';
   if (it) { $('bpUse').onclick = bagUse; $('bpToss').onclick = bagToss; }
 }
 function bagPocket(p) { if (p === BP.pocket) return; BP.pocket = p; BP.idx = 0; renderBag(); $('bpSack').firstChild.classList.add('wiggle'); }
 function bagToast(text) { const t = $('bpToast'); t.textContent = text; t.classList.add('show'); clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove('show'), 1800); }
-function bagToss() { const k = BP.item; if (!k) return; bag[k]--; bagToast(`Threw away one ${ITEMS[k].name}.`); renderBag(); saveGame(); }
+function bagToss() { const k = BP.item; if (!k || ITEMS[k].pocket === 'key') return; bag[k]--; bagToast(`Threw away one ${ITEMS[k].name}.`); renderBag(); saveGame(); }
 function bagUse() {
   const k = BP.item, it = k && ITEMS[k]; if (!it) return;
   if (it.map) { bagToast('Verdant Town — a quiet town where the green never fades.'); return; }
+  if (it.check) { bagToast(it.check); return; }
   $('bpPartyTitle').textContent = `Use the ${it.name} on which Pokémon?`;
   const sex = m => ({ male: ' <span style="color:#3f7fd8">♂</span>', female: ' <span style="color:#e2473b">♀</span>' })[m.gender] || '';
-  $('bpPartyList').innerHTML = party.map((m, i) => { const f = m.hp / m.maxHp; return `<button class="bp-mon" data-i="${i}"><span>${nm(m)}${sex(m)} <span style="opacity:.6">Lv${m.level}</span></span><small>${it.stone ? (evoFor(m, k) ? 'ABLE' : 'NOT ABLE') : `HP ${m.hp} / ${m.maxHp}`}</small><span class="hpbar"><b class="${f < 0.2 ? 'low' : f < 0.5 ? 'mid' : ''}" style="width:${f * 100}%"></b></span></button>`; }).join('');
+  $('bpPartyList').innerHTML = party.map((m, i) => { const f = m.hp / m.maxHp; return `<button class="bp-mon" data-i="${i}"><span>${nm(m)}${sex(m)} <span style="opacity:.6">Lv${m.level}</span></span><small>${it.stone ? (evoFor(m, k) ? 'ABLE' : 'NOT ABLE') : `${m.status ? STATUS[m.status][0] + ' · ' : ''}HP ${m.hp} / ${m.maxHp}`}</small><span class="hpbar"><b class="${f < 0.2 ? 'low' : f < 0.5 ? 'mid' : ''}" style="width:${f * 100}%"></b></span></button>`; }).join('');
   $('bpPartyList').querySelectorAll('.bp-mon').forEach(b => (b.onclick = () => bagApply(k, +b.dataset.i, b)));
   $('bpParty').classList.add('show'); $('bpPartyList').querySelector('button')?.focus();
 }
@@ -4473,8 +4954,15 @@ function bagApply(k, i, btn) {
     evolveNow(m, e);
     return;
   }
-  if (it.cure) { bagToast(`${nm(m)} isn't poisoned. It won't have any effect.`); return; }
   if (m.hp <= 0) { bagToast(`${nm(m)} has fainted. It won't have any effect.`); return; }
+  if (it.cure) {
+    if (m.status !== it.cure) { bagToast(`${nm(m)} isn't ${STATUS[it.cure][2]}. It won't have any effect.`); return; }
+    delete m.status; delete m.sleep; bag[k]--;
+    btn.querySelector('small').textContent = `HP ${m.hp} / ${m.maxHp}`;
+    bagToast(`${nm(m)} is no longer ${STATUS[it.cure][2]}.`); renderParty(); saveGame();
+    setTimeout(() => { $('bpParty').classList.remove('show'); renderBag(); }, 900);
+    return;
+  }
   if (m.hp >= m.maxHp) { bagToast(`${nm(m)}'s HP is already full.`); return; }
   const before = m.hp; m.hp = Math.min(m.maxHp, m.hp + it.heal); bag[k]--;
   const f = m.hp / m.maxHp, bar = btn.querySelector('b'); bar.className = f < 0.2 ? 'low' : f < 0.5 ? 'mid' : ''; bar.style.width = f * 100 + '%';
@@ -4482,11 +4970,11 @@ function bagApply(k, i, btn) {
   bagToast(`${nm(m)}'s HP was restored by ${m.hp - before} points.`); renderParty(); saveGame();
   setTimeout(() => { $('bpParty').classList.remove('show'); renderBag(); }, 900);
 }
-// ============================================================ Poké Mart (Fleurville): the Gen 1 stones
-const SHOP_STOCK = ['fireStone', 'waterStone', 'thunderStone', 'leafStone', 'moonStone'];
+// ============================================================ Poké Mart (Fleurville): status cures and the Gen 1 stones
+const SHOP_STOCK = ['antidote', 'paralyzeHeal', 'awakening', 'fireStone', 'waterStone', 'thunderStone', 'leafStone', 'moonStone'];
 function renderShop() {
   $('shopMoney').textContent = `₽ ${money.toLocaleString()}`;
-  $('shopList').innerHTML = SHOP_STOCK.map(k => `<div class="bp-item">${ITEMS[k].icon}<span>${ITEMS[k].name}<small>In bag: ${bag[k] || 0}</small></span><span class="qty">₽${ITEMS[k].price.toLocaleString()}</span><button class="buy" data-k="${k}" aria-label="Buy a ${ITEMS[k].name} for ₽${ITEMS[k].price}">Buy</button></div>`).join('');
+  $('shopList').innerHTML = SHOP_STOCK.map(k => `<div class="bp-item">${ITEMS[k].icon}<span>${ITEMS[k].name}<small>In bag: ${bag[k] || 0}</small></span><span class="qty">₽${ITEMS[k].price.toLocaleString()}</span><button class="buy" data-k="${k}" aria-label="Buy ${aOr(ITEMS[k].name)} for ₽${ITEMS[k].price}">Buy</button></div>`).join('');
   $('shopList').querySelectorAll('.buy').forEach(b => (b.onclick = () => shopBuy(b.dataset.k)));
 }
 function shopToast(text, err = false) { const t = $('shopToast'); t.textContent = text; t.classList.toggle('err', err); t.classList.add('show'); clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove('show'), 1800); }
@@ -4495,18 +4983,18 @@ function shopBuy(k) {
   if (money < it.price) return shopToast("You don't have enough money.", true);
   money -= it.price; bag[k] = (bag[k] || 0) + 1; saveGame();
   renderShop(); $('shopList').querySelector(`[data-k="${k}"]`)?.focus();
-  shopToast(`You bought a ${it.name}!`);
+  shopToast(`You bought ${aOr(it.name)}!`);
 }
 function openShop() {
   if (ui.battle || ui.dialog || ui.pokedex || ui.bag || ui.shop) return;
-  ui.shop = true; keys.clear(); moveTarget = null;
+  ui.shop = true; keys.clear(); moveTarget = null; P.v = 0;
   renderShop(); $('shop').showModal(); $('shopList').focus(); // not a Buy button: the E / Space / Enter that closed the clerk's text would press it
 }
 $('shopClose').onclick = () => $('shop').close();
 $('shop').addEventListener('close', () => { ui.shop = false; keys.clear(); }); // Esc or the close button
 function openBag() {
   if (ui.battle || ui.dialog || ui.pokedex || ui.bag) return;
-  ui.bag = true; keys.clear(); moveTarget = null;
+  ui.bag = true; keys.clear(); moveTarget = null; P.v = 0; // P.v: stop a coasting step, as the Game Menu does
   renderBag(); $('backpack').showModal(); $('bpList').querySelector('.bp-item')?.focus();
 }
 function closeBag() { if (!ui.bag) return; ui.bag = false; $('bpParty').classList.remove('show'); $('backpack').close(); $('bagBtn').focus(); }
@@ -5324,7 +5812,7 @@ async function selectDex(id, form = 0) {
 }
 function openPokedex() {
   if (ui.battle || ui.dialog || ui.pokedex) return;
-  DX.previousFocus = document.activeElement; keys.clear(); moveTarget = null;
+  DX.previousFocus = document.activeElement; keys.clear(); moveTarget = null; P.v = 0;
   ui.pokedex = true; $('pokedex').showModal();
   const with3d = NATIONAL_DEX.filter(e => e.models.length).length;
   $('dexSummary').textContent = `${NATIONAL_DEX.length.toLocaleString()} species · ${with3d} in 3D`;
@@ -5951,18 +6439,19 @@ function spawnModel(mon, pos, look, scale) {
 }
 const dropModel = m => m && BT.scene.remove(m);
 const modelOf = m => m === BT.foe ? BT.foeModel : BT.meModel;
-const who = m => m === BT.foe ? (BT.opts.trainer ? 'The foe ' : 'Wild ') + nm(m) : nm(m);
+const who = m => m === BT.foe ? (BT.opts.trainer ? 'The foe ' : BT.opts.foeTitle ?? 'Wild ') + nm(m) : nm(m); // foeTitle: a story Pokémon's own epithet
 const freshStages = () => ({ atk: 0, def: 0, spa: 0, spd: 0, spe: 0, acc: 0 });
 const stageMul = s => s >= 0 ? (2 + s) / 2 : 2 / (2 - s);
 const accMul = s => s >= 0 ? (3 + s) / 3 : 3 / (3 - s);
 
 // ============================================================ battle: HUD, messages, menus
 function setBar(id, f) { const b = $(id); b.style.width = clamp(f, 0, 1) * 100 + '%'; b.className = hpClass(f); }
+function setSt(id, m) { const e = $(id), s = STATUS[m.status]; if (e.textContent !== (s?.[0] ?? '')) { e.textContent = s?.[0] ?? ''; e.style.background = s?.[1] ?? ''; } }
 function drawBoxes() {
   const f = BT.foe, m = BT.me;
-  if (f) { $('foeName').textContent = nm(f); $('foeLv').textContent = 'Lv' + f.level; setBar('foeHp', f.disp / f.maxHp); }
+  if (f) { $('foeName').textContent = nm(f); $('foeLv').textContent = 'Lv' + f.level; setBar('foeHp', f.disp / f.maxHp); setSt('foeSt', f); }
   if (m) {
-    $('meName').textContent = nm(m); $('meLv').textContent = 'Lv' + m.level; setBar('meHp', m.disp / m.maxHp);
+    $('meName').textContent = nm(m); $('meLv').textContent = 'Lv' + m.level; setBar('meHp', m.disp / m.maxHp); setSt('meSt', m);
     $('meHpNum').textContent = `${Math.ceil(m.disp)} / ${m.maxHp}`;
     const lo = m.level ** 3, hi = (m.level + 1) ** 3; $('meExp').style.width = clamp((m.expDisp - lo) / (hi - lo), 0, 1) * 100 + '%';
   }
@@ -6048,7 +6537,7 @@ function moveFx(mv, am, dm) {
     FLYING: () => burst(tp, '#e8f4ff', { n: 40, speed: 3.2, grav: 0, life: 0.55 }),
     POISON: () => burst(tp, '#c25ae6', { n: 28, up: 2, grav: 1.5, speed: 1, life: 1, size: 0.24 }),
     BUG: () => burst(tp, '#ffffff', { n: 24, speed: 2, life: 0.6 }),
-  }[mv.type] || (() => burst(tp, '#fff2c0', { n: 24, speed: 3.5, grav: 0, life: 0.4, size: 0.22 })))();
+  }[mv.type] || (() => burst(tp, mv.type === 'NORMAL' ? '#fff2c0' : TYPE_COL[mv.type] ?? '#fff2c0', { n: 24, speed: 3.5, grav: 0, life: 0.4, size: 0.22 })))();
   if (mv.drain) burst(tp, '#8dff6a', { n: 22, to: am.position.clone().add(new V3(0, 0.55 * am.userData.s, 0)), speed: 1, life: 1.1 });
 }
 
@@ -6223,24 +6712,59 @@ function damage(att, def, mv) {
   const D = (phys ? def.def : def.spd) * stageMul(def.st[phys ? 'def' : 'spd']);
   let eff = 1; for (const t of SPECIES[def.key].types) eff *= EFF[mv.type]?.[t] ?? 1;
   const crit = rnd() < 1 / 16, stab = SPECIES[att.key].types.includes(mv.type) ? 1.5 : 1;
-  const base = Math.floor(Math.floor(Math.floor(2 * att.level / 5 + 2) * mv.power * A / D) / 50) + 2;
+  const power = mv.power * (def.status && (mv.x2 === 'any' || mv.x2 === def.status) ? 2 : 1); // Hex, Venoshock
+  const base = Math.floor(Math.floor(Math.floor(2 * att.level / 5 + 2) * power * A / D) / 50) + 2;
   return { dmg: eff ? Math.max(1, Math.floor(base * (crit ? 1.5 : 1) * stab * eff * rr(0.85, 1))) : 0, eff, crit };
 }
 async function setHp(m, v) {
   v = clamp(Math.round(v), 0, m.maxHp);
   const from = m.disp ?? m.hp; m.hp = v;
+  if (!v) { delete m.status; delete m.sleep; } // fainting clears a status condition
   await tween(0.5, t => (m.disp = from + (v - from) * t));
 }
+function immune(m, s, mv) { // Poison and Steel types can't be poisoned, Electric types can't be paralyzed; Thunder Wave misses Ground, powders miss Grass
+  const t = SPECIES[m.key].types;
+  return (s === 'psn' && (t.includes('POISON') || t.includes('STEEL'))) || (s === 'par' && t.includes('ELECTRIC'))
+    || (mv.cat === 'status' && mv.type === 'ELECTRIC' && t.includes('GROUND')) || (mv.powder && t.includes('GRASS'));
+}
+const STATUS_FX = { psn: () => SND.splat(0.7), par: () => SND.zap(0.3), slp: () => SND.psychic(0.9) };
+function statusFx(m) { const tm = modelOf(m); STATUS_FX[m.status](); if (tm) burst(tm.position.clone().add(new V3(0, 0.6 * tm.userData.s, 0)), STATUS[m.status][1], { n: 26, up: 1, grav: 0.5, speed: 1, life: 0.8 }); }
+async function inflict(m, s) {
+  m.status = s; if (s === 'slp') m.sleep = 1 + Math.floor(rnd() * 3); // asleep for 1-3 of its own turns
+  statusFx(m); await wait(0.3);
+  await bsay(`${who(m)} ${STATUS[s][3]}`);
+}
+async function canAct(m) { // sleep and paralysis can stop a move before it starts (no PP is used)
+  if (m.status === 'slp') {
+    if (m.sleep > 0) { m.sleep--; statusFx(m); await bsay(`${who(m)} is fast asleep.`); return false; }
+    delete m.status; delete m.sleep; await bsay(`${who(m)} woke up!`);
+  }
+  if (m.status === 'par' && rnd() < 0.25) { statusFx(m); await bsay(`${who(m)} is paralyzed! It can't move!`); return false; }
+  return true;
+}
 async function useMove(att, def, id) {
+  if (!await canAct(att)) return;
   const mv = MOVES[id], slot = att.moves.find(x => x.id === id);
   if (slot && slot.pp > 0) slot.pp--;
-  const am = modelOf(att), dm = modelOf(def), self = mv.stat?.[2] === 'self', target = self ? att : def;
+  const am = modelOf(att), dm = modelOf(def), self = mv.heal || mv.stat?.[2] === 'self', target = self ? att : def;
   await bsay(`${who(att)} used ${mv.name}!`);
   const missed = !self && rnd() * 100 >= (mv.acc ?? 100) * accMul(att.st.acc), show = MOVE_FX[id];
   if (missed || !show) await (mv.cat === 'phys' ? lunge(am, dm) : hop(am));
   if (missed) { SND.whoosh(0.3, 1.5, 0.3); return bsay(`${who(att)}'s attack missed!`); }
   if (mv.cat === 'status') {
     if (show) await show(am, dm);
+    if (mv.heal) {
+      if (att.hp >= att.maxHp) return bsay(`${who(att)}'s HP is full!`);
+      SND.stat(true); await setHp(att, att.hp + Math.max(1, Math.floor(att.maxHp * mv.heal)));
+      if (mv.rest) { att.status = 'slp'; att.sleep = 2; return bsay(`${who(att)} slept and became healthy!`); } // Rest also replaces any other condition
+      return bsay(`${who(att)} regained health!`);
+    }
+    const ail = ailOf(mv);
+    if (ail) {
+      if (immune(def, ail, mv)) return bsay(`It doesn't affect ${who(def)}...`);
+      if (def.status) return bsay(def.status === ail ? `${who(def)} is already ${STATUS[ail][2]}!` : 'But it failed!');
+      return inflict(def, ail);
+    }
     const [stat, delta] = mv.stat, cur = target.st[stat], next = clamp(cur + delta, -6, 6), tm = modelOf(target);
     if (next === cur) return bsay(`${who(target)}'s ${STAT_NAME[stat]} won't go any ${delta > 0 ? 'higher' : 'lower'}!`);
     target.st[stat] = next; SND.stat(delta > 0);
@@ -6250,13 +6774,17 @@ async function useMove(att, def, id) {
   }
   if (show) await show(am, dm); else { SND.hit(); moveFx(mv, am, dm); }
   const r = damage(att, def, mv);
+  if (mv.spare) r.dmg = Math.min(r.dmg, def.hp - 1); // False Swipe: for catching
   if (!show) knock(dm); // MOVE_FX already knocked the defender back on its impact beat
   await hitAnim(dm, r.crit || r.eff > 1 ? 1.7 : r.eff < 1 ? 0.6 : 1);
   await setHp(def, def.hp - r.dmg);
   if (r.crit) await bsay('A critical hit!');
   if (r.eff > 1) await bsay("It's super effective!");
   else if (r.eff < 1) await bsay("It's not very effective...");
+  const ail = ailOf(mv);
+  if (ail && r.dmg > 0 && def.hp > 0 && !def.status && !immune(def, ail, mv) && rnd() * 100 < mv[ail]) await inflict(def, ail);
   if (mv.drain && att.hp < att.maxHp && r.dmg > 0) { await setHp(att, att.hp + Math.max(1, Math.floor(r.dmg * mv.drain))); await bsay(`${who(def)} had its energy drained!`); }
+  if (mv.recoil && r.dmg > 0) { await setHp(att, att.hp - Math.max(1, Math.floor(r.dmg * mv.recoil))); await bsay(`${who(att)} was damaged by the recoil!`); }
 }
 async function gainExp(m, amt) {
   await bsay(`${nm(m)} gained ${amt} Exp. Points!`);
@@ -6270,6 +6798,7 @@ async function gainExp(m, amt) {
     const old = m.maxHp; calcStats(m); m.hp += m.maxHp - old; m.disp = m.hp; m.expDisp = m.exp;
     burst(BT.meModel.position.clone().add(new V3(0, 0.8, 0)), '#ffe066', { n: 40, up: 2, grav: 1, speed: 1.6, life: 1 });
     await bsay(`${nm(m)} grew to Lv. ${m.level}!`);
+    for (const [l, id] of SPECIES[m.key].learn ?? []) if (l === m.level && MOVES[id] && !m.moves.some(x => x.id === id)) await learnMove(m, id); // the learnset's move for this level
     const evo = evoFor(m); if (evo) { BT.evoQueue.add(m); loadSpeciesModel(evo.to); } // evolves once the battle is over
     if (m.exp >= target) break;
   }
@@ -6408,8 +6937,8 @@ async function withdraw() {
 // catch close-up: the camera slides most of the way from the battle view to the foe's platform
 const B_CATCH_CAM = B_FOE.clone().lerp(B_CAM, 0.36).add(new V3(0, 0.1, 0)), B_CATCH_LOOK = B_FOE.clone().add(new V3(0, 0.45, 0)), _camLook = new V3();
 const zoomCam = (to, dur) => { const from = BT.zoom; return tween(dur, t => (BT.zoom = from + (to - from) * easeIO(t))); };
-async function throwBall() {
-  bset('You threw a Poké Ball!');
+async function throwBall(k = 'ball') {
+  bset(`You threw a ${ITEMS[k].name}!`);
   const f = BT.foe, fm = BT.foeModel, s = fm.userData.s, ball = makeBall(); BT.scene.add(ball);
   zoomCam(1, 1.0); // runs alongside the throw
   const a = new V3(-3.4, 1.2, 4.6), top = B_FOE.clone().add(new V3(0, 1.3, 0)), ground = B_FOE.clone().add(new V3(0, 0.15, 0));
@@ -6419,7 +6948,8 @@ async function throwBall() {
   fm.visible = false;
   ball.rotation.set(0, Math.atan2(B_CAM.x - B_FOE.x, B_CAM.z - B_FOE.z), 0);
   await tween(0.4, t => { ball.position.lerpVectors(top, ground, t); ball.position.y += Math.abs(Math.sin(t * Math.PI * 2)) * (1 - t) * 0.4; });
-  const odds = Math.min(1, ((3 * f.maxHp - 2 * f.hp) * SPECIES[f.key].rate) / (3 * f.maxHp) / 255);
+  const bonus = ITEMS[k].catch * (f.status === 'slp' ? 2.5 : f.status ? 1.5 : 1); // the ball, and a sleeping (or poisoned / paralyzed) target
+  const odds = Math.min(1, ((3 * f.maxHp - 2 * f.hp) * SPECIES[f.key].rate * bonus) / (3 * f.maxHp) / 255);
   const caught = rnd() < odds, shakes = caught ? 3 : Math.min(2, Math.floor(rnd() * (1 + odds * 4)));
   for (let k = 0; k < shakes; k++) { // each shake is a little hop with a wobble, squashing on landing
     await wait(0.35);
@@ -6453,7 +6983,7 @@ async function throwBall() {
 // ============================================================ battle: flow
 function partyMenu(forced) {
   return menu(party.map((m, i) => ({
-    label: nm(m), sub: `Lv${m.level} · HP ${m.hp}/${m.maxHp}`, value: i,
+    label: nm(m), sub: `Lv${m.level} · HP ${m.hp}/${m.maxHp}${m.status ? ' · ' + STATUS[m.status][0] : ''}`, value: i,
     disabled: m.hp <= 0 || (!forced && m === BT.me), color: m.hp <= 0 ? '#9aa3ab' : TYPE_COL[SPECIES[m.key].types[0]],
   })), { back: !forced, wide: party.length > 4 });
 }
@@ -6469,10 +6999,10 @@ async function chooseAction() {
       if (id === 'TEST') id = await menu(Object.entries(MOVES).filter(([, mv]) => mv.show).map(([k, mv]) => ({ label: mv.name, tag: mv.type, color: TYPE_COL[mv.type], value: k })), { back: true, wide: true });
       if (id) return { kind: 'move', id };
     } else if (c === 'bag') {
-      bset('Which item?');
-      const it = await menu([{ label: 'Potion', sub: `×${bag.potion} · heals 20 HP`, value: 'potion', disabled: !bag.potion, color: '#8a5cd0' },
-        { label: 'Poké Ball', sub: `×${bag.ball}`, value: 'ball', disabled: !bag.ball, color: '#e2473b' }], { back: true });
-      if (it) return { kind: it };
+      bset('Which item?'); // what the bag holds that works in battle: HP healers, status cures, Poké Balls
+      const k = await menu(Object.keys(ITEMS).filter(k => bag[k] > 0 && (ITEMS[k].heal || ITEMS[k].cure || ITEMS[k].catch)).map(k => { const it = ITEMS[k];
+        return { label: it.name, sub: `×${bag[k]}${it.heal ? ` · heals ${it.heal} HP` : it.cure ? ` · cures ${STATUS[it.cure][0]}` : ''}`, value: k, color: it.catch ? '#e2473b' : it.pocket === 'berries' ? '#3fae4a' : '#8a5cd0' }; }), { back: true, wide: true });
+      if (k) return { kind: ITEMS[k].catch ? 'ball' : 'item', item: k };
     } else if (c === 'mon') {
       bset('Choose a Pokémon.');
       const i = await partyMenu(false);
@@ -6503,9 +7033,19 @@ async function checkFaint() {
   }
   return undefined;
 }
-async function foeTurn(id) { await useMove(BT.foe, BT.me, id); return (await checkFaint()) ?? null; }
+async function endOfTurn(out = [BT.me, BT.foe]) { // poison bites each Pokémon still out once both sides have acted (not one sent in for a fainted one)
+  for (const m of out) {
+    if (m.status !== 'psn' || m.hp <= 0 || (m !== BT.me && m !== BT.foe)) continue; // a fainted one may have been replaced already
+    statusFx(m); await setHp(m, m.hp - Math.max(1, Math.floor(m.maxHp / 8)));
+    await bsay(`${who(m)} is hurt by poison!`);
+    const r = await checkFaint(); if (r) return r;
+  }
+  return null;
+}
+async function foeTurn(id) { await useMove(BT.foe, BT.me, id); return (await checkFaint()) || endOfTurn(); }
 async function doTurn(act) {
-  const me = BT.me, foe = BT.foe, usable = foe.moves.filter(x => x.pp > 0), foeId = usable.length ? pick(usable).id : 'TACKLE';
+  const me = BT.me, foe = BT.foe, wasted = x => me.status && MOVES[x.id].cat === 'status' && ailOf(MOVES[x.id]); // no sleep powder on a foe that already has a condition
+  const usable = foe.moves.filter(x => x.pp > 0), smart = usable.filter(x => !wasted(x)), foeId = (smart.length ? pick(smart) : usable.length ? pick(usable) : { id: 'TACKLE' }).id;
   if (act.kind === 'run' && BT.opts.trainer) { await bsay("No! There's no running from a Trainer battle!"); return null; }
   if (act.kind === 'ball' && (BT.opts.trainer || BT.opts.noCatch)) { await bsay(BT.opts.trainer ? "The Trainer blocked the Ball! Don't be a thief!" : `${nm(BT.foe)} is too distressed to be caught!`); return null; }
   if (act.kind === 'run') {
@@ -6514,26 +7054,27 @@ async function doTurn(act) {
     await bsay("Can't escape!");
     return foeTurn(foeId);
   }
-  if (act.kind === 'potion') {
-    if (me.hp >= me.maxHp) { await bsay("It won't have any effect."); return null; }
-    bag.potion--;
-    await bsay(`You used a Potion on ${nm(me)}.`);
+  if (act.kind === 'item') {
+    const it = ITEMS[act.item];
+    if (it.heal ? me.hp >= me.maxHp : me.status !== it.cure) { await bsay("It won't have any effect."); return null; }
+    bag[act.item]--;
+    await bsay(`You used ${aOr(it.name)} on ${nm(me)}.`);
     burst(BT.meModel.position.clone().add(new V3(0, 0.6, 0)), '#8dff9a', { n: 30, up: 2, grav: 1, speed: 1.2, life: 0.9 });
-    await setHp(me, me.hp + 20);
-    await bsay(`${nm(me)}'s HP was restored.`);
+    if (it.heal) { await setHp(me, me.hp + it.heal); await bsay(`${nm(me)}'s HP was restored.`); }
+    else { delete me.status; delete me.sleep; SND.chime(); await bsay(`${nm(me)} is no longer ${STATUS[it.cure][2]}.`); }
     return foeTurn(foeId);
   }
-  if (act.kind === 'ball') { bag.ball--; if (await throwBall()) { music('victory'); return 'caught'; } return foeTurn(foeId); }
+  if (act.kind === 'ball') { bag[act.item]--; if (await throwBall(act.item)) { music('victory'); return 'caught'; } return foeTurn(foeId); }
   if (act.kind === 'switch') { await withdraw(); await sendOut(party[act.idx]); return foeTurn(foeId); }
-  const mine = [me, foe, act.id], theirs = [foe, me, foeId];
-  const pm = MOVES[act.id].prio || 0, pf = MOVES[foeId].prio || 0, sm = me.spe * stageMul(me.st.spe), sf = foe.spe * stageMul(foe.st.spe);
+  const mine = [me, foe, act.id], theirs = [foe, me, foeId], spd = m => m.spe * stageMul(m.st.spe) * (m.status === 'par' ? 0.5 : 1); // paralysis halves Speed
+  const pm = MOVES[act.id].prio || 0, pf = MOVES[foeId].prio || 0, sm = spd(me), sf = spd(foe);
   const meFirst = pm !== pf ? pm > pf : sm !== sf ? sm > sf : rnd() < 0.5;
   for (const [a, d, id] of meFirst ? [mine, theirs] : [theirs, mine]) {
     await useMove(a, d, id);
     const r = await checkFaint();
-    if (r !== undefined) return r;
+    if (r !== undefined) return r || endOfTurn([me, foe]); // null: a fainted Pokémon was replaced, and the turn still ends as usual
   }
-  return null;
+  return endOfTurn([me, foe]);
 }
 async function foeIn(foe, text) { // the foe slides onto its platform from the right, then its box and the line appear
   foe.st = freshStages(); foe.disp = foe.hp; BT.foe = foe;
@@ -6545,10 +7086,11 @@ async function foeIn(foe, text) { // the foe slides onto its platform from the r
 }
 // opts.trainer = { name, team: [[key, level], ...], prize }: no running or catching; key / level are ignored and the team comes out in order
 async function startBattle(key, level, opts = {}) {
-  if (BT.active || !party.some(m => m.hp > 0)) return;
-  if (opts.trainer) opts = { ...opts, trainer: { ...opts.trainer, team: opts.trainer.team.map(([k, l]) => makeMon(k, l)) } }; // makeMon starts every model loading now
+  if (BT.active || ui.menu || ui.bag || ui.shop || ui.pokedex || ui.quit || !party.some(m => m.hp > 0)) return; // never under another screen (a step still coasting in tall grass after opening the bag started one behind it)
+  if (opts.trainer) opts = { ...opts, trainer: { ...opts.trainer, team: opts.trainer.team.map(([k, l, mv]) => { // makeMon starts every model loading now
+    const m = makeMon(k, l); if (mv) m.moves = mv.map(id => ({ id, pp: MOVES[id].pp })); return m; }) } }; // [key, level, moves?]: a fixed moveset overrides the learnset
   Object.assign(BT, { active: true, opts, tries: 0, zoom: 0, stop: 0, evoQueue: new Set(), foeIdx: 0 });
-  music('battle');
+  music(opts.trainer ? 'trainer' : 'battle');
   ui.battle = true; keys.clear(); moveTarget = null; P.v = 0;
   $('btrans').className = 'btrans ' + (SET.calm ? 'fade' : 'flash');
   await wait(1.1);
@@ -6640,20 +7182,22 @@ function follow(o, F, tx, tz, idleFace, dt, t) {
   const u = o.userData, gait = u.gait || (u.flies ? 'hover' : 'waddle');
   const dx = tx - F.pos.x, dz = tz - F.pos.z, gap = Math.hypot(dx, dz);
   F.v = approach(F.v, gap > 0.15 ? Math.min(TOP_SPEED[gait], gap * 3) : 0, (gap > 0.15 ? 12 : 9) * dt);
+  const L = gait !== 'hover' && u.chains?.legs, hip = L ? L.len * o.scale.y : 1;
+  const stepLen = L ? Math.max(Math.min(STRIDE[gait], 1.2 * hip), F.v / 10) : STRIDE[gait]; // short legs take quicker steps, up to 10 a second
   let turnRate = 0;
   if (F.v > 0.02 && gap > 0.02) {
     const turn = wrapAngle(Math.atan2(dx, dz) - F.face), step = clamp(turn, -8 * dt, 8 * dt);
     F.face = wrapAngle(F.face + step); turnRate = dt ? step / dt : 0;
     const s = Math.min(gap, F.v * dt * Math.max(0.3, Math.cos(turn)));
     F.pos.x += Math.sin(F.face) * s; F.pos.z += Math.cos(F.face) * s;
-    F.ph += s / STRIDE[gait]; // the gait advances with distance covered, so the feet keep pace with the ground
+    F.ph += s / stepLen; // the gait advances with distance covered, so the feet keep pace with the ground
   } else F.face = wrapAngle(F.face + clamp(wrapAngle(idleFace - F.face), -3 * dt, 3 * dt));
   const blend = 1 - Math.exp(-dt * 8), a = F.amt = THREE.MathUtils.lerp(F.amt, clamp(F.v / 1.5, 0, 1), blend);
   F.roll = THREE.MathUtils.lerp(F.roll, clamp(-turnRate * F.v * 0.02, -0.12, 0.12), blend); // lean into the turn
   F.look = THREE.MathUtils.lerp(F.look, gap > 0.3 ? clamp(wrapAngle(Math.atan2(dx, dz) - F.face), -0.5, 0.5) * 0.6 : 0, blend);
   let y = 0, sy = 1, lean = 0, roll = F.roll, yaw = 0;
   if (gait === 'bound') { // four-legged trot: a small bob per footfall pair, nose slightly down with speed, feet stay near the ground
-    const s = Math.sin(F.ph * Math.PI * 2), lift = Math.abs(s);
+    const s = Math.sin(F.ph * Math.PI), lift = Math.abs(s);
     y = lift * 0.03 * a; sy = 1 - 0.02 * a * (1 - lift); lean = a * (0.08 + s * 0.02);
   } else if (gait === 'waddle') { // weight shifts onto each foot in turn: lowest as a foot lands
     const s = Math.sin(F.ph * Math.PI), lift = Math.abs(s);
@@ -6661,6 +7205,12 @@ function follow(o, F, tx, tz, idleFace, dt, t) {
   } else { // hover with a wing beat, pitching forward with speed
     y = 0.35 + Math.sin(t * 3) * 0.05; lean = 0.25 * a;
     if (u.wings) u.wings.forEach((w, i) => swing(w, (i ? -1 : 1) * (0.2 + Math.sin(t * 16) * 0.6)));
+  }
+  if (L) { // legs step in time with the ground: spread fully as a foot lands, the swinging leg's knee lifts mid-stride
+    const c = Math.cos(F.ph * Math.PI), sn = Math.sin(F.ph * Math.PI), sw = Math.asin(Math.min(0.75, stepLen / 2 / hip)) * a, knee = 1.1 * a;
+    const leg = (j, k, d) => { bend(j[k], d * sw * c); bend(j[k + 1], knee * Math.max(0, d * sn)); };
+    leg(L.j, 0, 1); leg(L.j, 2, -1);
+    if (L.front) { leg(L.front, 0, -1); leg(L.front, 2, 1); } // a trot: each front leg moves with the opposite hind one
   }
   // idle once it has settled: a glance around, a tail flick or an ear twitch, picked with Math.random (never the battle rnd())
   const tail = u.tail || u.chains?.tail, hasTail = tail && (tail.userData.chain || tail.children.length), ears = u.chains?.ears;
@@ -6704,6 +7254,7 @@ function update(dt, t) {
     if (keys.has('KeyS') || keys.has('ArrowDown')) iz += 1;
     if (keys.has('KeyA') || keys.has('ArrowLeft')) ix -= 1;
     if (keys.has('KeyD') || keys.has('ArrowRight')) ix += 1;
+    ix += GP.x; iz += GP.z; // the gamepad stick (zero when no pad)
     if (ix || iz) { moveTarget = null; const c = Math.cos(VIEW.yaw), s = Math.sin(VIEW.yaw); [ix, iz] = [ix * c + iz * s, iz * c - ix * s]; } // W walks away from the camera, whichever way it faces
     else if (moveTarget) {
       const dx = moveTarget.x - P.pos.x, dz = moveTarget.z - P.pos.z, l = Math.hypot(dx, dz);
@@ -6711,7 +7262,7 @@ function update(dt, t) {
       if (l < 0.15 || moveTarget.t > 12) moveTarget = null; else { ix = dx / l; iz = dz / l; }
     }
   }
-  const run = (keys.has('ShiftLeft') || keys.has('ShiftRight')) !== SET.alwaysRun; // with Always run on, Shift walks
+  const run = (keys.has('ShiftLeft') || keys.has('ShiftRight') || GP.run) !== SET.alwaysRun; // with Always run on, Shift walks
   const il = Math.hypot(ix, iz);
   // Speed ramps up and down, and the heading turns at a limited rate: a sharp turn brakes, pivots, then sets off again.
   let goal = 0, speed = 0;
@@ -6728,7 +7279,7 @@ function update(dt, t) {
     else { P.v = 0; moveTarget = null; }
     if (inTallGrass(P.pos.x, P.pos.z) && speed > 0) {
       grassDist += speed * dt;
-      if (grassDist > 2.5 && rnd() < dt * 0.8) { grassDist = 0; startBattle(rollWild(), 2 + Math.floor(rnd() * 4)); }
+      if (grassDist > 2.5 && rnd() < dt * 0.8) { grassDist = 0; startBattle(rollWild(), 2 + Math.floor(rnd() * 3)); } // Lv2-4: below a fresh Lv5 starter (a Lv5 Pidgey beat Bulbasaur 73% of the time)
     }
   }
   P.speed = speed; // the real ground speed, already ramped, so the stride matches it exactly
@@ -6741,6 +7292,7 @@ function update(dt, t) {
   // the party lead trails behind and to the side
   if (OB.stage === 'starter') { const f = obFront(); follow(pika, PK, f.x, f.z, OB_FACE, dt, t); } // picking a partner: it steps out in front of the trainer, facing the camera
   else follow(pika, PK, P.pos.x - Math.sin(P.face) * 0.85 - Math.cos(P.face) * 0.3, P.pos.z - Math.cos(P.face) * 0.85 + Math.sin(P.face) * 0.3, P.face, dt, t);
+  pika.visible = !(ui.onboard && freshGame && OB.stage !== 'starter'); // a new trainer has no partner until the Professor hands one over
   pika.userData.flame?.scale.set(1 + Math.sin(t * 23) * 0.12, 1 + Math.sin(t * 17) * 0.2, 1);
 
   nearest = null; let best = 1e9;
@@ -6800,9 +7352,13 @@ function update(dt, t) {
     p.needsUpdate = true;
   }
 
+  let marks = null; // a quest target wins over a bystander within 0.8 m of it (Bonnie stands right beside Clemont)
+  const marked = it => (marks ??= questMarks()).some(m => Math.abs(m[0] - it.x) < 0.05 && Math.abs(m[1] - it.z) < 0.05);
   if (!busy) for (const it of interactables) {
     const d = Math.hypot(P.pos.x - it.x, P.pos.z - it.z);
-    if (d < it.r && d < best) { best = d; nearest = it; }
+    if (d >= it.r) continue;
+    const s = d - (marked(it) ? 0.8 : 0);
+    if (s < best) { best = s; nearest = it; }
   }
   const pr = $('prompt');
   if (nearest && !busy) {
@@ -6892,7 +7448,7 @@ async function loadGallery() {
 // ============================================================ Background music
 // One looping <audio> per track, crossfaded by volume. Browsers block playback until the first key or click, so play() is retried then.
 const MUSIC = { town: '01-verdant-town', route: '02-route-1', kalos: '03-fleurville-town', battle: '04-wild-battle', victory: '05-victory-fanfare',
-  center: '06-pokemon-center', shop: '07-shop-cafe', greenhouse: '08-greenhouse', gallery: '10-title-gallery' };
+  center: '06-pokemon-center', shop: '07-shop-cafe', greenhouse: '08-greenhouse', gallery: '10-title-gallery', trainer: '11-trainer-battle' }; // 11: tools/compose_trainer_battle.mjs
 const MUSIC_VOL = 0.45, MUSIC_FADE = 1.5; // seconds for a full fade
 const GREENHOUSE = kRect(680, 5, 800, 132);
 const bgm = { want: null, tracks: {} };
@@ -6902,7 +7458,7 @@ function music(key) {
   if (bgm.want === key) return;
   bgm.want = key;
   const a = bgm.tracks[key] ??= Object.assign(new Audio(`audio/music/${MUSIC[key]}.m4a`), { loop: true, volume: 0 });
-  if (key === 'battle' || key === 'victory') a.currentTime = 0;
+  if (key === 'battle' || key === 'trainer' || key === 'victory') a.currentTime = 0;
   a.play().catch(() => {});
 }
 function musicTick() { // wall-clock time, not the capped frame dt, so fades keep their length when frames drop
@@ -6966,7 +7522,7 @@ function slotRow(s, buttons) {
 }
 let gmView = 'save';
 function gmRender(view = gmView) {
-  gmView = view;
+  gmView = view; if (view !== 'controls') binding = null; // leaving the Controls page cancels a key change
   $('gmNav').querySelectorAll('[role=tab]').forEach(b => b.setAttribute('aria-selected', b.dataset.v === view));
   const v = $('gmView');
   if (view === 'save' || view === 'load') {
@@ -6994,9 +7550,14 @@ function gmRender(view = gmView) {
       <label class="gm-set"><span>Always run<small>Hold Shift to walk instead</small></span>${check('alwaysRun')}</label>
       <label class="gm-set"><span>Reduce flashing &amp; screen shake<small>Calmer battle effects</small></span>${check('calm')}</label>
       <div class="gm-row"><button class="gm-btn" id="gmDefaults">Restore defaults</button></div>`;
-  } else v.innerHTML = `<h3>Controls</h3><ul class="gm-keys"><li>Walk <span><kbd>WASD</kbd> / arrows</span></li><li>Run <span><kbd>Shift</kbd></span></li>
-    <li>Talk / read <span><kbd>E</kbd> / <kbd>Space</kbd></span></li><li>Walk to spot <span>click / tap</span></li><li>Zoom <span>scroll wheel</span></li>
-    <li>Bag <span><kbd>B</kbd></span></li><li>Game Menu <span><kbd>Esc</kbd></span></li><li>Travel to Fleurville / Verdant <span><kbd>T</kbd></span></li><li>Test Grounds (warp pads, character gallery) <span><kbd>G</kbd></span></li><li>Use a warp pad <span><kbd>X</kbd></span></li></ul>`;
+  } else v.innerHTML = `<h3>Controls</h3><p class="gm-status">Select a key to change it, then press the new key (Esc cancels). Picking a key that’s in use swaps the two.</p>
+    <ul class="gm-keys">${BIND_ACTIONS.map(([a, label]) => `<li>${label}<button class="gm-btn gm-bind${binding === a ? ' wait' : ''}" data-bind="${a}" aria-label="${label}: ${kb(a)}. Change key">${binding === a ? 'Press a key…' : kb(a)}</button></li>`).join('')}
+    <li>Run (or walk, with Always run on) <span><kbd>Shift</kbd></span></li><li>Walk, also <span>arrow keys</span></li><li>Talk / confirm, also <span><kbd>Space</kbd> / <kbd>Enter</kbd></span></li><li>Game Menu <span><kbd>Esc</kbd></span></li>
+    <li>Walk to spot <span>click / tap</span></li><li>Turn the camera <span>drag</span></li><li>Zoom <span>scroll wheel</span></li><li>Test Grounds (warp pads, character gallery) <span><kbd>G</kbd></span></li></ul>
+    <div class="gm-row"><button class="gm-btn" id="gmKeysReset">Reset keys</button></div>
+    <h3>Controller</h3><ul class="gm-keys"><li>Walk <span>left stick / d-pad</span></li><li>Run <span>hold <kbd>B</kbd></span></li><li>Turn the camera <span>right stick</span></li>
+    <li>Talk / confirm <span><kbd>A</kbd></span></li><li>Back / close <span><kbd>B</kbd></span></li><li>Bag <span><kbd>X</kbd></span></li><li>Track the next quest <span><kbd>Y</kbd></span></li>
+    <li>Game Menu <span><kbd>Start</kbd></span></li><li>First-person view <span><kbd>Back</kbd></span></li><li>Travel <span><kbd>LB</kbd></span></li><li>Use a warp pad <span><kbd>RB</kbd></span></li></ul>`;
 }
 function gmToast(text, err = false) { const t = $('gmToast'); t.textContent = text; t.classList.toggle('err', err); t.classList.add('show'); clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove('show'), err ? 4000 : 2200); }
 let askRes = null;
@@ -7058,10 +7619,10 @@ function openMenu(view = 'save') {
   ui.menu = true; keys.clear(); moveTarget = null; P.v = 0; // P.v too: a coasting step in tall grass could still start a battle
   $('gameMenu').showModal(); gmRender(view); $('gmNav').querySelector(`[data-v="${view}"]`).focus();
 }
-function closeMenu() { if (!ui.menu) return; answer(false); ui.menu = false; $('gameMenu').close(); $('menuBtn').focus(); }
+function closeMenu() { if (!ui.menu) return; answer(false); binding = null; ui.menu = false; $('gameMenu').close(); $('menuBtn').focus(); }
 $('gmClose').onclick = closeMenu;
 $('gameMenu').addEventListener('cancel', e => { e.preventDefault(); if (askRes) answer(false); else closeMenu(); }); // Esc backs out of a confirm first
-$('gameMenu').addEventListener('close', () => { if (ui.menu) { answer(false); ui.menu = false; } }); // the browser may close it without a cancel (repeated Esc)
+$('gameMenu').addEventListener('close', () => { binding = null; if (ui.menu) { answer(false); ui.menu = false; } }); // the browser may close it without a cancel (repeated Esc)
 $('gameMenu').addEventListener('click', e => { if (e.target === $('gameMenu') && !askRes) closeMenu(); }); // click on the dimmed backdrop
 $('gmNav').onclick = e => { const v = e.target.closest('button')?.dataset.v; if (v === 'new') newGame(); else if (v === 'quit') quitGame(); else if (v) gmRender(v); };
 $('gmView').addEventListener('click', e => {
@@ -7070,6 +7631,8 @@ $('gmView').addEventListener('click', e => {
   else if (b.dataset.save) saveTo(b.dataset.save);
   else if (b.dataset.load) loadSlot(b.dataset.load);
   else if (b.dataset.del) delSlot(b.dataset.del);
+  else if (b.dataset.bind) { binding = b.dataset.bind; gmRender(); $('gmView').querySelector(`[data-bind="${binding}"]`).focus(); }
+  else if (b.id === 'gmKeysReset') { bindDefaults(); buildRemap(); saveBindings(); renderHint(); gmRender(); gmToast('Keys reset to the defaults.'); }
   else if (b.id === 'gmDefaults') { Object.assign(SET, SET_DEFAULT); applySettings(); saveSettings(); gmRender(); gmToast('Settings restored to defaults.'); }
 });
 $('gmView').addEventListener('keydown', e => { if (e.target.id === 'gmName' && e.key === 'Enter') saveTo(null, e.target.value); });
@@ -7081,10 +7644,20 @@ $('gmView').addEventListener('input', e => {
 $('gmView').addEventListener('change', e => { if (e.target.dataset.set === 'sfx') SND.chime(); }); // let the player hear the new level
 $('quitBack').onclick = () => { ui.quit = false; $('quitScreen').classList.remove('show'); $('menuBtn').focus(); };
 
-function frame() { tick(); requestAnimationFrame(frame); }
+const PERF = { last: 0, sum: 0, n: 0, told: false };
+function perfWatch(now) { // one hint per session when Medium or High runs under ~40 FPS for 5 s of play (gaps over 0.2 s are a hidden or throttled tab)
+  const d = now - (PERF.last || now); PERF.last = now;
+  if (PERF.told || SET.quality === 'low' || ui.onboard || BT.active || !d || d > 200) return;
+  PERF.sum += d; PERF.n++;
+  if (PERF.sum < 5000) return;
+  if (PERF.sum / PERF.n > 25) { PERF.told = true; flashHint('Running slowly? Lower <b>Graphics quality</b> in Settings (<kbd>Esc</kbd>)', 8000); }
+  PERF.sum = PERF.n = 0;
+}
+function frame(now) { tick(); perfWatch(now); requestAnimationFrame(frame); }
 function tick() { // one frame of the world; debug checks also step it directly, so they run while the pane is hidden (no rAF)
   if (innerWidth !== vw || innerHeight !== vh) resize();
   const dt = Math.min(clock.getDelta(), 0.05), t = clock.elapsedTime;
+  pollPad(dt); // first: the quit screen still takes the gamepad (A returns to the game)
   if (ui.quit) return; // quit screen: the world stops
   playTime += dt;
   musicTick(); ambientTick();
@@ -7197,6 +7770,7 @@ $('obYes').onclick = () => {
 };
 $('obStarterGo').onclick = () => {
   const m = party[0]; SND.chime(); freshGame = false;
+  for (const k in bag) delete bag[k]; Object.assign(bag, { potion: 1, townMap: 1 }); // a new trainer's bag: the Professor's first assignment brings Poké Balls
   obStage('outro');
   say(PROF, [`${nm(m)}! An excellent choice. Take good care of each other.`, 'Lately the stream outside town has gone strangely quiet, and wild Pokémon seem uneasy.',
     'Come and talk to me when you’re ready. I have a favour to ask.'], null, obFinish);

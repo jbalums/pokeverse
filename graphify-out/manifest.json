@@ -114,9 +114,9 @@
     "semantic_hash": ""
   },
   "prototypes/verdant-town-3d.html": {
-    "mtime": 1792516086.081666,
-    "seen": 1792516135.516158,
-    "ast_hash": "62ff5960ac86c9dfcc3cf978c0a04815",
+    "mtime": 1792581527.6339383,
+    "seen": 1792581811.0532794,
+    "ast_hash": "3681763dde9fe6f3f31e0f22593928c2",
     "semantic_hash": ""
   },
   "prototypes/blender/build_characters.py": {
@@ -285,6 +285,18 @@
     "mtime": 1792514636.4054523,
     "seen": 1792514640.4798877,
     "ast_hash": "6a792253e22015ceedb9430e6acbb7e6",
+    "semantic_hash": ""
+  },
+  "tools/compose_trainer_battle.mjs": {
+    "mtime": 1792581379.3773952,
+    "seen": 1792581811.0532794,
+    "ast_hash": "007c6f9648a98d83bb0e1a240f1e3579",
+    "semantic_hash": ""
+  },
+  "prototypes/audio/music/11-trainer-battle.m4a": {
+    "mtime": 1792581387.7871916,
+    "seen": 1792581811.0532794,
+    "ast_hash": "99499bb65d1a3dd3c177db0b796e3d65",
     "semantic_hash": ""
   }
 }

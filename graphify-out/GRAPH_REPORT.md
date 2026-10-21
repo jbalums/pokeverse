@@ -1,17 +1,17 @@
 # Graph Report - Pokemon  (2026-10-21)
 
 ## Corpus Check
-- 32 files · ~484,589 words
+- 33 files · ~501,002 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 40 file(s) not represented in the graph (top: .glb 34, (none) 3, .cmd 1)
 
 ## Summary
-- 616 nodes · 1619 edges · 21 communities (15 shown, 6 thin omitted)
+- 652 nodes · 1670 edges · 24 communities (17 shown, 7 thin omitted)
 - Extraction: 96% EXTRACTED · 4% INFERRED · 0% AMBIGUOUS · INFERRED: 72 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `9e8f65ec`
+- Built from commit: `f4fb97e2`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -31,6 +31,9 @@
 - build_pikachu_v002.py
 - blender/build_characters.py
 - Verdant Town flora v1
+- compose_trainer_battle.mjs
+- tone
+- glb
 - Build-Proofs.ps1
 
 ## God Nodes (most connected - your core abstractions)
@@ -60,7 +63,7 @@
 ## Import Cycles
 - None detected.
 
-## Communities (21 total, 6 thin omitted)
+## Communities (24 total, 7 thin omitted)
 
 ### Community 0 - "verify_release.py"
 Cohesion: 0.07
@@ -75,20 +78,20 @@ Cohesion: 0.14
 Nodes (13): app, security, windows, build, frontendDist, bundle, active, icon (+5 more)
 
 ### Community 5 - "json"
-Cohesion: 0.06
-Nodes (12): base(), caption(), color(), material(), accessor(), CharacterProofTests, decode(), decode_glb() (+4 more)
+Cohesion: 0.07
+Nodes (8): accessor(), CharacterProofTests, decode(), decode_glb(), EnvironmentSourceTests, ray_y_hits(), read_accessor(), signed_volume()
 
 ### Community 6 - "rebuild-models.mjs"
-Cohesion: 0.07
-Nodes (17): build, geometryJSON, glb(), here, html, manifest, models, output (+9 more)
+Cohesion: 0.08
+Nodes (16): build, geometryJSON, here, html, manifest, models, output, renderArg (+8 more)
 
 ### Community 7 - "build_assets.py"
 Cohesion: 0.11
 Nodes (43): add_bm(), add_quad(), Asset, b64(), barrel_tile(), bevel(), bm_box(), bm_cyl() (+35 more)
 
 ### Community 8 - "import_town.py"
-Cohesion: 0.21
-Nodes (8): collection(), connect(), expr(), import_files(), load_or_create(), main(), material(), property_link()
+Cohesion: 0.11
+Nodes (12): base(), caption(), color(), material(), collection(), connect(), expr(), import_files() (+4 more)
 
 ### Community 9 - "manifest.json"
 Cohesion: 0.09
@@ -118,29 +121,37 @@ Nodes (76): b64(), bangs(), bench(), _bounds(), build(), bulbasaur(), bush(), ca
 Cohesion: 0.33
 Nodes (5): Contents, Game integration, Rebuild, Validation boundary, Verdant Town flora v1
 
+### Community 18 - "compose_trainer_battle.mjs"
+Cohesion: 0.08
+Nodes (18): dir, DRUM, dryL, dryR, echo, L, LEN, OUT (+10 more)
+
+### Community 19 - "tone"
+Cohesion: 0.20
+Nodes (11): arpNote(), bassNote(), blep(), brass(), compNote(), lead(), noiseHit(), padNote() (+3 more)
+
 ### Community 22 - "Build-Proofs.ps1"
 Cohesion: 0.46
 Nodes (7): Author-Proofs(), Build-Editor(), Build-Sources(), Capture-Proofs(), Import-Proofs(), Invoke-ProofTool(), Test-Proofs()
 
 ## Knowledge Gaps
 - **1 isolated node(s):** `verdant-town`
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 186 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **6 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 205 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **7 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `inspect_glb()` connect `verify_release.py` to `build_environment.py`, `json`?**
-  _High betweenness centrality (0.048) - this node is a cross-community bridge._
+  _High betweenness centrality (0.043) - this node is a cross-community bridge._
 - **What connects `verdant-town` to the rest of the system?**
   _1 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `verify_release.py` be split into smaller, more focused modules?**
-  _Cohesion score 0.06882716049382716 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.06593707250341997 - nodes in this community are weakly interconnected._
 - **Should `tauri.conf.json` be split into smaller, more focused modules?**
   _Cohesion score 0.14285714285714285 - nodes in this community are weakly interconnected._
 - **Should `json` be split into smaller, more focused modules?**
-  _Cohesion score 0.05786090005844535 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.07200929152148665 - nodes in this community are weakly interconnected._
 - **Should `rebuild-models.mjs` be split into smaller, more focused modules?**
-  _Cohesion score 0.07142857142857142 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.07692307692307693 - nodes in this community are weakly interconnected._
 - **Should `build_assets.py` be split into smaller, more focused modules?**
   _Cohesion score 0.11092896174863388 - nodes in this community are weakly interconnected._
