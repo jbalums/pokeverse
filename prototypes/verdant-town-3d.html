@@ -4899,7 +4899,7 @@ const ICON = { // small hand-drawn SVG item icons
   pocket: k => ({ med: ICON.spray('#a874e0', '#e2473b'), items: ICON.stone('#f2652b', '#ffd23f'), balls: ICON.ball('#e2473b'), berries: ICON.berry('#4a78d8', '#4caf50'), key: ICON.map() })[k],
 };
 const stoneItem = (name, fill, core, what, price) => ({ name, pocket: 'items', icon: ICON.stone(fill, core), stone: true, price,
-  desc: `${what} Held up to the right Pokémon, it makes that Pokémon evolve. The stone is used up.` });
+  desc: `A peculiar stone that can make certain species of Pokémon evolve. ${what}` }); // official item text (SwSh/SV)
 const ITEMS = {
   potion: { name: 'Potion', pocket: 'med', icon: ICON.spray('#a874e0', '#e2473b'), heal: 20, desc: 'A spray-type medicine for treating wounds. It restores the HP of one Pokémon by 20 points.' },
   superPotion: { name: 'Super Potion', pocket: 'med', icon: ICON.spray('#f08a3a', '#e2473b'), heal: 60, desc: 'A spray-type medicine for treating wounds. It restores the HP of one Pokémon by 60 points.' },
@@ -4914,16 +4914,16 @@ const ITEMS = {
   signalChip: { name: 'Signal Chip', pocket: 'key', icon: ICON.chip(), get check() { return `A sunburst over two letters is stamped on it. Clemont in Fleurville can read it. Press ${kb('travel')} to travel there.`; },
     desc: 'A chip from inside the survey device in the woodland clearing. It still feels faintly warm. Prof. Sycamore asked you to bring it to Clemont.' }, // held only while it is being delivered (syncKeyItems)
   // evolution stones; price = what the Poké Mart asks (only the Gen 1 five are sold there)
-  fireStone: stoneItem('Fire Stone', '#f2652b', '#ffd23f', 'An orange stone that stays warm, with a flame trapped at its heart.', 2100),
-  waterStone: stoneItem('Water Stone', '#3f8de0', '#bfe6ff', 'A clear blue stone with ripples that seem to move inside it.', 2100),
-  thunderStone: stoneItem('Thunder Stone', '#7cc85a', '#fff16a', 'A green stone marked with a yellow lightning bolt. It crackles faintly.', 2100),
-  leafStone: stoneItem('Leaf Stone', '#4caf50', '#d6f5a0', 'A green stone with the pattern of a leaf running through it.', 2100),
-  moonStone: stoneItem('Moon Stone', '#6b6f80', '#c9cbe0', 'A dark stone, cool to the touch, that glints like the night sky.', 2100),
-  sunStone: stoneItem('Sun Stone', '#f28c28', '#e2473b', 'A red-orange stone that glows like the setting sun.'),
-  shinyStone: stoneItem('Shiny Stone', '#e8ecf5', '#9fb4e0', 'A pale stone that sparkles brightly whenever light falls on it.'),
-  duskStone: stoneItem('Dusk Stone', '#4a3a6a', '#9a6ad8', 'A deep purple stone, gloomy and dark like the sky after sunset.'),
-  dawnStone: stoneItem('Dawn Stone', '#4fd0c8', '#e0fffb', 'A teal stone that shimmers like the first light of morning.'),
-  iceStone: stoneItem('Ice Stone', '#a8e0f0', '#ffffff', 'A cold stone in which frost patterns never melt.'),
+  fireStone: stoneItem('Fire Stone', '#f2652b', '#ffd23f', 'The stone has a fiery orange heart.', 2100),
+  waterStone: stoneItem('Water Stone', '#3f8de0', '#bfe6ff', 'It is the clear blue of a pool of water.', 2100),
+  thunderStone: stoneItem('Thunder Stone', '#7cc85a', '#fff16a', 'It has a distinct thunderbolt pattern.', 2100),
+  leafStone: stoneItem('Leaf Stone', '#4caf50', '#d6f5a0', 'It has an unmistakable leaf pattern.', 2100),
+  moonStone: stoneItem('Moon Stone', '#6b6f80', '#c9cbe0', 'It is as black as the night sky.', 2100),
+  sunStone: stoneItem('Sun Stone', '#f28c28', '#e2473b', 'It burns as red as the evening sun.'),
+  shinyStone: stoneItem('Shiny Stone', '#e8ecf5', '#9fb4e0', 'It shines with a dazzling light.'),
+  duskStone: stoneItem('Dusk Stone', '#4a3a6a', '#9a6ad8', 'It holds shadows as dark as can be.'),
+  dawnStone: stoneItem('Dawn Stone', '#4fd0c8', '#e0fffb', 'It sparkles like a glittering eye.'),
+  iceStone: stoneItem('Ice Stone', '#a8e0f0', '#ffffff', 'It has an unmistakable snowflake pattern.'),
 };
 const POCKETS = [['med', 'Medicine'], ['items', 'Items'], ['balls', 'Poké Balls'], ['berries', 'Berries'], ['key', 'Key Items']];
 const BP = { pocket: 'med', idx: 0, item: null };
