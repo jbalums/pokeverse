@@ -15,26 +15,27 @@
 
   .loc { position: fixed; top: 2.4vh; left: 1.6vw; display: flex; align-items: center; gap: 12px; padding: 10px 34px 10px 16px; background: var(--panel); color: #fff; border-radius: 999px; font-weight: 800; font-size: 20px; border: 1.5px solid rgba(255,255,255,.22); box-shadow: 0 4px 14px rgba(0,0,0,.25); }
   /* quest tracker: one card per quest; click (or Q) tracks it, and the guide arrow on the ground points the way */
-  .quests { position: fixed; top: calc(2.4vh + 58px); left: 1.6vw; width: min(340px, calc(100vw - 32px)); display: flex; flex-direction: column; gap: 6px; z-index: 3; }
+  .quests { position: fixed; top: calc(2.4vh + 52px); left: 1.6vw; width: min(250px, calc(100vw - 24px)); display: flex; flex-direction: column; gap: 4px; z-index: 3; }
   .quests button { font: inherit; color: inherit; text-align: left; cursor: pointer; }
-  .quests .qh { align-self: flex-start; display: flex; align-items: center; gap: 8px; padding: 4px 12px 4px 14px; background: var(--panel); color: #fff; border: 1.5px solid rgba(255,255,255,.18); border-radius: 999px; font-weight: 800; font-size: 13px; letter-spacing: .06em; text-transform: uppercase; }
-  .quests .qh .n { min-width: 20px; padding: 0 6px; border-radius: 999px; background: rgba(255,255,255,.16); text-align: center; font-size: 12px; }
+  .quests .qh { align-self: flex-start; display: flex; align-items: center; gap: 6px; padding: 2px 9px 2px 10px; background: var(--panel); color: #fff; border: 1px solid rgba(255,255,255,.18); border-radius: 999px; font-weight: 800; font-size: 10px; letter-spacing: .08em; text-transform: uppercase; }
+  .quests .qh .n { min-width: 16px; padding: 0 5px; border-radius: 999px; background: rgba(255,255,255,.16); text-align: center; font-size: 10px; }
   .quests .qh .car { opacity: .7; }
-  .quests .q { --c: #ffc21a; --ink: #7a4a00; display: grid; grid-template-columns: 26px 1fr auto; align-items: center; gap: 10px; padding: 9px 12px 9px 10px; background: var(--panel); color: #fff;
-    border: 1.5px solid rgba(255,255,255,.12); border-left: 4px solid var(--c); border-radius: 14px; backdrop-filter: blur(4px); transition: transform .12s, border-color .12s, background .12s; }
+  .quests .q { --c: #ffc21a; --ink: #7a4a00; display: grid; grid-template-columns: 18px 1fr auto; align-items: center; gap: 7px; padding: 5px 8px 5px 7px; background: var(--panel); color: #fff;
+    border: 1px solid rgba(255,255,255,.1); border-left: 3px solid var(--c); border-radius: 10px; backdrop-filter: blur(4px); transition: transform .12s, border-color .12s, background .12s; }
   .quests .q.side { --c: #5ec8ff; --ink: #0b4f7a; }
   .quests .q:hover { background: rgba(44, 52, 62, .9); transform: translateX(2px); }
   .quests .q:focus-visible, .quests .qh:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
-  .quests .q.on { border-color: var(--c); box-shadow: 0 0 0 2px color-mix(in srgb, var(--c) 35%, transparent), 0 6px 18px rgba(0,0,0,.25); }
-  .quests .qi { width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; background: var(--c); color: var(--ink); font-weight: 900; font-size: 15px; box-shadow: 0 0 0 2px var(--ink); }
-  .quests .q:not(.on) .qi { opacity: .75; }
-  .quests .qx { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-  .quests .qt { font-size: 11px; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; color: var(--c); }
-  .quests .qo { font-size: 14px; font-weight: 700; line-height: 1.25; }
+  .quests .q.on { border-color: var(--c); box-shadow: 0 0 0 1.5px color-mix(in srgb, var(--c) 35%, transparent), 0 4px 12px rgba(0,0,0,.22); }
+  .quests .qi { width: 17px; height: 17px; border-radius: 50%; display: grid; place-items: center; background: var(--c); color: var(--ink); font-weight: 900; font-size: 11px; box-shadow: 0 0 0 1.5px var(--ink); }
+  .quests .q:not(.on) { opacity: .82; }
+  .quests .qx { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+  .quests .qt { font-size: 9px; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; color: var(--c); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .quests .qo { font-size: 12px; font-weight: 700; line-height: 1.2; }
   .quests .qo b { color: var(--c); font-weight: 900; }
-  .quests .qb { height: 4px; margin-top: 4px; border-radius: 4px; background: rgba(255,255,255,.15); overflow: hidden; }
-  .quests .qb i { display: block; height: 100%; background: var(--c); border-radius: 4px; transition: width .3s; }
-  .quests .qd { font-size: 12px; font-weight: 800; color: rgba(255,255,255,.75); white-space: nowrap; }
+  .quests .q:not(.on) :is(.qo, .qb) { display: none; } /* only the tracked quest spells out its step; the rest are one-line tabs */
+  .quests .qb { height: 3px; margin-top: 3px; border-radius: 3px; background: rgba(255,255,255,.15); overflow: hidden; }
+  .quests .qb i { display: block; height: 100%; background: var(--c); border-radius: 3px; transition: width .3s; }
+  .quests .qd { font-size: 10px; font-weight: 800; color: rgba(255,255,255,.75); white-space: nowrap; }
   .quests .q.on .qd::before { content: "➤ "; color: var(--c); }
   .quests.min .q:not(.on) { display: none; }
   .loc svg { width: 22px; height: 22px; }
@@ -178,7 +179,7 @@
     .btn { width: 56px; height: 56px; } .btn svg { width: 28px; height: 28px; }
     .btns { right: 16px; gap: 10px; }
     .loc { font-size: 15px; top: 16px; left: 16px; padding: 8px 18px 8px 12px; }
-    .quests { top: 58px; left: 16px; } .quests .qo { font-size: 13px; }
+    .quests { top: 52px; left: 12px; }
     .hint { display: none; }
     .dialog { bottom: 110px; }
     .bx { width: 46vw; padding: 6px 10px; } .bx .nm { font-size: 15px; } .bx.me { bottom: 186px; }
@@ -3121,7 +3122,7 @@ function renderTracker() {
   const list = questList(); if (!list.some(q => q.id === tracked)) tracked = 'main';
   const el = $('quests'); el.classList.toggle('min', trackerMin);
   el.innerHTML = `<button class="qh" data-act="min" aria-expanded="${!trackerMin}">Quests<span class="n">${list.length}</span><span class="car">${trackerMin ? '▸' : '▾'}</span></button>` +
-    list.map(q => `<button class="q ${q.side ? 'side' : 'main'}${q.id === tracked ? ' on' : ''}" data-q="${q.id}" aria-pressed="${q.id === tracked}" title="${q.id === tracked ? 'Tracking' : 'Click to track'}">
+    list.map(q => `<button class="q ${q.side ? 'side' : 'main'}${q.id === tracked ? ' on' : ''}" data-q="${q.id}" aria-pressed="${q.id === tracked}" title="${q.id === tracked ? 'Tracking' : 'Click to track'}: ${q.text}">
       <span class="qi">!</span><span class="qx"><span class="qt">${q.side ? 'Side' : 'Main'} · ${q.title}</span><span class="qo">${q.text}${q.prog ? ` <b>${q.prog[0]}/${q.prog[1]}</b>` : ''}</span>
       ${q.prog ? `<span class="qb"><i style="width:${q.prog[0] / q.prog[1] * 100}%"></i></span>` : ''}</span><span class="qd"></span></button>`).join('');
   trackerTick(true);
