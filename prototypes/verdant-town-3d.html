@@ -3854,10 +3854,12 @@ const MOVES = {
 // Learnset moves, one per line: ID TYPE power accuracy PP category [extras]. "-" accuracy never misses; "-" power is a status move.
 // Extras: prio=N, drain=F (heals that share of the damage), recoil=F (hurts the user by that share), heal=F (of max HP),
 // spare (leaves the foe at 1 HP), stat=STAT:DELTA:self|foe, psn= / par= / slp=N (N% chance to poison, paralyse or put the foe to
-// sleep; a status move always does it once it hits), powder (Grass types are immune), x2=psn|any (double power against a foe with
-// that status), rest (Rest: full heal, then sleep two turns). Simplified Gen rules: multi-hit moves are one hit of their usual
-// total, Toxic is plain poison, and side effects the battle system doesn't have (burns, freezing, flinching, two-turn charging,
-// weather) are left out; moves that are nothing but such an effect aren't listed, so the learnsets skip them.
+// sleep; a status move always does it once it hits), toxic (the poison is bad: 1/16 more damage every turn), powder (Grass types
+// are immune), x2=psn|any (double power against a foe with that status), rest (Rest: full heal, then sleep two turns), yawn (the
+// foe falls asleep at the end of the next turn), shift (Psycho Shift: passes the user's condition to the foe), dream (fails unless
+// the foe is asleep), snore (usable only while asleep). Simplified Gen rules: multi-hit moves are one hit of their usual total, and
+// side effects the battle system doesn't have (burns, freezing, flinching, two-turn charging, weather) are left out; moves that are
+// nothing but such an effect aren't listed, so the learnsets skip them.
 const MOVE_LIST = `BITE DARK 60 100 25 phys
 SLASH NORMAL 70 100 20 phys
 WATER_PULSE WATER 60 100 20 spec
@@ -4056,7 +4058,7 @@ BONEMERANG GROUND 100 90 10 phys
 WILD_CHARGE ELECTRIC 90 100 15 phys recoil=0.25
 NIGHT_DAZE DARK 85 95 10 spec
 OUTRAGE DRAGON 120 100 10 phys
-POISON_FANG POISON 50 100 15 phys psn=50
+POISON_FANG POISON 50 100 15 phys psn=50 toxic
 HORN_LEECH GRASS 75 100 10 phys drain=0.5
 ZAP_CANNON ELECTRIC 120 50 5 spec par=100
 CRABHAMMER WATER 100 90 10 phys
@@ -4120,7 +4122,12 @@ GLARE NORMAL - 100 30 status par=100
 HYPNOSIS PSYCHIC - 60 20 status slp=100
 SING NORMAL - 55 15 status slp=100
 POISON_GAS POISON - 90 40 status psn=100
-TOXIC POISON - 90 10 status psn=100
+TOXIC POISON - 90 10 status psn=100 toxic
+TOXIC_THREAD POISON - 100 20 status psn=100
+YAWN NORMAL - - 10 status yawn
+PSYCHO_SHIFT PSYCHIC - 100 10 status shift
+DREAM_EATER PSYCHIC 100 100 15 spec drain=0.5 dream
+SNORE NORMAL 50 100 15 spec snore
 REST PSYCHIC - - 5 status heal=1 rest`;
 const MOVE_NAMES = { DOUBLE_EDGE: 'Double-Edge', MUD_SLAP: 'Mud-Slap', U_TURN: 'U-turn', X_SCISSOR: 'X-Scissor', BABY_DOLL_EYES: 'Baby-Doll Eyes' };
 for (const line of MOVE_LIST.split('\n')) {
@@ -4135,6 +4142,7 @@ for (const line of MOVE_LIST.split('\n')) {
 // Pokémon) until a cure item, the Pokémon Center or fainting clears it
 const STATUS = { psn: ['PSN', '#a65ac8', 'poisoned', 'was poisoned!'], par: ['PAR', '#d9a514', 'paralyzed', 'is paralyzed! It may be unable to move!'], slp: ['SLP', '#7d8798', 'asleep', 'fell asleep!'] };
 const AILS = Object.keys(STATUS), ailOf = mv => AILS.find(s => mv[s]);
+const cure = m => { delete m.status; delete m.sleep; delete m.tox; }; // tox: the bad-poison counter, for this battle only
 // base stats: HP, Atk, Def, SpA, SpD, Spe
 const SPECIES = {
   PIKACHU: { name: 'PIKACHU', types: ['ELECTRIC'], base: [35, 55, 40, 50, 50, 90], learn: '1 THUNDER_SHOCK 1 GROWL 1 TAIL_WHIP 1 QUICK_ATTACK 12 ELECTRO_BALL 16 FEINT 20 SPARK 24 AGILITY 28 IRON_TAIL 32 DISCHARGE 36 THUNDERBOLT 44 THUNDER', exp: 112, rate: 190, gr: 4, make: makePikachu, face: 0.82, scale: 1 },
@@ -4677,7 +4685,7 @@ const bag = { potion: 3, superPotion: 1, antidote: 2, ball: 5, greatBall: 2, ora
 let money = 3000; // ₽, saved with the bag
 const nm = m => m.nick || SPECIES[m.key].name;
 const aOr = name => (/^[AEIOU]/.test(name) ? 'an ' : 'a ') + name; // "an Antidote", "a Potion"
-function healParty() { for (const m of party) { m.hp = m.maxHp; delete m.status; delete m.sleep; m.moves.forEach(x => (x.pp = MOVES[x.id].pp)); } renderParty(); saveGame(); }
+function healParty() { for (const m of party) { m.hp = m.maxHp; cure(m); m.moves.forEach(x => (x.pp = MOVES[x.id].pp)); } renderParty(); saveGame(); }
 
 // ============================================================ Save (localStorage autosave: party, PC box, bag, position, story flags)
 // The autosave is the running game; the Game Menu's save files (verdant-slots-v1) hold copies of it.
@@ -4959,7 +4967,7 @@ function bagApply(k, i, btn) {
   if (m.hp <= 0) { bagToast(`${nm(m)} has fainted. It won't have any effect.`); return; }
   if (it.cure) {
     if (m.status !== it.cure) { bagToast(`${nm(m)} isn't ${STATUS[it.cure][2]}. It won't have any effect.`); return; }
-    delete m.status; delete m.sleep; bag[k]--;
+    cure(m); bag[k]--;
     btn.querySelector('small').textContent = `HP ${m.hp} / ${m.maxHp}`;
     bagToast(`${nm(m)} is no longer ${STATUS[it.cure][2]}.`); renderParty(); saveGame();
     setTimeout(() => { $('bpParty').classList.remove('show'); renderBag(); }, 900);
@@ -6721,7 +6729,7 @@ function damage(att, def, mv) {
 async function setHp(m, v) {
   v = clamp(Math.round(v), 0, m.maxHp);
   const from = m.disp ?? m.hp; m.hp = v;
-  if (!v) { delete m.status; delete m.sleep; } // fainting clears a status condition
+  if (!v) { cure(m); delete m.yawn; } // fainting clears a status condition
   await tween(0.5, t => (m.disp = from + (v - from) * t));
 }
 function immune(m, s, mv) { // Poison and Steel types can't be poisoned, Electric types can't be paralyzed; Thunder Wave misses Ground, powders miss Grass
@@ -6731,26 +6739,30 @@ function immune(m, s, mv) { // Poison and Steel types can't be poisoned, Electri
 }
 const STATUS_FX = { psn: () => SND.splat(0.7), par: () => SND.zap(0.3), slp: () => SND.psychic(0.9) };
 function statusFx(m) { const tm = modelOf(m); STATUS_FX[m.status](); if (tm) burst(tm.position.clone().add(new V3(0, 0.6 * tm.userData.s, 0)), STATUS[m.status][1], { n: 26, up: 1, grav: 0.5, speed: 1, life: 0.8 }); }
-async function inflict(m, s) {
+async function inflict(m, s, tox) {
   m.status = s; if (s === 'slp') m.sleep = 1 + Math.floor(rnd() * 3); // asleep for 1-3 of its own turns
+  if (s === 'psn' && tox) m.tox = 1;
   statusFx(m); await wait(0.3);
-  await bsay(`${who(m)} ${STATUS[s][3]}`);
+  await bsay(`${who(m)} ${m.tox ? 'was badly poisoned!' : STATUS[s][3]}`);
 }
-async function canAct(m) { // sleep and paralysis can stop a move before it starts (no PP is used)
+async function canAct(m, mv) { // sleep and paralysis can stop a move before it starts (no PP is used); Snore still goes off in its sleep
   if (m.status === 'slp') {
-    if (m.sleep > 0) { m.sleep--; statusFx(m); await bsay(`${who(m)} is fast asleep.`); return false; }
-    delete m.status; delete m.sleep; await bsay(`${who(m)} woke up!`);
+    if (m.sleep > 0) { m.sleep--; statusFx(m); await bsay(`${who(m)} is fast asleep.`); return !!mv.snore; }
+    cure(m); await bsay(`${who(m)} woke up!`);
   }
   if (m.status === 'par' && rnd() < 0.25) { statusFx(m); await bsay(`${who(m)} is paralyzed! It can't move!`); return false; }
   return true;
 }
 async function useMove(att, def, id) {
-  if (!await canAct(att)) return;
-  const mv = MOVES[id], slot = att.moves.find(x => x.id === id);
+  const mv = MOVES[id];
+  if (!await canAct(att, mv)) return;
+  const slot = att.moves.find(x => x.id === id);
   if (slot && slot.pp > 0) slot.pp--;
   const am = modelOf(att), dm = modelOf(def), self = mv.heal || mv.stat?.[2] === 'self', target = self ? att : def;
   await bsay(`${who(att)} used ${mv.name}!`);
-  const missed = !self && rnd() * 100 >= (mv.acc ?? 100) * accMul(att.st.acc), show = MOVE_FX[id];
+  if (mv.snore && att.status !== 'slp') return bsay('But it failed!'); // it woke up first
+  if (mv.dream && def.status !== 'slp') return bsay(`It doesn't affect ${who(def)}...`);
+  const missed = !self && mv.acc !== undefined && rnd() * 100 >= mv.acc * accMul(att.st.acc), show = MOVE_FX[id]; // "-" accuracy never misses, even after Sand Attack
   if (missed || !show) await (mv.cat === 'phys' ? lunge(am, dm) : hop(am));
   if (missed) { SND.whoosh(0.3, 1.5, 0.3); return bsay(`${who(att)}'s attack missed!`); }
   if (mv.cat === 'status') {
@@ -6758,14 +6770,21 @@ async function useMove(att, def, id) {
     if (mv.heal) {
       if (att.hp >= att.maxHp) return bsay(`${who(att)}'s HP is full!`);
       SND.stat(true); await setHp(att, att.hp + Math.max(1, Math.floor(att.maxHp * mv.heal)));
-      if (mv.rest) { att.status = 'slp'; att.sleep = 2; return bsay(`${who(att)} slept and became healthy!`); } // Rest also replaces any other condition
+      if (mv.rest) { cure(att); att.status = 'slp'; att.sleep = 2; statusFx(att); return bsay(`${who(att)} slept and became healthy!`); } // Rest also replaces any other condition
       return bsay(`${who(att)} regained health!`);
     }
-    const ail = ailOf(mv);
+    if (mv.yawn) {
+      if (def.status || def.yawn) return bsay('But it failed!');
+      def.yawn = 2; SND.psychic(0.5); return bsay(`${who(att)} made ${who(def)} drowsy!`); // see endOfTurn
+    }
+    const ail = mv.shift ? att.status : ailOf(mv);
+    if (mv.shift && !ail) return bsay('But it failed!');
     if (ail) {
       if (immune(def, ail, mv)) return bsay(`It doesn't affect ${who(def)}...`);
       if (def.status) return bsay(def.status === ail ? `${who(def)} is already ${STATUS[ail][2]}!` : 'But it failed!');
-      return inflict(def, ail);
+      const tox = mv.toxic || (mv.shift && att.tox);
+      if (mv.shift) cure(att);
+      return inflict(def, ail, tox);
     }
     const [stat, delta] = mv.stat, cur = target.st[stat], next = clamp(cur + delta, -6, 6), tm = modelOf(target);
     if (next === cur) return bsay(`${who(target)}'s ${STAT_NAME[stat]} won't go any ${delta > 0 ? 'higher' : 'lower'}!`);
@@ -6776,6 +6795,7 @@ async function useMove(att, def, id) {
   }
   if (show) await show(am, dm); else { SND.hit(); moveFx(mv, am, dm); }
   const r = damage(att, def, mv);
+  if (!r.eff) return bsay(`It doesn't affect ${who(def)}...`); // a type immunity: no hit, no "critical hit", no side effect
   if (mv.spare) r.dmg = Math.min(r.dmg, def.hp - 1); // False Swipe: for catching
   if (!show) knock(dm); // MOVE_FX already knocked the defender back on its impact beat
   await hitAnim(dm, r.crit || r.eff > 1 ? 1.7 : r.eff < 1 ? 0.6 : 1);
@@ -6784,8 +6804,8 @@ async function useMove(att, def, id) {
   if (r.eff > 1) await bsay("It's super effective!");
   else if (r.eff < 1) await bsay("It's not very effective...");
   const ail = ailOf(mv);
-  if (ail && r.dmg > 0 && def.hp > 0 && !def.status && !immune(def, ail, mv) && rnd() * 100 < mv[ail]) await inflict(def, ail);
-  if (mv.drain && att.hp < att.maxHp && r.dmg > 0) { await setHp(att, att.hp + Math.max(1, Math.floor(r.dmg * mv.drain))); await bsay(`${who(def)} had its energy drained!`); }
+  if (ail && r.dmg > 0 && def.hp > 0 && !def.status && !immune(def, ail, mv) && rnd() * 100 < mv[ail]) await inflict(def, ail, mv.toxic);
+  if (mv.drain && att.hp < att.maxHp && r.dmg > 0) { await setHp(att, att.hp + Math.max(1, Math.floor(r.dmg * mv.drain))); await bsay(mv.dream ? `${who(def)}'s dream was eaten!` : `${who(def)} had its energy drained!`); }
   if (mv.recoil && r.dmg > 0) { await setHp(att, att.hp - Math.max(1, Math.floor(r.dmg * mv.recoil))); await bsay(`${who(att)} was damaged by the recoil!`); }
 }
 async function gainExp(m, amt) {
@@ -6917,6 +6937,7 @@ async function evolveNow(m, e) { // outside a battle (evolution stones): borrow 
 }
 async function sendOut(m) {
   BT.me = m; m.st = freshStages(); m.disp = m.hp; m.expDisp = m.exp;
+  delete m.yawn; if (m.tox) m.tox = 1; // switching out shakes off a Yawn and restarts the bad-poison count
   bset(`Go! ${nm(m)}!`);
   const ball = makeBall(); BT.scene.add(ball);
   const a = new V3(-3.6, 1.3, 4.4), b = B_ME.clone().add(new V3(0, 0.35, 0));
@@ -6983,10 +7004,10 @@ async function throwBall(k = 'ball') {
 }
 
 // ============================================================ battle: flow
-function partyMenu(forced) {
+function partyMenu(forced, any) { // any: the one already out can be picked too (an item's target)
   return menu(party.map((m, i) => ({
     label: nm(m), sub: `Lv${m.level} · HP ${m.hp}/${m.maxHp}${m.status ? ' · ' + STATUS[m.status][0] : ''}`, value: i,
-    disabled: m.hp <= 0 || (!forced && m === BT.me), color: m.hp <= 0 ? '#9aa3ab' : TYPE_COL[SPECIES[m.key].types[0]],
+    disabled: m.hp <= 0 || (!forced && !any && m === BT.me), color: m.hp <= 0 ? '#9aa3ab' : TYPE_COL[SPECIES[m.key].types[0]],
   })), { back: !forced, wide: party.length > 4 });
 }
 async function chooseAction() {
@@ -7004,7 +7025,13 @@ async function chooseAction() {
       bset('Which item?'); // what the bag holds that works in battle: HP healers, status cures, Poké Balls
       const k = await menu(Object.keys(ITEMS).filter(k => bag[k] > 0 && (ITEMS[k].heal || ITEMS[k].cure || ITEMS[k].catch)).map(k => { const it = ITEMS[k];
         return { label: it.name, sub: `×${bag[k]}${it.heal ? ` · heals ${it.heal} HP` : it.cure ? ` · cures ${STATUS[it.cure][0]}` : ''}`, value: k, color: it.catch ? '#e2473b' : it.pocket === 'berries' ? '#3fae4a' : '#8a5cd0' }; }), { back: true, wide: true });
-      if (k) return { kind: ITEMS[k].catch ? 'ball' : 'item', item: k };
+      if (k && ITEMS[k].catch) return { kind: 'ball', item: k };
+      if (k) { // a medicine can go to any Pokémon in the party, not just the one out
+        if (party.length < 2) return { kind: 'item', item: k, idx: 0 };
+        bset(`Use the ${ITEMS[k].name} on which Pokémon?`);
+        const i = await partyMenu(false, true);
+        if (i !== null) return { kind: 'item', item: k, idx: i };
+      }
     } else if (c === 'mon') {
       bset('Choose a Pokémon.');
       const i = await partyMenu(false);
@@ -7016,14 +7043,18 @@ async function checkFaint() {
   if (BT.foe.hp <= 0) {
     const T = BT.opts.trainer, next = T?.team[++BT.foeIdx];
     await faintAnim(BT.foeModel); BT.foeModel = null; $('foeBox').classList.add('hide');
-    if (!next) music('victory');
+    const won = !next && party.some(m => m.hp > 0); // a recoil move can knock out both sides at once: no Pokémon left is still a loss
+    if (won) music('victory');
     await bsay(`${who(BT.foe)} fainted!`);
-    await gainExp(BT.me, Math.max(1, Math.floor(SPECIES[BT.foe.key].exp * BT.foe.level / 7 * (T ? 1.5 : 1)))); // trainer Pokémon give 1.5x
-    if (next) { await foeIn(next, `${T.name} sent out ${nm(next)}!`); return null; }
-    if (T) await bsay(`You defeated ${T.name}!`);
-    const prize = T ? T.prize : 20 * BT.foe.level; money = Math.min(999999, money + prize); // ponytail: flat wild-win prize
-    await bsay(`You got ₽${prize.toLocaleString()} for winning!`);
-    return 'won';
+    if (BT.me.hp > 0) await gainExp(BT.me, Math.max(1, Math.floor(SPECIES[BT.foe.key].exp * BT.foe.level / 7 * (T ? 1.5 : 1)))); // trainer Pokémon give 1.5x; none for one that fainted too (a level-up would revive it)
+    if (next) await foeIn(next, `${T.name} sent out ${nm(next)}!`);
+    else if (won) {
+      if (T) await bsay(`You defeated ${T.name}!`);
+      const prize = T ? T.prize : 20 * BT.foe.level; money = Math.min(999999, money + prize); // ponytail: flat wild-win prize
+      await bsay(`You got ₽${prize.toLocaleString()} for winning!`);
+      return 'won';
+    }
+    if (BT.me.hp > 0) return null;
   }
   if (BT.me.hp <= 0) {
     await faintAnim(BT.meModel); BT.meModel = null; $('meBox').classList.add('hide');
@@ -7035,18 +7066,27 @@ async function checkFaint() {
   }
   return undefined;
 }
-async function endOfTurn(out = [BT.me, BT.foe]) { // poison bites each Pokémon still out once both sides have acted (not one sent in for a fainted one)
+// once both sides have acted, for each Pokémon still out (not one sent in for a fainted one): poison bites (1/8 of max HP, or
+// 1/16 more each turn when badly poisoned), then a Yawn from last turn puts it to sleep
+async function endOfTurn(out = [BT.me, BT.foe]) {
   for (const m of out) {
-    if (m.status !== 'psn' || m.hp <= 0 || (m !== BT.me && m !== BT.foe)) continue; // a fainted one may have been replaced already
-    statusFx(m); await setHp(m, m.hp - Math.max(1, Math.floor(m.maxHp / 8)));
-    await bsay(`${who(m)} is hurt by poison!`);
-    const r = await checkFaint(); if (r) return r;
+    if (m.hp <= 0 || (m !== BT.me && m !== BT.foe)) continue; // a fainted one may have been replaced already
+    if (m.status === 'psn') {
+      statusFx(m); await setHp(m, m.hp - Math.max(1, Math.floor(m.maxHp * (m.tox ? Math.min(15, m.tox++) : 2) / 16)));
+      await bsay(`${who(m)} is hurt by poison!`);
+      const r = await checkFaint(); if (r) return r;
+      if (m.hp <= 0) continue;
+    }
+    if (m.yawn && !--m.yawn) { delete m.yawn; if (!m.status) await inflict(m, 'slp'); }
   }
   return null;
 }
-async function foeTurn(id) { await useMove(BT.foe, BT.me, id); return (await checkFaint()) || endOfTurn(); }
+async function foeTurn(id) { const out = [BT.me, BT.foe]; await useMove(BT.foe, BT.me, id); return (await checkFaint()) || endOfTurn(out); }
 async function doTurn(act) {
-  const me = BT.me, foe = BT.foe, wasted = x => me.status && MOVES[x.id].cat === 'status' && ailOf(MOVES[x.id]); // no sleep powder on a foe that already has a condition
+  const me = BT.me, foe = BT.foe;
+  const wasted = x => { const mv = MOVES[x.id], ail = mv.cat === 'status' && ailOf(mv); // the foe skips moves that can't work: no Sleep Powder on a target that already has a condition or is immune, no healing at full HP...
+    return (ail && (me.status || immune(me, ail, mv))) || (mv.heal && foe.hp >= foe.maxHp) || (mv.yawn && (me.status || me.yawn))
+      || (mv.shift && (!foe.status || me.status || immune(me, foe.status, mv))) || (mv.dream && me.status !== 'slp') || (mv.snore && foe.status !== 'slp'); };
   const usable = foe.moves.filter(x => x.pp > 0), smart = usable.filter(x => !wasted(x)), foeId = (smart.length ? pick(smart) : usable.length ? pick(usable) : { id: 'TACKLE' }).id;
   if (act.kind === 'run' && BT.opts.trainer) { await bsay("No! There's no running from a Trainer battle!"); return null; }
   if (act.kind === 'ball' && (BT.opts.trainer || BT.opts.noCatch)) { await bsay(BT.opts.trainer ? "The Trainer blocked the Ball! Don't be a thief!" : `${nm(BT.foe)} is too distressed to be caught!`); return null; }
@@ -7057,13 +7097,13 @@ async function doTurn(act) {
     return foeTurn(foeId);
   }
   if (act.kind === 'item') {
-    const it = ITEMS[act.item];
-    if (it.heal ? me.hp >= me.maxHp : me.status !== it.cure) { await bsay("It won't have any effect."); return null; }
+    const it = ITEMS[act.item], m = party[act.idx] ?? me;
+    if (it.heal ? m.hp >= m.maxHp : m.status !== it.cure) { await bsay("It won't have any effect."); return null; }
     bag[act.item]--;
-    await bsay(`You used ${aOr(it.name)} on ${nm(me)}.`);
-    burst(BT.meModel.position.clone().add(new V3(0, 0.6, 0)), '#8dff9a', { n: 30, up: 2, grav: 1, speed: 1.2, life: 0.9 });
-    if (it.heal) { await setHp(me, me.hp + it.heal); await bsay(`${nm(me)}'s HP was restored.`); }
-    else { delete me.status; delete me.sleep; SND.chime(); await bsay(`${nm(me)} is no longer ${STATUS[it.cure][2]}.`); }
+    await bsay(`You used ${aOr(it.name)} on ${nm(m)}.`);
+    if (m === me) burst(BT.meModel.position.clone().add(new V3(0, 0.6, 0)), '#8dff9a', { n: 30, up: 2, grav: 1, speed: 1.2, life: 0.9 });
+    if (it.heal) { await setHp(m, m.hp + it.heal); await bsay(`${nm(m)}'s HP was restored.`); }
+    else { cure(m); SND.chime(); await bsay(`${nm(m)} is no longer ${STATUS[it.cure][2]}.`); }
     return foeTurn(foeId);
   }
   if (act.kind === 'ball') { bag[act.item]--; if (await throwBall(act.item)) { music('victory'); return 'caught'; } return foeTurn(foeId); }
@@ -7117,6 +7157,7 @@ async function finishBattle(result) {
   $('btrans').className = 'btrans fade';
   await wait(0.45);
   dropModel(BT.foeModel); dropModel(BT.meModel); BT.foeModel = BT.meModel = null;
+  for (const m of [...party, BT.foe]) if (m) { delete m.tox; delete m.yawn; } // after the battle, bad poison is plain poison (a caught foe is in the party or the PC)
   while (fx.length) { const f = fx.pop(); BT.scene.remove(f.obj); }
   renderPass.scene = scene; renderPass.camera = camera;
   document.body.classList.remove('in-battle'); $('bmenu').innerHTML = ''; BM.res = null;
