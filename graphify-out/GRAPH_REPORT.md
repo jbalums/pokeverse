@@ -1,17 +1,17 @@
 # Graph Report - Pokemon  (2026-10-21)
 
 ## Corpus Check
-- 33 files · ~501,002 words
+- 35 files · ~503,262 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 40 file(s) not represented in the graph (top: .glb 34, (none) 3, .cmd 1)
 
 ## Summary
-- 652 nodes · 1670 edges · 24 communities (17 shown, 7 thin omitted)
+- 686 nodes · 1738 edges · 29 communities (20 shown, 9 thin omitted)
 - Extraction: 96% EXTRACTED · 4% INFERRED · 0% AMBIGUOUS · INFERRED: 72 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `f4fb97e2`
+- Built from commit: `7dad0354`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -34,7 +34,12 @@
 - compose_trainer_battle.mjs
 - tone
 - glb
+- battle-rules.test.mjs
 - Build-Proofs.ps1
+- CharacterProofTests
+- EnvironmentSourceTests
+- render-models.py
+- KitTests
 
 ## God Nodes (most connected - your core abstractions)
 1. `V()` - 31 edges
@@ -55,15 +60,15 @@
   prototypes/blender/build_assets.py → prototypes/models/verdant-flora-v1/render-models.py
 - `f()` --indirect_call--> `rr()`  [INFERRED]
   prototypes/blender/build_characters.py → prototypes/blender/build_assets.py
+- `mon()` --calls--> `freshStages()`  [EXTRACTED]
+  prototypes/tests/battle-rules.test.mjs → prototypes/battle-rules.js
 - `_resolve_source()` --calls--> `contained_file()`  [EXTRACTED]
-  tools/production/import_proofs.py → tools/production/verify_release.py
-- `_import_mesh()` --calls--> `finite_list()`  [EXTRACTED]
   tools/production/import_proofs.py → tools/production/verify_release.py
 
 ## Import Cycles
 - None detected.
 
-## Communities (24 total, 7 thin omitted)
+## Communities (29 total, 9 thin omitted)
 
 ### Community 0 - "verify_release.py"
 Cohesion: 0.07
@@ -78,8 +83,8 @@ Cohesion: 0.14
 Nodes (13): app, security, windows, build, frontendDist, bundle, active, icon (+5 more)
 
 ### Community 5 - "json"
-Cohesion: 0.07
-Nodes (8): accessor(), CharacterProofTests, decode(), decode_glb(), EnvironmentSourceTests, ray_y_hits(), read_accessor(), signed_volume()
+Cohesion: 0.14
+Nodes (3): decode(), decode_glb(), read_accessor()
 
 ### Community 6 - "rebuild-models.mjs"
 Cohesion: 0.08
@@ -90,8 +95,8 @@ Cohesion: 0.11
 Nodes (43): add_bm(), add_quad(), Asset, b64(), barrel_tile(), bevel(), bm_box(), bm_cyl() (+35 more)
 
 ### Community 8 - "import_town.py"
-Cohesion: 0.11
-Nodes (12): base(), caption(), color(), material(), collection(), connect(), expr(), import_files() (+4 more)
+Cohesion: 0.25
+Nodes (8): collection(), connect(), expr(), import_files(), load_or_create(), main(), material(), property_link()
 
 ### Community 9 - "manifest.json"
 Cohesion: 0.09
@@ -106,8 +111,8 @@ Cohesion: 0.08
 Nodes (32): add(), build(), Character, creature_clips(), rot(), cross(), dot(), ellipsoid() (+24 more)
 
 ### Community 14 - "build_kit.py"
-Cohesion: 0.20
-Nodes (10): build(), ellipsoid(), flower(), grass(), leaf(), Mesh, roof(), trunk() (+2 more)
+Cohesion: 0.28
+Nodes (9): build(), ellipsoid(), flower(), grass(), leaf(), Mesh, roof(), trunk() (+1 more)
 
 ### Community 15 - "build_pikachu_v002.py"
 Cohesion: 0.09
@@ -129,29 +134,41 @@ Nodes (18): dir, DRUM, dryL, dryR, echo, L, LEN, OUT (+10 more)
 Cohesion: 0.20
 Nodes (11): arpNote(), bassNote(), blep(), brass(), compNote(), lead(), noiseHit(), padNote() (+3 more)
 
+### Community 21 - "battle-rules.test.mjs"
+Cohesion: 0.11
+Nodes (28): accMul(), accuracyHits(), ailOf(), AILS, catchRoll(), clampStage(), damage(), EFF (+20 more)
+
 ### Community 22 - "Build-Proofs.ps1"
 Cohesion: 0.46
 Nodes (7): Author-Proofs(), Build-Editor(), Build-Sources(), Capture-Proofs(), Import-Proofs(), Invoke-ProofTool(), Test-Proofs()
 
+### Community 26 - "EnvironmentSourceTests"
+Cohesion: 0.17
+Nodes (3): EnvironmentSourceTests, ray_y_hits(), signed_volume()
+
+### Community 27 - "render-models.py"
+Cohesion: 0.29
+Nodes (4): base(), caption(), color(), material()
+
 ## Knowledge Gaps
 - **1 isolated node(s):** `verdant-town`
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 205 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **7 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 211 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **9 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `inspect_glb()` connect `verify_release.py` to `build_environment.py`, `json`?**
-  _High betweenness centrality (0.043) - this node is a cross-community bridge._
+  _High betweenness centrality (0.039) - this node is a cross-community bridge._
 - **What connects `verdant-town` to the rest of the system?**
   _1 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `verify_release.py` be split into smaller, more focused modules?**
-  _Cohesion score 0.06593707250341997 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.06882716049382716 - nodes in this community are weakly interconnected._
+- **Why does `EnvironmentSourceTests` connect `EnvironmentSourceTests` to `json`?**
+  _High betweenness centrality (0.017) - this node is a cross-community bridge._
 - **Should `tauri.conf.json` be split into smaller, more focused modules?**
   _Cohesion score 0.14285714285714285 - nodes in this community are weakly interconnected._
 - **Should `json` be split into smaller, more focused modules?**
-  _Cohesion score 0.07200929152148665 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.14245014245014245 - nodes in this community are weakly interconnected._
 - **Should `rebuild-models.mjs` be split into smaller, more focused modules?**
-  _Cohesion score 0.07692307692307693 - nodes in this community are weakly interconnected._
-- **Should `build_assets.py` be split into smaller, more focused modules?**
-  _Cohesion score 0.11092896174863388 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.08 - nodes in this community are weakly interconnected._

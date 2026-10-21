@@ -20,7 +20,12 @@
   "18": "compose_trainer_battle.mjs",
   "19": "tone",
   "20": "glb",
+  "21": "battle-rules.test.mjs",
   "22": "Build-Proofs.ps1",
+  "23": "CharacterProofTests",
   "24": "verdant-assets.js",
-  "25": "verdant-chars.js"
+  "25": "verdant-chars.js",
+  "26": "EnvironmentSourceTests",
+  "27": "render-models.py",
+  "28": "KitTests"
 }

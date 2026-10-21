@@ -114,9 +114,9 @@
     "semantic_hash": ""
   },
   "prototypes/verdant-town-3d.html": {
-    "mtime": 1792591726.1661181,
-    "seen": 1792591958.819552,
-    "ast_hash": "9a1bb3067c38848d361a158dd7c666bc",
+    "mtime": 1792593836.9605224,
+    "seen": 1792594036.9076312,
+    "ast_hash": "c0dc433ecd6b8fecbd03749a7d57c331",
     "semantic_hash": ""
   },
   "prototypes/blender/build_characters.py": {
@@ -297,6 +297,18 @@
     "mtime": 1792581387.7871916,
     "seen": 1792581811.0532794,
     "ast_hash": "99499bb65d1a3dd3c177db0b796e3d65",
+    "semantic_hash": ""
+  },
+  "prototypes/battle-rules.js": {
+    "mtime": 1792593898.3752563,
+    "seen": 1792594036.9076312,
+    "ast_hash": "352c269e6942938db32be49ba020db45",
+    "semantic_hash": ""
+  },
+  "prototypes/tests/battle-rules.test.mjs": {
+    "mtime": 1792593898.3401322,
+    "seen": 1792594036.9076312,
+    "ast_hash": "397a69c35b180a188c096940d23d91f6",
     "semantic_hash": ""
   }
 }

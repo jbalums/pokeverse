@@ -560,6 +560,8 @@ import * as SkeletonUtils from 'three/addons/utils/SkeletonUtils.js';
 import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
 import { MTLLoader } from 'three/addons/loaders/MTLLoader.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { MOVES, ailOf, cure, freshStages, clampStage, expAt, share, poisonDamage, rollSleep, paralysisStops, sideEffectLands, accuracyHits,
+  expYield, statsAt, damage as rollDamage, immune as immuneTo, movesFirst, escapes, catchRoll, foeMove } from './battle-rules.js';
 
 // ============================================================ helpers
 let seed = 20261016;
@@ -3795,357 +3797,10 @@ setTimeout(() => ($('hint').style.opacity = 0), 9000);
 // ============================================================ Pokémon data (simplified Gen-style rules)
 const TYPE_COL = { NORMAL: '#a8a77a', FIRE: '#ee8130', GRASS: '#6fbf45', ELECTRIC: '#e8b80e', FLYING: '#9a7fe8', BUG: '#94a817', POISON: '#a33ea1', GROUND: '#d4a84a',
   WATER: '#4f8ef0', ICE: '#78d4d2', ROCK: '#b6a136', PSYCHIC: '#f95587', GHOST: '#735797', DRAGON: '#6f35fc', DARK: '#705746', STEEL: '#9fa0b8', FAIRY: '#e48fd8', FIGHTING: '#c22e28' };
-const EFF = { // attacking type -> defending type -> multiplier (the main matchups; everything else is neutral)
-  ELECTRIC: { FLYING: 2, WATER: 2, GRASS: 0.5, ELECTRIC: 0.5, DRAGON: 0.5, GROUND: 0 },
-  FIRE: { GRASS: 2, BUG: 2, ICE: 2, STEEL: 2, FIRE: 0.5, WATER: 0.5, ROCK: 0.5, DRAGON: 0.5 },
-  GRASS: { WATER: 2, GROUND: 2, ROCK: 2, GRASS: 0.5, POISON: 0.5, FLYING: 0.5, BUG: 0.5, FIRE: 0.5, DRAGON: 0.5, STEEL: 0.5 },
-  FLYING: { GRASS: 2, BUG: 2, FIGHTING: 2, ELECTRIC: 0.5, ROCK: 0.5, STEEL: 0.5 },
-  POISON: { GRASS: 2, FAIRY: 2, POISON: 0.5, GROUND: 0.5, ROCK: 0.5, GHOST: 0.5, STEEL: 0 },
-  BUG: { GRASS: 2, PSYCHIC: 2, DARK: 2, POISON: 0.5, FIRE: 0.5, FLYING: 0.5, FIGHTING: 0.5, GHOST: 0.5, STEEL: 0.5, FAIRY: 0.5 },
-  WATER: { FIRE: 2, GROUND: 2, ROCK: 2, WATER: 0.5, GRASS: 0.5, DRAGON: 0.5 },
-  ICE: { GRASS: 2, GROUND: 2, FLYING: 2, DRAGON: 2, FIRE: 0.5, WATER: 0.5, ICE: 0.5, STEEL: 0.5 },
-  ROCK: { FIRE: 2, ICE: 2, FLYING: 2, BUG: 2, FIGHTING: 0.5, GROUND: 0.5, STEEL: 0.5 },
-  GROUND: { FIRE: 2, ELECTRIC: 2, POISON: 2, ROCK: 2, STEEL: 2, GRASS: 0.5, BUG: 0.5, FLYING: 0 },
-  PSYCHIC: { FIGHTING: 2, POISON: 2, PSYCHIC: 0.5, STEEL: 0.5, DARK: 0 },
-  GHOST: { GHOST: 2, PSYCHIC: 2, DARK: 0.5, NORMAL: 0 },
-  DRAGON: { DRAGON: 2, STEEL: 0.5, FAIRY: 0 },
-  DARK: { GHOST: 2, PSYCHIC: 2, FIGHTING: 0.5, DARK: 0.5, FAIRY: 0.5 },
-  STEEL: { ICE: 2, ROCK: 2, FAIRY: 2, FIRE: 0.5, WATER: 0.5, ELECTRIC: 0.5, STEEL: 0.5 },
-  FAIRY: { FIGHTING: 2, DRAGON: 2, DARK: 2, FIRE: 0.5, POISON: 0.5, STEEL: 0.5 },
-  FIGHTING: { NORMAL: 2, ICE: 2, ROCK: 2, DARK: 2, STEEL: 2, POISON: 0.5, FLYING: 0.5, PSYCHIC: 0.5, BUG: 0.5, FAIRY: 0.5, GHOST: 0 },
-  NORMAL: { ROCK: 0.5, STEEL: 0.5, GHOST: 0 },
-};
-const MOVES = {
-  TACKLE: { name: 'Tackle', type: 'NORMAL', power: 40, acc: 100, pp: 35, cat: 'phys' },
-  SCRATCH: { name: 'Scratch', type: 'NORMAL', power: 40, acc: 100, pp: 35, cat: 'phys' },
-  QUICK_ATTACK: { name: 'Quick Attack', type: 'NORMAL', power: 40, acc: 100, pp: 30, cat: 'phys', prio: 1 },
-  THUNDER_SHOCK: { name: 'Thunder Shock', type: 'ELECTRIC', power: 40, acc: 100, pp: 30, cat: 'spec', par: 10 },
-  EMBER: { name: 'Ember', type: 'FIRE', power: 40, acc: 100, pp: 25, cat: 'spec' },
-  VINE_WHIP: { name: 'Vine Whip', type: 'GRASS', power: 45, acc: 100, pp: 25, cat: 'phys' },
-  ABSORB: { name: 'Absorb', type: 'GRASS', power: 20, acc: 100, pp: 25, cat: 'spec', drain: 0.5 },
-  GUST: { name: 'Gust', type: 'FLYING', power: 40, acc: 100, pp: 35, cat: 'spec' },
-  POISON_STING: { name: 'Poison Sting', type: 'POISON', power: 15, acc: 100, pp: 35, cat: 'phys', psn: 30 },
-  ACID: { name: 'Acid', type: 'POISON', power: 40, acc: 100, pp: 30, cat: 'spec' },
-  GROWL: { name: 'Growl', type: 'NORMAL', acc: 100, pp: 40, cat: 'status', stat: ['atk', -1, 'foe'] },
-  TAIL_WHIP: { name: 'Tail Whip', type: 'NORMAL', acc: 100, pp: 30, cat: 'status', stat: ['def', -1, 'foe'] },
-  STRING_SHOT: { name: 'String Shot', type: 'BUG', acc: 95, pp: 40, cat: 'status', stat: ['spe', -2, 'foe'] },
-  SAND_ATTACK: { name: 'Sand Attack', type: 'GROUND', acc: 100, pp: 15, cat: 'status', stat: ['acc', -1, 'foe'] },
-  SMOKESCREEN: { name: 'Smokescreen', type: 'NORMAL', acc: 100, pp: 20, cat: 'status', stat: ['acc', -1, 'foe'] },
-  GROWTH: { name: 'Growth', type: 'NORMAL', pp: 20, cat: 'status', stat: ['spa', 1, 'self'] },
-  // showcase moves: one or two per type, usable from FIGHT → "★ Test all moves" (some are in learnsets too)
-  FLAMETHROWER: { name: 'Flamethrower', type: 'FIRE', power: 90, acc: 100, pp: 15, cat: 'spec', show: 1 },
-  THUNDERBOLT: { name: 'Thunderbolt', type: 'ELECTRIC', power: 90, acc: 100, pp: 15, cat: 'spec', show: 1, par: 10 },
-  WATER_GUN: { name: 'Water Gun', type: 'WATER', power: 40, acc: 100, pp: 25, cat: 'spec', show: 1 },
-  HYDRO_PUMP: { name: 'Hydro Pump', type: 'WATER', power: 110, acc: 80, pp: 5, cat: 'spec', show: 1 },
-  ICE_BEAM: { name: 'Ice Beam', type: 'ICE', power: 90, acc: 100, pp: 10, cat: 'spec', show: 1 },
-  SOLAR_BEAM: { name: 'Solar Beam', type: 'GRASS', power: 120, acc: 100, pp: 10, cat: 'spec', show: 1 },
-  RAZOR_LEAF: { name: 'Razor Leaf', type: 'GRASS', power: 55, acc: 95, pp: 25, cat: 'phys', show: 1 },
-  ROCK_SLIDE: { name: 'Rock Slide', type: 'ROCK', power: 75, acc: 90, pp: 10, cat: 'phys', show: 1 },
-  EARTHQUAKE: { name: 'Earthquake', type: 'GROUND', power: 100, acc: 100, pp: 10, cat: 'phys', show: 1 },
-  PSYCHIC: { name: 'Psychic', type: 'PSYCHIC', power: 90, acc: 100, pp: 10, cat: 'spec', show: 1 },
-  SHADOW_BALL: { name: 'Shadow Ball', type: 'GHOST', power: 80, acc: 100, pp: 15, cat: 'spec', show: 1 },
-  DRAGON_BREATH: { name: 'Dragon Breath', type: 'DRAGON', power: 60, acc: 100, pp: 20, cat: 'spec', show: 1, par: 30 },
-  DARK_PULSE: { name: 'Dark Pulse', type: 'DARK', power: 80, acc: 100, pp: 15, cat: 'spec', show: 1 },
-  FLASH_CANNON: { name: 'Flash Cannon', type: 'STEEL', power: 80, acc: 100, pp: 10, cat: 'spec', show: 1 },
-  MOONBLAST: { name: 'Moonblast', type: 'FAIRY', power: 95, acc: 100, pp: 15, cat: 'spec', show: 1 },
-  KARATE_CHOP: { name: 'Karate Chop', type: 'FIGHTING', power: 50, acc: 100, pp: 25, cat: 'phys', show: 1 },
-  AIR_SLASH: { name: 'Air Slash', type: 'FLYING', power: 75, acc: 95, pp: 15, cat: 'spec', show: 1 },
-  SLUDGE_BOMB: { name: 'Sludge Bomb', type: 'POISON', power: 90, acc: 100, pp: 10, cat: 'spec', show: 1, psn: 30 },
-  BUG_BUZZ: { name: 'Bug Buzz', type: 'BUG', power: 90, acc: 100, pp: 10, cat: 'spec', show: 1 },
-  HYPER_BEAM: { name: 'Hyper Beam', type: 'NORMAL', power: 150, acc: 90, pp: 5, cat: 'spec', show: 1 },
-};
-// Learnset moves, one per line: ID TYPE power accuracy PP category [extras]. "-" accuracy never misses; "-" power is a status move.
-// Extras: prio=N, drain=F (heals that share of the damage), recoil=F (hurts the user by that share), heal=F (of max HP),
-// spare (leaves the foe at 1 HP), stat=STAT:DELTA:self|foe, psn= / par= / slp=N (N% chance to poison, paralyse or put the foe to
-// sleep; a status move always does it once it hits), toxic (the poison is bad: 1/16 more damage every turn), powder (Grass types
-// are immune), x2=psn|any (double power against a foe with that status), rest (Rest: full heal, then sleep two turns), yawn (the
-// foe falls asleep at the end of the next turn), shift (Psycho Shift: passes the user's condition to the foe), dream (fails unless
-// the foe is asleep), snore (usable only while asleep). Simplified Gen rules: multi-hit moves are one hit of their usual total, and
-// side effects the battle system doesn't have (burns, freezing, flinching, two-turn charging, weather) are left out; moves that are
-// nothing but such an effect aren't listed, so the learnsets skip them.
-const MOVE_LIST = `BITE DARK 60 100 25 phys
-SLASH NORMAL 70 100 20 phys
-WATER_PULSE WATER 60 100 20 spec
-CRUNCH DARK 80 100 15 phys
-BODY_SLAM NORMAL 85 100 15 phys par=30
-AERIAL_ACE FLYING 60 - 20 phys
-FURY_CUTTER BUG 40 95 20 phys
-MUD_SHOT GROUND 55 95 15 spec
-CONFUSION PSYCHIC 50 100 25 spec
-FLAME_CHARGE FIRE 50 100 20 phys
-LEAF_BLADE GRASS 90 100 15 phys
-HURRICANE FLYING 110 70 10 spec
-DOUBLE_KICK FIGHTING 60 100 30 phys
-DOUBLE_HIT NORMAL 70 90 10 phys
-DRAGON_PULSE DRAGON 85 100 10 spec
-FURY_ATTACK NORMAL 45 85 20 phys
-PETAL_DANCE GRASS 120 100 10 spec
-AIR_CUTTER FLYING 60 95 25 spec
-NIGHT_SLASH DARK 70 100 15 phys
-LEAF_STORM GRASS 130 90 5 spec
-ICY_WIND ICE 55 95 15 spec
-PETAL_BLIZZARD GRASS 90 100 15 phys
-METAL_CLAW STEEL 50 95 35 phys
-SUPERPOWER FIGHTING 120 100 5 phys
-MEGAHORN BUG 120 85 10 phys
-HAMMER_ARM FIGHTING 100 90 10 phys
-SAND_TOMB GROUND 35 85 15 phys
-STOMP NORMAL 65 100 20 phys
-TRI_ATTACK NORMAL 80 100 10 spec par=7
-ACID_SPRAY POISON 40 100 20 spec
-POWER_GEM ROCK 80 100 20 spec
-HEX GHOST 65 100 10 spec x2=any
-ICICLE_SPEAR ICE 75 100 30 phys
-THUNDER_PUNCH ELECTRIC 75 100 15 phys par=10
-EXTREME_SPEED NORMAL 80 100 5 phys prio=2
-BLAZE_KICK FIRE 85 90 10 phys
-MYSTICAL_FIRE FIRE 75 100 10 spec
-ARM_THRUST FIGHTING 45 100 20 phys
-DYNAMIC_PUNCH FIGHTING 100 50 5 phys
-SNARL DARK 55 95 15 spec
-DAZZLING_GLEAM FAIRY 80 100 10 spec
-WATER_SHURIKEN WATER 45 100 20 spec prio=1
-TAKE_DOWN NORMAL 90 85 20 phys recoil=0.25
-DOUBLE_EDGE NORMAL 120 100 15 phys recoil=0.33
-FURY_SWIPES NORMAL 55 80 15 phys
-ROLLOUT ROCK 30 90 20 phys
-GIGA_DRAIN GRASS 75 100 10 spec drain=0.5
-BULLDOZE GROUND 60 100 20 phys
-POUND NORMAL 40 100 35 phys
-MEGA_DRAIN GRASS 40 100 15 spec drain=0.5
-HEADBUTT NORMAL 70 100 15 phys
-SWIFT NORMAL 60 - 20 spec
-MUD_SLAP GROUND 20 100 10 spec
-BRINE WATER 65 100 10 spec
-FLARE_BLITZ FIRE 120 100 15 phys recoil=0.33
-PECK FLYING 35 100 35 phys
-WRAP NORMAL 15 90 20 phys
-ICE_FANG ICE 65 95 15 phys
-PLAY_ROUGH FAIRY 90 90 10 phys
-BUBBLE_BEAM WATER 65 100 20 spec
-FIRE_FANG FIRE 65 95 15 phys
-PSYBEAM PSYCHIC 65 100 20 spec
-COVET NORMAL 60 100 25 phys
-ASTONISH GHOST 30 100 15 phys
-RETALIATE NORMAL 70 100 5 phys
-SMACK_DOWN ROCK 50 100 15 phys
-DISCHARGE ELECTRIC 80 100 15 spec par=30
-EARTH_POWER GROUND 90 100 10 spec
-AQUA_JET WATER 40 100 20 phys prio=1
-DIG GROUND 80 100 10 phys
-RAPID_SPIN NORMAL 50 100 40 phys
-POISON_JAB POISON 80 100 20 phys psn=30
-MAGICAL_LEAF GRASS 60 - 20 spec
-SEED_BOMB GRASS 80 100 15 phys
-PIN_MISSILE BUG 75 95 20 phys
-WING_ATTACK FLYING 60 100 35 phys
-GYRO_BALL STEEL 60 100 5 phys
-HYPER_VOICE NORMAL 90 100 10 spec
-SURF WATER 90 100 15 spec
-BUG_BITE BUG 60 100 20 phys
-TWISTER DRAGON 40 100 20 spec
-THUNDER_FANG ELECTRIC 65 95 15 phys par=10
-FEINT NORMAL 30 100 10 phys prio=2
-HORN_ATTACK NORMAL 65 100 25 phys
-DISARMING_VOICE FAIRY 40 - 15 spec
-ROCK_THROW ROCK 50 90 15 phys
-DRAINING_KISS FAIRY 50 100 10 spec drain=0.75
-PAYBACK DARK 50 100 10 phys
-EXTRASENSORY PSYCHIC 80 100 20 spec
-FAKE_OUT NORMAL 40 100 10 phys prio=3
-FLAME_WHEEL FIRE 60 100 25 phys
-ICE_SHARD ICE 40 100 30 phys prio=1
-WHIRLPOOL WATER 35 85 15 spec
-LICK GHOST 30 100 30 phys par=30
-THUNDER ELECTRIC 110 70 10 spec par=30
-SLUDGE_WAVE POISON 95 100 10 spec psn=10
-KNOCK_OFF DARK 65 100 20 phys
-UPROAR NORMAL 90 100 10 spec
-SMOG POISON 30 70 20 spec psn=40
-SHADOW_SNEAK GHOST 40 100 30 phys prio=1
-HEAD_SMASH ROCK 150 80 5 phys recoil=0.5
-ELECTRO_BALL ELECTRIC 60 100 10 spec
-SPARK ELECTRIC 65 100 20 phys par=30
-AURORA_BEAM ICE 65 100 20 spec
-FALSE_SWIPE NORMAL 40 100 40 phys spare
-BIND NORMAL 15 85 20 phys
-IRON_HEAD STEEL 80 100 15 phys
-DRAGON_CLAW DRAGON 80 100 15 phys
-DRILL_RUN GROUND 80 95 10 phys
-METEOR_MASH STEEL 90 90 10 phys
-ECHOED_VOICE NORMAL 40 100 15 spec
-ROUND NORMAL 60 100 15 spec
-BULLET_PUNCH STEEL 40 100 30 phys prio=1
-PSYSHOCK PSYCHIC 80 100 10 spec
-WOOD_HAMMER GRASS 120 100 15 phys recoil=0.33
-FAIRY_WIND FAIRY 40 100 30 spec
-POWDER_SNOW ICE 40 100 25 spec
-SACRED_SWORD FIGHTING 90 100 15 phys
-FELL_STINGER BUG 50 100 25 phys
-PLUCK FLYING 60 100 20 phys
-CRUSH_CLAW NORMAL 75 95 10 phys
-STORED_POWER PSYCHIC 20 100 10 spec
-ICICLE_CRASH ICE 85 90 10 phys
-BULLET_SEED GRASS 75 100 30 phys
-ERUPTION FIRE 150 100 5 spec
-LEAFAGE GRASS 40 100 40 phys
-U_TURN BUG 70 100 20 phys
-VICE_GRIP NORMAL 55 100 30 phys
-HEAT_WAVE FIRE 95 90 10 spec
-STRUGGLE_BUG BUG 50 100 20 spec
-FREEZE_DRY ICE 70 100 20 spec
-SCALD WATER 80 100 15 spec
-VOLT_SWITCH ELECTRIC 70 100 20 spec
-PARABOLIC_CHARGE ELECTRIC 65 100 20 spec drain=0.5
-IRON_TAIL STEEL 100 75 15 phys
-NUZZLE ELECTRIC 20 100 20 phys par=100
-FIRE_PUNCH FIRE 75 100 15 phys
-THIEF DARK 60 100 25 phys
-AQUA_CUTTER WATER 70 100 20 phys
-GRASS_KNOT GRASS 60 100 20 spec
-RAZOR_SHELL WATER 75 95 10 phys
-ZEN_HEADBUTT PSYCHIC 80 90 15 phys
-ROCK_SMASH FIGHTING 40 100 15 phys
-ASSURANCE DARK 60 100 10 phys
-LOW_KICK FIGHTING 60 100 20 phys
-INFESTATION BUG 20 100 20 spec
-SLAM NORMAL 80 75 20 phys
-CHARGE_BEAM ELECTRIC 50 90 10 spec
-PAY_DAY NORMAL 40 100 20 phys
-SLUDGE POISON 65 100 20 spec psn=30
-VENOSHOCK POISON 65 100 10 spec x2=psn
-DRAGON_TAIL DRAGON 60 90 10 phys
-ANCIENT_POWER ROCK 60 100 5 spec
-AVALANCHE ICE 60 100 10 phys
-INCINERATE FIRE 60 100 15 spec
-SHOCK_WAVE ELECTRIC 60 - 20 spec
-STOMPING_TANTRUM GROUND 75 100 10 phys
-PSYCHO_CUT PSYCHIC 70 100 20 phys
-AQUA_TAIL WATER 90 90 10 phys
-SUCKER_PUNCH DARK 70 100 5 phys prio=1
-FIRE_SPIN FIRE 35 85 15 spec
-ACROBATICS FLYING 55 100 15 phys
-HEAVY_SLAM STEEL 80 100 10 phys
-WATERFALL WATER 80 100 15 phys
-CROSS_CHOP FIGHTING 100 80 5 phys
-MACH_PUNCH FIGHTING 40 100 30 phys prio=1
-CROSS_POISON POISON 70 100 20 phys psn=10
-FORCE_PALM FIGHTING 60 100 10 phys par=30
-POISON_TAIL POISON 50 100 25 phys psn=10
-HEAT_CRASH FIRE 80 100 10 phys
-THRASH NORMAL 120 100 10 phys
-FIRE_BLAST FIRE 110 85 5 spec
-BONE_RUSH GROUND 75 90 10 phys
-ROCK_BLAST ROCK 75 90 10 phys
-X_SCISSOR BUG 80 100 15 phys
-ENERGY_BALL GRASS 90 100 10 spec
-DIVE WATER 80 100 10 phys
-FROST_BREATH ICE 60 90 10 spec
-MUDDY_WATER WATER 90 85 10 spec
-GEAR_GRIND STEEL 100 85 15 phys
-STONE_EDGE ROCK 100 80 5 phys
-CLOSE_COMBAT FIGHTING 120 100 5 phys
-DRAGON_RUSH DRAGON 100 75 10 phys
-LEECH_LIFE BUG 80 100 10 phys drain=0.5
-LIQUIDATION WATER 85 100 10 phys
-DRAIN_PUNCH FIGHTING 75 100 10 phys drain=0.5
-RAGE_FIST GHOST 50 100 10 phys
-WAVE_CRASH WATER 120 100 10 phys recoil=0.33
-DRILL_PECK FLYING 80 100 20 phys
-LAVA_PLUME FIRE 80 100 15 spec
-BLIZZARD ICE 110 70 5 spec
-GUNK_SHOT POISON 120 80 5 phys psn=30
-AURA_SPHERE FIGHTING 80 - 20 spec
-STEEL_WING STEEL 70 90 25 phys
-BONEMERANG GROUND 100 90 10 phys
-WILD_CHARGE ELECTRIC 90 100 15 phys recoil=0.25
-NIGHT_DAZE DARK 85 95 10 spec
-OUTRAGE DRAGON 120 100 10 phys
-POISON_FANG POISON 50 100 15 phys psn=50 toxic
-HORN_LEECH GRASS 75 100 10 phys drain=0.5
-ZAP_CANNON ELECTRIC 120 50 5 spec par=100
-CRABHAMMER WATER 100 90 10 phys
-POWER_WHIP GRASS 120 85 10 phys
-INFERNO FIRE 100 50 5 spec
-FOUL_PLAY DARK 95 100 15 phys
-HIGH_HORSEPOWER GROUND 95 95 10 phys
-OVERHEAT FIRE 130 90 5 spec
-BRAVE_BIRD FLYING 120 100 15 phys recoil=0.33
-BOOMBURST NORMAL 140 100 10 spec
-FLY FLYING 90 95 15 phys
-WEATHER_BALL NORMAL 50 100 10 spec
-HIGH_JUMP_KICK FIGHTING 130 90 10 phys
-LEER NORMAL - 100 30 status stat=def:-1:foe
-SCREECH NORMAL - 85 40 status stat=def:-2:foe
-SCARY_FACE NORMAL - 100 10 status stat=spe:-2:foe
-CHARM FAIRY - 100 20 status stat=atk:-2:foe
-BABY_DOLL_EYES FAIRY - 100 30 status prio=1 stat=atk:-1:foe
-FEATHER_DANCE FLYING - 100 15 status stat=atk:-2:foe
-FAKE_TEARS DARK - 100 20 status stat=spd:-2:foe
-METAL_SOUND STEEL - 85 40 status stat=spd:-2:foe
-EERIE_IMPULSE ELECTRIC - 100 15 status stat=spa:-2:foe
-NOBLE_ROAR NORMAL - 100 30 status stat=atk:-1:foe
-PLAY_NICE NORMAL - - 20 status stat=atk:-1:foe
-HARDEN NORMAL - - 30 status stat=def:1:self
-WITHDRAW WATER - - 40 status stat=def:1:self
-DEFENSE_CURL NORMAL - - 40 status stat=def:1:self
-IRON_DEFENSE STEEL - - 15 status stat=def:2:self
-ACID_ARMOR POISON - - 20 status stat=def:2:self
-COSMIC_POWER PSYCHIC - - 20 status stat=def:1:self
-AGILITY PSYCHIC - - 30 status stat=spe:2:self
-ROCK_POLISH ROCK - - 20 status stat=spe:2:self
-AUTOTOMIZE STEEL - - 15 status stat=spe:2:self
-SHIFT_GEAR STEEL - - 10 status stat=spe:2:self
-SWORDS_DANCE NORMAL - - 20 status stat=atk:2:self
-HOWL NORMAL - - 40 status stat=atk:1:self
-HONE_CLAWS DARK - - 15 status stat=atk:1:self
-WORK_UP NORMAL - - 30 status stat=atk:1:self
-BULK_UP FIGHTING - - 20 status stat=atk:1:self
-COIL POISON - - 20 status stat=atk:1:self
-DRAGON_DANCE DRAGON - - 20 status stat=atk:1:self
-GEAR_UP STEEL - - 20 status stat=atk:1:self
-CALM_MIND PSYCHIC - - 20 status stat=spa:1:self
-QUIVER_DANCE BUG - - 20 status stat=spa:1:self
-NASTY_PLOT DARK - - 20 status stat=spa:2:self
-AMNESIA PSYCHIC - - 20 status stat=spd:2:self
-CHARGE ELECTRIC - - 20 status stat=spd:1:self
-RECOVER NORMAL - - 5 status heal=0.5
-ROOST FLYING - - 5 status heal=0.5
-SYNTHESIS GRASS - - 5 status heal=0.5
-MOONLIGHT FAIRY - - 5 status heal=0.5
-SLACK_OFF NORMAL - - 5 status heal=0.5
-MILK_DRINK NORMAL - - 5 status heal=0.5
-LIFE_DEW WATER - - 10 status heal=0.25
-SLEEP_POWDER GRASS - 75 15 status slp=100 powder
-STUN_SPORE GRASS - 75 30 status par=100 powder
-POISON_POWDER POISON - 75 35 status psn=100 powder
-SPORE GRASS - 100 15 status slp=100 powder
-THUNDER_WAVE ELECTRIC - 90 20 status par=100
-GLARE NORMAL - 100 30 status par=100
-HYPNOSIS PSYCHIC - 60 20 status slp=100
-SING NORMAL - 55 15 status slp=100
-POISON_GAS POISON - 90 40 status psn=100
-TOXIC POISON - 90 10 status psn=100 toxic
-TOXIC_THREAD POISON - 100 20 status psn=100
-YAWN NORMAL - - 10 status yawn
-PSYCHO_SHIFT PSYCHIC - 100 10 status shift
-DREAM_EATER PSYCHIC 100 100 15 spec drain=0.5 dream
-SNORE NORMAL 50 100 15 spec snore
-REST PSYCHIC - - 5 status heal=1 rest`;
-const MOVE_NAMES = { DOUBLE_EDGE: 'Double-Edge', MUD_SLAP: 'Mud-Slap', U_TURN: 'U-turn', X_SCISSOR: 'X-Scissor', BABY_DOLL_EYES: 'Baby-Doll Eyes' };
-for (const line of MOVE_LIST.split('\n')) {
-  const [id, type, power, acc, pp, cat, ...ex] = line.trim().split(' ');
-  if (MOVES[id]) continue;
-  const mv = MOVES[id] = { name: MOVE_NAMES[id] ?? id.split('_').map(w => w[0] + w.slice(1).toLowerCase()).join(' '), type, pp: +pp, cat };
-  if (power !== '-') mv.power = +power;
-  if (acc !== '-') mv.acc = +acc;
-  for (const e of ex) { const [k, v] = e.split('='); mv[k] = k === 'stat' ? v.split(':').map((x, i) => i === 1 ? +x : x) : v === undefined ? 1 : k === 'x2' ? v : +v; }
-}
 // status conditions: [badge, colour, "is ___", what the inflicting line says]. A condition stays after the battle (saved with the
 // Pokémon) until a cure item, the Pokémon Center or fainting clears it
 const STATUS = { psn: ['PSN', '#a65ac8', 'poisoned', 'was poisoned!'], par: ['PAR', '#d9a514', 'paralyzed', 'is paralyzed! It may be unable to move!'], slp: ['SLP', '#7d8798', 'asleep', 'fell asleep!'] };
-const AILS = Object.keys(STATUS), ailOf = mv => AILS.find(s => mv[s]);
-const cure = m => { delete m.status; delete m.sleep; delete m.tox; }; // tox: the bad-poison counter, for this battle only
+const typesOf = m => SPECIES[m.key].types;
 // base stats: HP, Atk, Def, SpA, SpD, Spe
 const SPECIES = {
   PIKACHU: { name: 'PIKACHU', types: ['ELECTRIC'], base: [35, 55, 40, 50, 50, 90], learn: '1 THUNDER_SHOCK 1 GROWL 1 TAIL_WHIP 1 QUICK_ATTACK 12 ELECTRO_BALL 16 FEINT 20 SPARK 24 AGILITY 28 IRON_TAIL 32 DISCHARGE 36 THUNDERBOLT 44 THUNDER', exp: 112, rate: 190, gr: 4, make: makePikachu, face: 0.82, scale: 1 },
@@ -4669,13 +4324,9 @@ function loadSpeciesModel(key) { // resolves true once XY[key] holds the prepare
 const WILD_TABLE = [['PIDGEY', 30], ['RATTATA', 30], ['CATERPIE', 15], ['WEEDLE', 15], ['ODDISH', 10]];
 const STAT_NAME = { atk: 'Attack', def: 'Defense', spa: 'Sp. Atk', spd: 'Sp. Def', spe: 'Speed', acc: 'accuracy' };
 function rollWild() { let r = rnd() * 100; for (const [k, w] of WILD_TABLE) if ((r -= w) < 0) return k; return 'PIDGEY'; }
-function calcStats(m) {
-  const b = SPECIES[m.key].base;
-  m.maxHp = Math.floor((2 * b[0] + 15) * m.level / 100) + m.level + 10;
-  ['atk', 'def', 'spa', 'spd', 'spe'].forEach((s, i) => (m[s] = Math.floor((2 * b[i + 1] + 15) * m.level / 100) + 5));
-}
+function calcStats(m) { Object.assign(m, statsAt(SPECIES[m.key].base, m.level)); }
 function makeMon(key, level) {
-  const sp = SPECIES[key], m = { key, level, exp: level ** 3, moves: movesAt(sp, level).map(id => ({ id, pp: MOVES[id].pp })) };
+  const sp = SPECIES[key], m = { key, level, exp: expAt(level), moves: movesAt(sp, level).map(id => ({ id, pp: MOVES[id].pp })) };
   calcStats(m); m.hp = m.maxHp;
   if (sp.gr >= 0) m.gender = Math.random() * 8 < sp.gr ? 'female' : 'male'; // Math.random: makeMon also runs during world generation, which must not shift rnd()
   loadSpeciesModel(key);
@@ -4704,7 +4355,7 @@ function saveGame() { try { localStorage.setItem(SAVE_KEY, JSON.stringify(snapsh
 function unpackMon(s) { // saved data is untrusted: unknown species and moves are dropped, numbers are clamped
   if (!Object.hasOwn(SPECIES, s?.key)) return null;
   const level = clamp(Math.floor(+s.level) || 1, 1, 100), m = makeMon(s.key, level);
-  m.exp = clamp(Math.floor(+s.exp) || 0, level ** 3, level < 100 ? (level + 1) ** 3 - 1 : level ** 3);
+  m.exp = clamp(Math.floor(+s.exp) || 0, expAt(level), level < 100 ? expAt(level + 1) - 1 : expAt(level));
   const moves = (Array.isArray(s.moves) ? s.moves : []).filter(x => Object.hasOwn(MOVES, x?.id)).slice(0, 4).map(x => ({ id: x.id, pp: clamp(Math.floor(+x.pp) || 0, 0, MOVES[x.id].pp) }));
   if (moves.length) m.moves = moves;
   m.hp = clamp(Math.floor(+s.hp) || 0, 0, m.maxHp);
@@ -4749,7 +4400,7 @@ window.debug = { // testing hooks, from the console or the ` key: debug.give('KI
     key = String(key).toUpperCase().replace(/[- ]/g, '_'); level = Math.floor(+level);
     if (!Object.hasOwn(SPECIES, key) || !(level >= 1 && level <= 100)) return console.warn(`debug.give: unknown species "${key}" or level ${level}`);
     const m = makeMon(key, level);
-    if (level < 100) m.exp = (level + 1) ** 3 - 1; // one point short of the next level, so a single win levels it up
+    if (level < 100) m.exp = expAt(level + 1) - 1; // one point short of the next level, so a single win levels it up
     if (nick) m.nick = cleanNick(nick) || undefined;
     if (m.gender && (gender === 'male' || gender === 'female')) m.gender = gender;
     party.unshift(m); if (party.length > 6) pcBox.push(party.pop());
@@ -6471,9 +6122,6 @@ function spawnModel(mon, pos, look, scale) {
 const dropModel = m => m && BT.scene.remove(m);
 const modelOf = m => m === BT.foe ? BT.foeModel : BT.meModel;
 const who = m => m === BT.foe ? (BT.opts.trainer ? 'The foe ' : BT.opts.foeTitle ?? 'Wild ') + nm(m) : nm(m); // foeTitle: a story Pokémon's own epithet
-const freshStages = () => ({ atk: 0, def: 0, spa: 0, spd: 0, spe: 0, acc: 0 });
-const stageMul = s => s >= 0 ? (2 + s) / 2 : 2 / (2 - s);
-const accMul = s => s >= 0 ? (3 + s) / 3 : 3 / (3 - s);
 
 // ============================================================ battle: HUD, messages, menus
 function setBar(id, f) { const b = $(id); b.style.width = clamp(f, 0, 1) * 100 + '%'; b.className = hpClass(f); }
@@ -6484,7 +6132,7 @@ function drawBoxes() {
   if (m) {
     $('meName').textContent = nm(m); $('meLv').textContent = 'Lv' + m.level; setBar('meHp', m.disp / m.maxHp); setSt('meSt', m);
     $('meHpNum').textContent = `${Math.ceil(m.disp)} / ${m.maxHp}`;
-    const lo = m.level ** 3, hi = (m.level + 1) ** 3; $('meExp').style.width = clamp((m.expDisp - lo) / (hi - lo), 0, 1) * 100 + '%';
+    const lo = expAt(m.level), hi = expAt(m.level + 1); $('meExp').style.width = clamp((m.expDisp - lo) / (hi - lo), 0, 1) * 100 + '%';
   }
 }
 const BM = { text: '', shown: 0, res: null, idle: 0 };
@@ -6737,31 +6385,18 @@ const SND = {
 };
 
 // ============================================================ battle: rules
-function damage(att, def, mv) {
-  const phys = mv.cat === 'phys';
-  const A = (phys ? att.atk : att.spa) * stageMul(att.st[phys ? 'atk' : 'spa']);
-  const D = (phys ? def.def : def.spd) * stageMul(def.st[phys ? 'def' : 'spd']);
-  let eff = 1; for (const t of SPECIES[def.key].types) eff *= EFF[mv.type]?.[t] ?? 1;
-  const crit = rnd() < 1 / 16, stab = SPECIES[att.key].types.includes(mv.type) ? 1.5 : 1;
-  const power = mv.power * (def.status && (mv.x2 === 'any' || mv.x2 === def.status) ? 2 : 1); // Hex, Venoshock
-  const base = Math.floor(Math.floor(Math.floor(2 * att.level / 5 + 2) * power * A / D) / 50) + 2;
-  return { dmg: eff ? Math.max(1, Math.floor(base * (crit ? 1.5 : 1) * stab * eff * rr(0.85, 1))) : 0, eff, crit };
-}
+const damage = (att, def, mv) => rollDamage(att, def, mv, typesOf(att), typesOf(def), rnd);
 async function setHp(m, v) {
   v = clamp(Math.round(v), 0, m.maxHp);
   const from = m.disp ?? m.hp; m.hp = v;
   if (!v) { cure(m); delete m.yawn; } // fainting clears a status condition
   await tween(0.5, t => (m.disp = from + (v - from) * t));
 }
-function immune(m, s, mv) { // Poison and Steel types can't be poisoned, Electric types can't be paralyzed; Thunder Wave misses Ground, powders miss Grass
-  const t = SPECIES[m.key].types;
-  return (s === 'psn' && (t.includes('POISON') || t.includes('STEEL'))) || (s === 'par' && t.includes('ELECTRIC'))
-    || (mv.cat === 'status' && mv.type === 'ELECTRIC' && t.includes('GROUND')) || (mv.powder && t.includes('GRASS'));
-}
+const immune = (m, s, mv) => immuneTo(typesOf(m), s, mv);
 const STATUS_FX = { psn: () => SND.splat(0.7), par: () => SND.zap(0.3), slp: () => SND.psychic(0.9) };
 function statusFx(m) { const tm = modelOf(m); STATUS_FX[m.status](); if (tm) burst(tm.position.clone().add(new V3(0, 0.6 * tm.userData.s, 0)), STATUS[m.status][1], { n: 26, up: 1, grav: 0.5, speed: 1, life: 0.8 }); }
 async function inflict(m, s, tox) {
-  m.status = s; if (s === 'slp') m.sleep = 1 + Math.floor(rnd() * 3); // asleep for 1-3 of its own turns
+  m.status = s; if (s === 'slp') m.sleep = rollSleep(rnd);
   if (s === 'psn' && tox) m.tox = 1;
   statusFx(m); await wait(0.3);
   await bsay(`${who(m)} ${m.tox ? 'was badly poisoned!' : STATUS[s][3]}`);
@@ -6771,7 +6406,7 @@ async function canAct(m, mv) { // sleep and paralysis can stop a move before it 
     if (m.sleep > 0) { m.sleep--; statusFx(m); await bsay(`${who(m)} is fast asleep.`); return !!mv.snore; }
     cure(m); await bsay(`${who(m)} woke up!`);
   }
-  if (m.status === 'par' && rnd() < 0.25) { statusFx(m); await bsay(`${who(m)} is paralyzed! It can't move!`); return false; }
+  if (m.status === 'par' && paralysisStops(rnd)) { statusFx(m); await bsay(`${who(m)} is paralyzed! It can't move!`); return false; }
   return true;
 }
 async function useMove(att, def, id) {
@@ -6783,14 +6418,14 @@ async function useMove(att, def, id) {
   await bsay(`${who(att)} used ${mv.name}!`);
   if (mv.snore && att.status !== 'slp') return bsay('But it failed!'); // it woke up first
   if (mv.dream && def.status !== 'slp') return bsay(`It doesn't affect ${who(def)}...`);
-  const missed = !self && mv.acc !== undefined && rnd() * 100 >= mv.acc * accMul(att.st.acc), show = MOVE_FX[id]; // "-" accuracy never misses, even after Sand Attack
+  const missed = !self && !accuracyHits(mv, att.st.acc, rnd), show = MOVE_FX[id];
   if (missed || !show) await (mv.cat === 'phys' ? lunge(am, dm) : hop(am));
   if (missed) { SND.whoosh(0.3, 1.5, 0.3); return bsay(`${who(att)}'s attack missed!`); }
   if (mv.cat === 'status') {
     if (show) await show(am, dm);
     if (mv.heal) {
       if (att.hp >= att.maxHp) return bsay(`${who(att)}'s HP is full!`);
-      SND.stat(true); await setHp(att, att.hp + Math.max(1, Math.floor(att.maxHp * mv.heal)));
+      SND.stat(true); await setHp(att, att.hp + share(att.maxHp, mv.heal));
       if (mv.rest) { cure(att); att.status = 'slp'; att.sleep = 2; statusFx(att); return bsay(`${who(att)} slept and became healthy!`); } // Rest also replaces any other condition
       return bsay(`${who(att)} regained health!`);
     }
@@ -6807,7 +6442,7 @@ async function useMove(att, def, id) {
       if (mv.shift) cure(att);
       return inflict(def, ail, tox);
     }
-    const [stat, delta] = mv.stat, cur = target.st[stat], next = clamp(cur + delta, -6, 6), tm = modelOf(target);
+    const [stat, delta] = mv.stat, cur = target.st[stat], next = clampStage(cur, delta), tm = modelOf(target);
     if (next === cur) return bsay(`${who(target)}'s ${STAT_NAME[stat]} won't go any ${delta > 0 ? 'higher' : 'lower'}!`);
     target.st[stat] = next; SND.stat(delta > 0);
     burst(tm.position.clone().add(new V3(0, 0.6 * tm.userData.s, 0)), delta > 0 ? '#ff6a5a' : '#5aa8ff', { n: 32, up: delta > 0 ? 2 : -0.5, grav: delta > 0 ? 1.5 : -2.5, speed: 1.2, life: 0.9 });
@@ -6825,15 +6460,15 @@ async function useMove(att, def, id) {
   if (r.eff > 1) await bsay("It's super effective!");
   else if (r.eff < 1) await bsay("It's not very effective...");
   const ail = ailOf(mv);
-  if (ail && r.dmg > 0 && def.hp > 0 && !def.status && !immune(def, ail, mv) && rnd() * 100 < mv[ail]) await inflict(def, ail, mv.toxic);
-  if (mv.drain && att.hp < att.maxHp && r.dmg > 0) { await setHp(att, att.hp + Math.max(1, Math.floor(r.dmg * mv.drain))); await bsay(mv.dream ? `${who(def)}'s dream was eaten!` : `${who(def)} had its energy drained!`); }
-  if (mv.recoil && r.dmg > 0) { await setHp(att, att.hp - Math.max(1, Math.floor(r.dmg * mv.recoil))); await bsay(`${who(att)} was damaged by the recoil!`); }
+  if (ail && r.dmg > 0 && def.hp > 0 && !def.status && !immune(def, ail, mv) && sideEffectLands(mv, ail, rnd)) await inflict(def, ail, mv.toxic);
+  if (mv.drain && att.hp < att.maxHp && r.dmg > 0) { await setHp(att, att.hp + share(r.dmg, mv.drain)); await bsay(mv.dream ? `${who(def)}'s dream was eaten!` : `${who(def)} had its energy drained!`); }
+  if (mv.recoil && r.dmg > 0) { await setHp(att, att.hp - share(r.dmg, mv.recoil)); await bsay(`${who(att)} was damaged by the recoil!`); }
 }
 async function gainExp(m, amt) {
   await bsay(`${nm(m)} gained ${amt} Exp. Points!`);
   const target = m.exp + amt;
   for (;;) {
-    const next = (m.level + 1) ** 3, to = Math.min(target, next), from = m.expDisp;
+    const next = expAt(m.level + 1), to = Math.min(target, next), from = m.expDisp;
     await tween(0.6, t => (m.expDisp = from + (to - from) * t));
     m.exp = to;
     if (m.exp < next || m.level >= 100) break;
@@ -6992,9 +6627,7 @@ async function throwBall(k = 'ball') {
   fm.visible = false;
   ball.rotation.set(0, Math.atan2(B_CAM.x - B_FOE.x, B_CAM.z - B_FOE.z), 0);
   await tween(0.4, t => { ball.position.lerpVectors(top, ground, t); ball.position.y += Math.abs(Math.sin(t * Math.PI * 2)) * (1 - t) * 0.4; });
-  const bonus = ITEMS[k].catch * (f.status === 'slp' ? 2.5 : f.status ? 1.5 : 1); // the ball, and a sleeping (or poisoned / paralyzed) target
-  const odds = Math.min(1, ((3 * f.maxHp - 2 * f.hp) * SPECIES[f.key].rate * bonus) / (3 * f.maxHp) / 255);
-  const caught = rnd() < odds, shakes = caught ? 3 : Math.min(2, Math.floor(rnd() * (1 + odds * 4)));
+  const { caught, shakes } = catchRoll(f, SPECIES[f.key].rate, ITEMS[k].catch, rnd);
   for (let k = 0; k < shakes; k++) { // each shake is a little hop with a wobble, squashing on landing
     await wait(0.35);
     await tween(0.5, t => {
@@ -7067,7 +6700,7 @@ async function checkFaint() {
     const won = !next && party.some(m => m.hp > 0); // a recoil move can knock out both sides at once: no Pokémon left is still a loss
     if (won) music('victory');
     await bsay(`${who(BT.foe)} fainted!`);
-    if (BT.me.hp > 0) await gainExp(BT.me, Math.max(1, Math.floor(SPECIES[BT.foe.key].exp * BT.foe.level / 7 * (T ? 1.5 : 1)))); // trainer Pokémon give 1.5x; none for one that fainted too (a level-up would revive it)
+    if (BT.me.hp > 0) await gainExp(BT.me, expYield(SPECIES[BT.foe.key].exp, BT.foe.level, !!T)); // none for one that fainted too (a level-up would revive it)
     if (next) await foeIn(next, `${T.name} sent out ${nm(next)}!`);
     else if (won) {
       if (T) await bsay(`You defeated ${T.name}!`);
@@ -7093,7 +6726,7 @@ async function endOfTurn(out = [BT.me, BT.foe]) {
   for (const m of out) {
     if (m.hp <= 0 || (m !== BT.me && m !== BT.foe)) continue; // a fainted one may have been replaced already
     if (m.status === 'psn') {
-      statusFx(m); await setHp(m, m.hp - Math.max(1, Math.floor(m.maxHp * (m.tox ? Math.min(15, m.tox++) : 2) / 16)));
+      statusFx(m); const dmg = poisonDamage(m.maxHp, m.tox); if (m.tox) m.tox++; await setHp(m, m.hp - dmg);
       await bsay(`${who(m)} is hurt by poison!`);
       const r = await checkFaint(); if (r) return r;
       if (m.hp <= 0) continue;
@@ -7105,15 +6738,12 @@ async function endOfTurn(out = [BT.me, BT.foe]) {
 async function foeTurn(id) { const out = [BT.me, BT.foe]; await useMove(BT.foe, BT.me, id); return (await checkFaint()) || endOfTurn(out); }
 async function doTurn(act) {
   const me = BT.me, foe = BT.foe;
-  const wasted = x => { const mv = MOVES[x.id], ail = mv.cat === 'status' && ailOf(mv); // the foe skips moves that can't work: no Sleep Powder on a target that already has a condition or is immune, no healing at full HP...
-    return (ail && (me.status || immune(me, ail, mv))) || (mv.heal && foe.hp >= foe.maxHp) || (mv.yawn && (me.status || me.yawn))
-      || (mv.shift && (!foe.status || me.status || immune(me, foe.status, mv))) || (mv.dream && me.status !== 'slp') || (mv.snore && foe.status !== 'slp'); };
-  const usable = foe.moves.filter(x => x.pp > 0), smart = usable.filter(x => !wasted(x)), foeId = (smart.length ? pick(smart) : usable.length ? pick(usable) : { id: 'TACKLE' }).id;
+  const foeId = foeMove(foe, me, typesOf(me), rnd);
   if (act.kind === 'run' && BT.opts.trainer) { await bsay("No! There's no running from a Trainer battle!"); return null; }
   if (act.kind === 'ball' && (BT.opts.trainer || BT.opts.noCatch)) { await bsay(BT.opts.trainer ? "The Trainer blocked the Ball! Don't be a thief!" : `${nm(BT.foe)} is too distressed to be caught!`); return null; }
   if (act.kind === 'run') {
     BT.tries++;
-    if (me.spe >= foe.spe || rnd() * 256 < me.spe * 128 / Math.max(1, foe.spe) + 30 * BT.tries) { await bsay('Got away safely!'); return 'ran'; }
+    if (escapes(me.spe, foe.spe, BT.tries, rnd)) { await bsay('Got away safely!'); return 'ran'; }
     await bsay("Can't escape!");
     return foeTurn(foeId);
   }
@@ -7129,9 +6759,7 @@ async function doTurn(act) {
   }
   if (act.kind === 'ball') { bag[act.item]--; if (await throwBall(act.item)) { music('victory'); return 'caught'; } return foeTurn(foeId); }
   if (act.kind === 'switch') { await withdraw(); await sendOut(party[act.idx]); return foeTurn(foeId); }
-  const mine = [me, foe, act.id], theirs = [foe, me, foeId], spd = m => m.spe * stageMul(m.st.spe) * (m.status === 'par' ? 0.5 : 1); // paralysis halves Speed
-  const pm = MOVES[act.id].prio || 0, pf = MOVES[foeId].prio || 0, sm = spd(me), sf = spd(foe);
-  const meFirst = pm !== pf ? pm > pf : sm !== sf ? sm > sf : rnd() < 0.5;
+  const mine = [me, foe, act.id], theirs = [foe, me, foeId], meFirst = movesFirst(me, foe, MOVES[act.id], MOVES[foeId], rnd);
   for (const [a, d, id] of meFirst ? [mine, theirs] : [theirs, mine]) {
     await useMove(a, d, id);
     const r = await checkFaint();
